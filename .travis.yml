@@ -2,7 +2,7 @@ language: python # Set the build language to Python
 
 python: 3.6 # Set the version of Python to use
 
-branches: master # Set the branch to build from
+branches: main # Set the branch to build from
 
 install:
   - pip install mkdocs mkdocs-material pymdown-extensions pygments mkdocs-awesome-pages-plugin # Install the required dependencies
@@ -18,4 +18,4 @@ deploy: # Deploy documentation to Github in the gh_pages branch
   github_token: $GITHUB_API_KEY
   local_dir: site
   on:
-    branch: master
+    branch: main
