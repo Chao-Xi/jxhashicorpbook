@@ -1,0 +1,30 @@
+site_name: Jacob Hashicorp Book
+site_description: "Jacob's Hashicorp Tutorial Book"
+site_author: "Jacob Xi"
+copyright: "Copyright &copy; 2021-9999 Jacob Xi"
+site_url: "https://chao-xi.github.io/jxhashicorpbook/"
+
+plugins:
+  - search # necessary for search to work
+  - awesome-pages
+
+nav:
+  - 'Welcome': "index.md"
+
+repo_url: https://github.com/Chao-Xi/jxhashicorpbook.git
+repo_name: "jxhashicorpbook"
+
+theme: 
+  language: zh
+  name: 'material'
+  include_sidebar: true
+  logo: 'images/logo.jpeg'
+  favicon: 'images/logo.jpeg'
+  feature:
+    tabs: false
+  palette:
+    primary: 'purple'
+    accent: 'purple'
+  i18n:
+    prev: 'Previous'
+    next: 'Next'
