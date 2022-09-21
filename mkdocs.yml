@@ -10,6 +10,8 @@ plugins:
 
 nav:
   - 'Welcome': "index.md"
+  - 'Vault 云教程':
+    - '1 Hashcorp Vault 基础使用教程': 'vault1/1Vault_basic.md'
 
 repo_url: https://github.com/Chao-Xi/jxhashicorpbook.git
 repo_name: "jxhashicorpbook"
