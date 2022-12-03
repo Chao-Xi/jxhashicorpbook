@@ -12,6 +12,13 @@ nav:
   - 'Welcome': "index.md"
   - 'Vault 云教程':
     - '1 Hashcorp Vault 基础使用教程': 'vault1/1Vault_basic.md'
+    - '2 在 Kubernetes 读取 Vault 中的机密信息': 'vault1/2vault_k8s.md'
+  - 'Hashicorp Certified Vault Associate':
+    - 'L1 Vault Associate: Introduction': 'vault2/1vaba_intro.md'
+    - 'L2 Authentication and Policies': 'vault2/2vaba_auth_poly.md'
+    - 'L3 Vault Token': 'vault2/3vaba_token.md'
+    - 'L4 Using Secrets Engines**': 'vault2/4vaba_engines.md'
+    - 'L5 Using Vault Leases': 'vault2/5vaba_lease.md'
 
 repo_url: https://github.com/Chao-Xi/jxhashicorpbook.git
 repo_name: "jxhashicorpbook"
