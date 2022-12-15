@@ -24,7 +24,10 @@ nav:
     - 'L2 Vault a Deployment Model': 'vault3/2dev_model.md'
     - 'L3 Deploying Vault Server': 'vault3/3deploy_valut.md'
     - 'L4 Managing Encryption and Seal Keys': 'vault3/4encryption_key.md'
-
+    - 'L5 onfiguring High Availability': 'vault3/5conf_ha.md'
+    - 'L6 Configuring Basic Authentication': 'vault3/6basic_auth.md'
+    - 'L7 Using Secrets Engines': 'vault3/7vaba_secret_engine.md'
+    - 'L8 Configuring Auditing and Monitoring': 'vault3/8vaba_monitor.md'
 
 repo_url: https://github.com/Chao-Xi/jxhashicorpbook.git
 repo_name: "jxhashicorpbook"

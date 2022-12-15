@@ -200,7 +200,7 @@ The Cubbyhole is a special type of secrets engine, and it's meant to **provide p
 	* Generate hashes
 	* Create random bytes
 
-* **Engine manages keys**
+* **Engine manages ke ys**
 
 ### **Desmonstrating  Secret Engine**
 
@@ -1102,4 +1102,4 @@ token               3f21d7ef-9893-63e4-4139-f319b828adcd
 * Secrets engines must be enabled, tuned, and configured. They can be moved, but will lose all lease data
 * **The Key Value engine** has two versions and its own command set:  **vault kv**
 * **Interacting with secrets engines** at the command line uses read, write, list, and delete.
-* **Response wrapping creates a cubbyhole to store data and a single-use token to retrieve it**.
+	* **Response wrapping creates a cubbyhole to store data and a single-use token to retrieve it**.
