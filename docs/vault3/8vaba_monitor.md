@@ -306,6 +306,9 @@ vault secrets enable -path=audittest kv
 
 ![Alt Image Text](../images/vt3_8_8.png "Body image")
 
+![Alt Image Text](../images/vt3_8_9.png "Body image")
+
+
 ## Vault Hardening
 
 ### System level

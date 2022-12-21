@@ -19,7 +19,7 @@ nav:
     - 'L3 Vault Token': 'vault2/3vaba_token.md'
     - 'L4 Using Secrets Engines': 'vault2/4vaba_engines.md'
     - 'L5 Using Vault Leases': 'vault2/5vaba_lease.md'
-  - 'Installing&Configuring HashiCorp Vault':
+  - 'Installing Configuring Vault':
     - 'L1 HashiCorp Vault Overview and Installation': 'vault3/1intro.md'
     - 'L2 Vault a Deployment Model': 'vault3/2dev_model.md'
     - 'L3 Deploying Vault Server': 'vault3/3deploy_valut.md'
@@ -28,6 +28,9 @@ nav:
     - 'L6 Configuring Basic Authentication': 'vault3/6basic_auth.md'
     - 'L7 Using Secrets Engines': 'vault3/7vaba_secret_engine.md'
     - 'L8 Configuring Auditing and Monitoring': 'vault3/8vaba_monitor.md'
+  - 'Managing Access and Secrets(Adv.)':
+    - 'L1 Secrets in HashiCorp Vault Introduction': 'vault4/1mag_vt_intro.md'
+    - 'L2 Installing and Configuring Authentication Methods': 'vault4/2vt_auth_method.md'
 
 repo_url: https://github.com/Chao-Xi/jxhashicorpbook.git
 repo_name: "jxhashicorpbook"
