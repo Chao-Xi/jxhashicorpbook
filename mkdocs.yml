@@ -31,6 +31,7 @@ nav:
   - 'Managing Access and Secrets(Adv.)':
     - 'L1 Secrets in HashiCorp Vault Introduction': 'vault4/1mag_vt_intro.md'
     - 'L2 Installing and Configuring Authentication Methods': 'vault4/2vt_auth_method.md'
+    - 'L3 Working with Tokens': 'vault4/3vt_token.md'
 
 repo_url: https://github.com/Chao-Xi/jxhashicorpbook.git
 repo_name: "jxhashicorpbook"
