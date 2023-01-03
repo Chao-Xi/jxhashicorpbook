@@ -33,6 +33,13 @@ nav:
     - 'L2 Installing and Configuring Authentication Methods': 'vault4/2vt_auth_method.md'
     - 'L3 Working with Tokens': 'vault4/3vt_token.md'
     - 'L4 Managing Secrets with Secrets Engines': 'vault4/3vt_token.md'
+  - 'Integrating with DevOps':
+    - 'L1 Accessing Secrets in CI/CD Pipelines': 'vault5/1cicd_pipeline.md'
+    - 'L2 Securely Introducing Clients Using Vault Agent': 'vault5/2vault_agent.md'
+    - 'L3 Integrating Vault with Terraform & Nomad': 'vault5/3vault_tf_nd.md'
+    - 'L4 Integrating Vault with Consul': 'vault5/4vault_consul.md'
+    - 'L5 Authenticating Using Cloud Machine Identity': 'vault5/5vault_cloud.md'
+    - 'L6 Integrating Vault with Kubernetes': 'vault5/6vault_k8s.md'
 
 repo_url: https://github.com/Chao-Xi/jxhashicorpbook.git
 repo_name: "jxhashicorpbook"
