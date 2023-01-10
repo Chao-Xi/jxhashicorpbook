@@ -894,7 +894,7 @@ Code: 403. Errors:
 
  Seems to work for listing, let's try reading some secrets
  
- ```
+```
  $ vault kv get accounting/apitokens/d101
 ========= Secret Path =========
 accounting/data/apitokens/d101
