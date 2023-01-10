@@ -285,7 +285,7 @@ vault-demo-84cc6585fd-nkxnz                          2/2     Running     0      
 
 在 `Pod` 中自动添加一个 `vault-agent` 的 `Sidecar `容器其实也是利用了 `Mutating Admission Webhook` 来实现的，和 `Istio` 实现的机制是一样的：
 
-![Alt Image Text](images/1_2.png "Body image")
+![Alt Image Text](../images/1_2.png "Body image")
 
 现在我们可以查看 `vault-agent `容器的日志：
 
