@@ -40,6 +40,11 @@ nav:
     - 'L4 Integrating Vault with Consul': 'vault5/4vault_consul.md'
     - 'L5 Authenticating Using Cloud Machine Identity': 'vault5/5vault_cloud.md'
     - 'L6 Integrating Vault with Kubernetes': 'vault5/6vault_k8s.md'
+  - 'Ops on Vault Server':
+    - 'L1 Managing the Encryption Key': 'vault6/1encrypt_key.md'
+    - 'L2 Managing the Storage Backend': 'vault6/2bak_storage.md'
+    - 'L3 Managing the Vault Server during an Incident': 'vault6/3incident.md'
+    - 'L4 Managing External Plugins and Server Upgrades': 'vault6/4Plugins.md'
 
 repo_url: https://github.com/Chao-Xi/jxhashicorpbook.git
 repo_name: "jxhashicorpbook"
