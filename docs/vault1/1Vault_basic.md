@@ -1,4 +1,4 @@
-# **1 Hashcorp Vault 基础使用教程**
+# **L1 Hashcorp Vault 基础使用教程**
 
 我们在工作中是如何管理大量的 Secret 信息的？（比如笔者的项目中会涉及到对 OpenSSH 的秘钥及口令存储、以及对此的定时轮转及外部调用）
 
@@ -18,7 +18,6 @@
 此外，KMS（Key Management Service，云服务居多）也是较好的 Secret 管理实践。vault 项目源码 在此(https://github.com/hashicorp/vault)
 
 针对此类产品，需要着重关注以下几点：
-
 
 * Secret 的存储方式，支持的存储后端
 * Secret 的加密方式及算法
@@ -59,13 +58,11 @@ vault 的架构如下：
 * Core：负责处理审核代理（Audit brok）的请求及响应日志，将请求发送到所有已配置的审核设备（Audit devices）
 * **Policy store：负责管理和存储 ACL Policies，由 Core 进行 ACL Policy 的检查**
 
-
 ### **Vault 的数据流**
 
 ![Alt Image Text](../images/va1_1_3.png "Body image")
 
 ## **2 Vault 的主要运行流程**
-
 
 ### **Step1：数据存储及加密解密**
 
@@ -79,7 +76,6 @@ vault 的架构如下：
 
 Master key 和 Encryption Key 的关系如下图所示：
 
-
 ![Alt Image Text](../images/va1_1_4.png "Body image")
 
 ### **Step2：认证 && 权限管理**
@@ -89,16 +85,15 @@ Master key 和 Encryption Key 的关系如下图所示：
 * **适合用户：用户名 / 密码、LDAP 认证等，同时用户需要被授予合适的权限用来访问 Vault**
 * **适合应用：Public/Private keys、Tokens 或者 Jwt Token 等**
 
-
 此一般流程如下：
 
 1. 客户端发起身份验证请求，该请求流经 Core 模块并进入 Auth methods，Auth methods 确定请求是否有效并返回关联策略（Policies）的列表。
-	* 在通过 Auth methods 完成了身份认证，并且检查的关联策略也符合授权之后，Token Store 将会生成并管理一个新的 Token， 这个 Token 会被返回给客户端，用于进行后续请求。
-	* 需要注意的是，**此 token 也都存在一个 Lease 租期（有效期），同时 Token 关联了相关的策略 Policies，这些策略将被用于验证请求的权限**。
+   * 在通过 Auth methods 完成了身份认证，并且检查的关联策略也符合授权之后，Token Store 将会生成并管理一个新的 Token， 这个 Token 会被返回给客户端，用于进行后续请求。
+   * 需要注意的是，**此 token 也都存在一个 Lease 租期（有效期），同时 Token 关联了相关的策略 Policies，这些策略将被用于验证请求的权限**。
 2. 请求经过验证后，将被路由到 Secret engine 模块。
-	* **如果 Secret engine 返回了一个 Secret（由 Vault 自动生成的 Secret）， Core 会将其注册到 Expiration manager，并给它附加一个 lease ID**。
-	* lease ID 被客户端用于更新（Renew）或吊销（Revoke）它得到的 Secret。
-	* 如果客户端允许租约（Lease）到期，Expiration manager 将自动吊销这个 Secret Token
+   * **如果 Secret engine 返回了一个 Secret（由 Vault 自动生成的 Secret）， Core 会将其注册到 Expiration manager，并给它附加一个 lease ID**。
+   * lease ID 被客户端用于更新（Renew）或吊销（Revoke）它得到的 Secret。
+   * 如果客户端允许租约（Lease）到期，Expiration manager 将自动吊销这个 Secret Token
 
 ### **Step3：Secret Engine（重要）**
 
@@ -129,7 +124,6 @@ vault/             kv           kv_e26a68a4           n/a
 
 从指令输出可知：有 4 个类型为 kv（键值对加密存储） 的引擎，分别加载到了 `kv/`、 `secret/`、`secret_bifrost/` 及 `vault/` 路径上；
 
-
 其他几个 Engine 是 Vault 内部支撑。之所以能够向指定的路径进行读写，是因为有 Secret Engine 的支持，未加载的路径是不能访问的（会报错），不能同时开启相同的路径。
 
 此外，同一个 Secret Engine 可以被加载到不同的路径下（一个 Secret Engine 类的多个实例），每个路径下的数据都是彼此独立的。
@@ -148,10 +142,9 @@ Vault 中给出了 Shamir 算法的实现，该密钥分享算法的基本思想
 
 Vault 支持 如下 的身份认证机制：
 
-1、Token 方式 Token 是 Vault 内置的验证方法，启动时即被加载，且不能禁用。	
+1、Token 方式 Token 是 Vault 内置的验证方法，启动时即被加载，且不能禁用。
 
 例如，服务器初始化时会输出 Root Token，使用 Root Token 登录的用户具有系统最高的访问权限。在 Vault 中，Token 是可继承的树型结构，此 <继承> 包括两方面的含义：
-
 
 * **持有 Token 的用户创建新的 Token（Child Token），默认 Child Token 权限和父 Token 相同（如需特别指定权限）**
 * **当撤销（Revoke）某个 Token 时，其所创建的 Child Token，以及 Child Token 的 Child Token（等等） 都会被一并删除，从树的角度不难理解**
@@ -243,7 +236,6 @@ Code: 403. Errors:
 
 从实现上看，role-id 与 secret-id 相当于应用程序的用户名和密码，但是实际上不是如此。Vault 希望用此设计来解决 Secret Zero 问题。
 
-
 3、各类认证方式比较 Token 方法比较简便易用，但其目的是为了支持自身的运行，安全性并不高。对于真正的用户 / 机器认证场景，Vault 官方推荐使用其他更加成熟的机制，例如 LDAP，Github，AppRole 认证方式。
 
 ### **Vault 授权机制**
@@ -253,7 +245,6 @@ Vault 支持多种存储后端：[https://github.com/hashicorp/vault/tree/master
 ![Alt Image Text](../images/va1_1_7.png "Body image")
 
 mysql：[https://github.com/hashicorp/vault/blob/master/plugins/database/mysql/mysql.go](https://github.com/hashicorp/vault/blob/master/plugins/database/mysql/mysql.go)
-
 
 ## **04 Vault 基本功能使用**
 
@@ -308,7 +299,6 @@ Initial Root Token: xxx-root-token
 ```
 
 3、解封 vault，查看解封状态
-
 
 ```
 [root@VM_120_245_centos ~/vault]# vault operator unseal xxx1
@@ -424,7 +414,6 @@ Code: 403. Errors:
         * permission denied
 ```
 
-
 7、查看和关闭 Secret engine
 
 ```
@@ -470,7 +459,3 @@ vault/             kv           kv_e26a68a4           n/a
 ```
 
 更多的使用可以参考官方文档：https://learn.hashicorp.com 了解更多。
-
-
-
-

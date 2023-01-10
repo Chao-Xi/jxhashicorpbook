@@ -1,7 +1,6 @@
-# **2 在 Kubernetes 读取 Vault 中的机密信息**
+# **L2 在 Kubernetes 读取 Vault 中的机密信息**
 
 在 Kubernetes 中，我们通常会使用 Secret 对象来保存密码、证书等机密内容，然而 kubeadm 缺省部署的情况下，Secret 内容是用明文方式存储在 ETCD 数据库中的。
-
 
 能够轻松的用 `etcdctl `工具获取到 `Secret` 的内容。
 
@@ -17,7 +16,6 @@ $ yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicor
 $ yum -y install vault
 ...
 ```
-
 
 安装结束后，就可以启动一个开发服务器了：
 
@@ -63,7 +61,6 @@ version          1
 ```
 
 ## **在 Kubernetes 中引入 Vault 服务**
-
 
 **在 Kubernetes 中可以为 Vault 创建 Endpoint 和 Service，用于为集群内提供服务：**
 
@@ -138,6 +135,7 @@ $ helm repo add hashicorp https://helm.releases.hashicorp.com
 $ helm install vault hashicorp/vault \
     --set "injector.externalVaultAddr=http://external-vault:8200"
 ```
+
 这个安装器会创建 RBAC 相关内容，MutatingWebhook 以及用于执行注入的 Deployment 和 Service。
 
 ## **对接 Kubernetes 认证**
@@ -207,7 +205,6 @@ spec:
         vault.hashicorp.com/agent-inject-secret-credentials.txt: "secret/data/devwebapp/config"
 ...
 ```
-
 
 **上面的注解表明，使用 `devweb-app` 角色，读取 `secret/data/devwebapp/config` 中的数据，保存到 `/vault/secrets` 目录的 `credentials.txt` 文件之中**。
 

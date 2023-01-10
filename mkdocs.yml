@@ -10,9 +10,12 @@ plugins:
 
 nav:
   - 'Welcome': "index.md"
-  - 'Vault 云教程':
-    - '1 Hashcorp Vault 基础使用教程': 'vault1/1Vault_basic.md'
-    - '2 在 Kubernetes 读取 Vault 中的机密信息': 'vault1/2vault_k8s.md'
+  - 'Vault on K8S':
+    - 'L0 在 Kubernetes 上部署 Vault': 'vault1/0k8s_vault.md'
+    - 'L1 Hashcorp Vault 基础使用教程': 'vault1/1Vault_basic.md'
+    - 'L2 在 Kubernetes 读取 Vault 中的机密信息': 'vault1/2vault_k8s.md'
+    - 'L3 透过 Vault 定期 rotate credentials': 'vault1/3vault_rotate.md'
+    - 'L4 Vault 与 Kubernetes 的深度整合': 'vault1/4vault_int_k8s.md'
   - 'Hashicorp Certified Vault Associate':
     - 'L1 Vault Associate: Introduction': 'vault2/1vaba_intro.md'
     - 'L2 Authentication and Policies': 'vault2/2vaba_auth_poly.md'
