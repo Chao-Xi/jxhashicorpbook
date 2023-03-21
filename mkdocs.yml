@@ -50,6 +50,7 @@ nav:
     - 'L4 Managing External Plugins and Server Upgrades': 'vault6/4Plugins.md'
   - 'Terraform Tools':
     - 'L1 使用Terragrunt优化Terraform代码': 'tfm1/1Terragrunt.md'
+    - 'L2 基础设施即代码 - 使用Terraform创建AWS EC2实例并部署Jenkins服务': 'tfm1/2TMF_JENKINS.md'
 
 repo_url: https://github.com/Chao-Xi/jxhashicorpbook.git
 repo_name: "jxhashicorpbook"
