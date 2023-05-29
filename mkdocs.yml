@@ -20,7 +20,9 @@ nav:
     - '7 密钥管理神器之 Vault 集群搭建': 'vault/7vault_impl.md'
     - '8 K8S与Vault集成，进行Secret管理': 'vault/8vault_k8s.md'
     - '9 使用 Docker 和 Traefik 搭建 Vault': 'vault/9vault_docker.md'
-    - '10 使用 Vault + Cert Manager 管理 Kubernetes 集群中的数字证书': 'vault1/10vault_cm.md'
+    - '10 使用 Vault + Cert Manager 管理 Kubernetes 集群中的数字证书': 'vault/10vault_cm.md'
+    - '11 云原生更安全的密文管理 Vault on ACK': 'vault/13vault_ack_cloud.md'
+    - '12 Kubernetes 的 secret 并不是真正的 secret': 'vault/14K8s_secret.md'
   - 'Vault on K8S':
     - 'L0 在 Kubernetes 上部署 Vault': 'vault1/0k8s_vault.md'
     - 'L1 Hashcorp Vault 基础使用教程': 'vault1/1Vault_basic.md'
