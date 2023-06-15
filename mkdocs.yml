@@ -15,7 +15,7 @@ nav:
     - '2 私密信息管理利器 HashiCorp Vault——启动和读写': 'vault/2vault_start.md'
     - '3 私密信息管理利器 HashiCorp Vault——Secret Engine': 'vault/3vault_secretengine.md'
     - '4 私密信息管理利器 HashiCorp Vault——验证和授权': 'vault/4vault_auth.md'
-    - '5 私密信息管理利器 HashiCorp Vault——部署': 'vault1/5vault_deploy.md'
+    - '5 私密信息管理利器 HashiCorp Vault——部署': 'vault/5vault_deploy.md'
     - '6 私密信息管理利器 HashiCorp Vault——REST API': 'vault/6vault_api.md'
     - '7 密钥管理神器之 Vault 集群搭建': 'vault/7vault_impl.md'
     - '8 K8S与Vault集成，进行Secret管理': 'vault/8vault_k8s.md'
