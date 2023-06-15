@@ -1,0 +1,3340 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Jacob's Hashicorp Tutorial Book">
+      
+      
+        <meta name="author" content="Jacob Xi">
+      
+      
+        <link rel="canonical" href="https://chao-xi.github.io/jxhashicorpbook/vault4/3vt_token/">
+      
+      
+        <link rel="prev" href="./">
+      
+      
+        <link rel="next" href="../../vault5/1cicd_pipeline/">
+      
+      <link rel="icon" href="../../images/logo.png">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.16">
+    
+    
+      
+        <title>L4 Managing Secrets with Secrets Engines - Jacob Hashicorp Book</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.26e3688c.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ecc896b0.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="blue-greay">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#l3-working-with-tokens" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="Jacob Hashicorp Book" class="md-header__button md-logo" aria-label="Jacob Hashicorp Book" data-md-component="logo">
+      
+  <img src="../../images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Jacob Hashicorp Book
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              L4 Managing Secrets with Secrets Engines
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Chao-Xi/jxhashicorpbook.git" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jxhashicorpbook
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Jacob Hashicorp Book" class="md-nav__button md-logo" aria-label="Jacob Hashicorp Book" data-md-component="logo">
+      
+  <img src="../../images/logo.png" alt="logo">
+
+    </a>
+    Jacob Hashicorp Book
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Chao-Xi/jxhashicorpbook.git" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jxhashicorpbook
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Welcome
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          私密信息管理利器Vault
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          私密信息管理利器Vault
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/1vault_intro/" class="md-nav__link">
+        1 私密信息管理利器 HashiCorp Vault——简介
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/2vault_start/" class="md-nav__link">
+        2 私密信息管理利器 HashiCorp Vault——启动和读写
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/3vault_secretengine/" class="md-nav__link">
+        3 私密信息管理利器 HashiCorp Vault——Secret Engine
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/4vault_auth/" class="md-nav__link">
+        4 私密信息管理利器 HashiCorp Vault——验证和授权
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/5vault_deploy/" class="md-nav__link">
+        5 私密信息管理利器 HashiCorp Vault——部署
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/6vault_api/" class="md-nav__link">
+        6 私密信息管理利器 HashiCorp Vault——REST API
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/7vault_impl/" class="md-nav__link">
+        7 密钥管理神器之 Vault 集群搭建
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/8vault_k8s/" class="md-nav__link">
+        8 K8S与Vault集成，进行Secret管理
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/9vault_docker/" class="md-nav__link">
+        9 使用 Docker 和 Traefik 搭建 Vault
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/10vault_cm/" class="md-nav__link">
+        10 使用 Vault + Cert Manager 管理 Kubernetes 集群中的数字证书
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/13vault_ack_cloud/" class="md-nav__link">
+        11 云原生更安全的密文管理 Vault on ACK
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/14K8s_secret/" class="md-nav__link">
+        12 Kubernetes 的 secret 并不是真正的 secret
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          Vault on K8S
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Vault on K8S
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/0k8s_vault/" class="md-nav__link">
+        L0 在 Kubernetes 上部署 Vault
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/1Vault_basic/" class="md-nav__link">
+        L1 Hashcorp Vault 基础使用教程
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/2vault_k8s/" class="md-nav__link">
+        L2 在 Kubernetes 读取 Vault 中的机密信息
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/3vault_rotate/" class="md-nav__link">
+        L3 透过 Vault 定期 rotate credentials
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/4vault_int_k8s/" class="md-nav__link">
+        L4 Vault 与 Kubernetes 的深度整合
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          Hashicorp Certified Vault Associate
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Hashicorp Certified Vault Associate
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/1vaba_intro/" class="md-nav__link">
+        L1 Vault Associate: Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/2vaba_auth_poly/" class="md-nav__link">
+        L2 Authentication and Policies
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/3vaba_token/" class="md-nav__link">
+        L3 Vault Token
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/4vaba_engines/" class="md-nav__link">
+        L4 Using Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/5vaba_lease/" class="md-nav__link">
+        L5 Using Vault Leases
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          Installing Configuring Vault
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Installing Configuring Vault
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/1intro/" class="md-nav__link">
+        L1 HashiCorp Vault Overview and Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/2dev_model/" class="md-nav__link">
+        L2 Vault a Deployment Model
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/3deploy_valut/" class="md-nav__link">
+        L3 Deploying Vault Server
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/4encryption_key/" class="md-nav__link">
+        L4 Managing Encryption and Seal Keys
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/5conf_ha/" class="md-nav__link">
+        L5 Configuring High Availability
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/6basic_auth/" class="md-nav__link">
+        L6 Configuring Basic Authentication
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/7vaba_secret_engine/" class="md-nav__link">
+        L7 Using Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/8vaba_monitor/" class="md-nav__link">
+        L8 Configuring Auditing and Monitoring
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          Managing Access and Secrets(Adv.)
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Managing Access and Secrets(Adv.)
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1mag_vt_intro/" class="md-nav__link">
+        L1 Secrets in HashiCorp Vault Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2vt_auth_method/" class="md-nav__link">
+        L2 Installing and Configuring Authentication Methods
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./" class="md-nav__link">
+        L3 Working with Tokens
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          L4 Managing Secrets with Secrets Engines
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        L4 Managing Secrets with Secrets Engines
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#many-users-systems-all-using-tokens" class="md-nav__link">
+    Many Users &amp; Systems - All Using Tokens
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#token-types" class="md-nav__link">
+    Token Types
+  </a>
+  
+    <nav class="md-nav" aria-label="Token Types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#service-token" class="md-nav__link">
+    Service Token
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#batch" class="md-nav__link">
+    Batch
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#demo-token-types-and-token-lifecycle" class="md-nav__link">
+    Demo: Token Types and Token Lifecycle
+  </a>
+  
+    <nav class="md-nav" aria-label="Demo: Token Types and Token Lifecycle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#token-lease" class="md-nav__link">
+    Token Lease
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#leases" class="md-nav__link">
+    Leases
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault-token-renew" class="md-nav__link">
+    vault token renew
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-use-limit-token" class="md-nav__link">
+    Create Use Limit token
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-limit" class="md-nav__link">
+    Use limit
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable-userpass-authentication-method" class="md-nav__link">
+    Enable userpass authentication method
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#periodic-tokens" class="md-nav__link">
+    Periodic Tokens
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#token-role" class="md-nav__link">
+    Token role
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-tokens-best-practices" class="md-nav__link">
+    Root Tokens Best Practices
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#token-hierarchies" class="md-nav__link">
+    Token Hierarchies
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-orphan-token" class="md-nav__link">
+    Create orphan token
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#response-wrapping" class="md-nav__link">
+    Response Wrapping
+  </a>
+  
+    <nav class="md-nav" aria-label="Response Wrapping">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#response-wrapping_1" class="md-nav__link">
+    Response Wrapping
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#single-retrieval" class="md-nav__link">
+    Single Retrieval
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response-wrapping_2" class="md-nav__link">
+    Response Wrapping
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tokens-as-secrets" class="md-nav__link">
+    Tokens as Secrets
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#automation-system-categories" class="md-nav__link">
+    Automation System Categories
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response-wrapping-cases" class="md-nav__link">
+    Response Wrapping Cases
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wrapping-token-use-restrictions" class="md-nav__link">
+    Wrapping Token Use Restrictions
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ldap-authentication-method" class="md-nav__link">
+    LDAP Authentication Method
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tls-certificates-and-pki" class="md-nav__link">
+    TLS Certificates and PKI
+  </a>
+  
+    <nav class="md-nav" aria-label="TLS Certificates and PKI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tls-certificate-management" class="md-nav__link">
+    TLS Certificate Management
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#letsencrypt" class="md-nav__link">
+    Letsencrypt
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#set-up-root-ca" class="md-nav__link">
+    Set up Root CA
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#authenticate-with-cert" class="md-nav__link">
+    Authenticate with Cert
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-approle-authentication-method-with-jenkins" class="md-nav__link">
+    Using the AppRole Authentication Method with Jenkins
+  </a>
+  
+    <nav class="md-nav" aria-label="Using the AppRole Authentication Method with Jenkins">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#approle-with-jenkins-and-vault" class="md-nav__link">
+    AppRole with Jenkins and Vault
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#install-vault-plugin-and-configure-vault-secret" class="md-nav__link">
+    Install Vault plugin and configure vault secret
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unlock-jenkins" class="md-nav__link">
+    Unlock Jenkins
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-jenkisn-pipeline-to-test" class="md-nav__link">
+    Create Jenkisn pipeline to test
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aws-authentication-method" class="md-nav__link">
+    AWS Authentication Method
+  </a>
+  
+    <nav class="md-nav" aria-label="AWS Authentication Method">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#authenticate-and-play-with-secrets" class="md-nav__link">
+    Authenticate and Play with Secrets
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication-workflow" class="md-nav__link">
+    Authentication Workflow
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentication Workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#aws-authentication-method_1" class="md-nav__link">
+    AWS Authentication Method
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#demo" class="md-nav__link">
+    Demo
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-a-separate-am-user-and-generate-access-and-secret-keys" class="md-nav__link">
+    Create a separate AM user and generate access and secret keys
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attach-policy-to-iam-role" class="md-nav__link">
+    Attach policy to iam role
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#azure-and-gcp-authentication-methods-and-summary" class="md-nav__link">
+    Azure and GCP Authentication Methods and Summary
+  </a>
+  
+    <nav class="md-nav" aria-label="Azure and GCP Authentication Methods and Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#azure-and-aws-accounts-and-subscriptions" class="md-nav__link">
+    Azure and AWS accounts and subscriptions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#google" class="md-nav__link">
+    Google
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    Summary
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          Integrating with DevOps
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Integrating with DevOps
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/1cicd_pipeline/" class="md-nav__link">
+        L1 Accessing Secrets in CI/CD Pipelines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/2vault_agent/" class="md-nav__link">
+        L2 Securely Introducing Clients Using Vault Agent
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/3vault_tf_nd/" class="md-nav__link">
+        L3 Integrating Vault with Terraform & Nomad
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/4vault_consul/" class="md-nav__link">
+        L4 Integrating Vault with Consul
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/5vault_cloud/" class="md-nav__link">
+        L5 Authenticating Using Cloud Machine Identity
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/6vault_k8s/" class="md-nav__link">
+        L6 Integrating Vault with Kubernetes
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          Ops on Vault Server
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Ops on Vault Server
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/1encrypt_key/" class="md-nav__link">
+        L1 Managing the Encryption Key
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/2bak_storage/" class="md-nav__link">
+        L2 Managing the Storage Backend
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/3incident/" class="md-nav__link">
+        L3 Managing the Vault Server during an Incident
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/4Plugins/" class="md-nav__link">
+        L4 Managing External Plugins and Server Upgrades
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+          Terraform Tools
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          Terraform Tools
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tfm1/1Terragrunt/" class="md-nav__link">
+        L1 使用Terragrunt优化Terraform代码
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tfm1/2TMF_JENKINS/" class="md-nav__link">
+        L2 基础设施即代码 - 使用Terraform创建AWS EC2实例并部署Jenkins服务
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#many-users-systems-all-using-tokens" class="md-nav__link">
+    Many Users &amp; Systems - All Using Tokens
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#token-types" class="md-nav__link">
+    Token Types
+  </a>
+  
+    <nav class="md-nav" aria-label="Token Types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#service-token" class="md-nav__link">
+    Service Token
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#batch" class="md-nav__link">
+    Batch
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#demo-token-types-and-token-lifecycle" class="md-nav__link">
+    Demo: Token Types and Token Lifecycle
+  </a>
+  
+    <nav class="md-nav" aria-label="Demo: Token Types and Token Lifecycle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#token-lease" class="md-nav__link">
+    Token Lease
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#leases" class="md-nav__link">
+    Leases
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault-token-renew" class="md-nav__link">
+    vault token renew
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-use-limit-token" class="md-nav__link">
+    Create Use Limit token
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-limit" class="md-nav__link">
+    Use limit
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable-userpass-authentication-method" class="md-nav__link">
+    Enable userpass authentication method
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#periodic-tokens" class="md-nav__link">
+    Periodic Tokens
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#token-role" class="md-nav__link">
+    Token role
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-tokens-best-practices" class="md-nav__link">
+    Root Tokens Best Practices
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#token-hierarchies" class="md-nav__link">
+    Token Hierarchies
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-orphan-token" class="md-nav__link">
+    Create orphan token
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#response-wrapping" class="md-nav__link">
+    Response Wrapping
+  </a>
+  
+    <nav class="md-nav" aria-label="Response Wrapping">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#response-wrapping_1" class="md-nav__link">
+    Response Wrapping
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#single-retrieval" class="md-nav__link">
+    Single Retrieval
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response-wrapping_2" class="md-nav__link">
+    Response Wrapping
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tokens-as-secrets" class="md-nav__link">
+    Tokens as Secrets
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#automation-system-categories" class="md-nav__link">
+    Automation System Categories
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response-wrapping-cases" class="md-nav__link">
+    Response Wrapping Cases
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wrapping-token-use-restrictions" class="md-nav__link">
+    Wrapping Token Use Restrictions
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ldap-authentication-method" class="md-nav__link">
+    LDAP Authentication Method
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tls-certificates-and-pki" class="md-nav__link">
+    TLS Certificates and PKI
+  </a>
+  
+    <nav class="md-nav" aria-label="TLS Certificates and PKI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tls-certificate-management" class="md-nav__link">
+    TLS Certificate Management
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#letsencrypt" class="md-nav__link">
+    Letsencrypt
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#set-up-root-ca" class="md-nav__link">
+    Set up Root CA
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#authenticate-with-cert" class="md-nav__link">
+    Authenticate with Cert
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-approle-authentication-method-with-jenkins" class="md-nav__link">
+    Using the AppRole Authentication Method with Jenkins
+  </a>
+  
+    <nav class="md-nav" aria-label="Using the AppRole Authentication Method with Jenkins">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#approle-with-jenkins-and-vault" class="md-nav__link">
+    AppRole with Jenkins and Vault
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#install-vault-plugin-and-configure-vault-secret" class="md-nav__link">
+    Install Vault plugin and configure vault secret
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unlock-jenkins" class="md-nav__link">
+    Unlock Jenkins
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-jenkisn-pipeline-to-test" class="md-nav__link">
+    Create Jenkisn pipeline to test
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aws-authentication-method" class="md-nav__link">
+    AWS Authentication Method
+  </a>
+  
+    <nav class="md-nav" aria-label="AWS Authentication Method">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#authenticate-and-play-with-secrets" class="md-nav__link">
+    Authenticate and Play with Secrets
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication-workflow" class="md-nav__link">
+    Authentication Workflow
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentication Workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#aws-authentication-method_1" class="md-nav__link">
+    AWS Authentication Method
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#demo" class="md-nav__link">
+    Demo
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-a-separate-am-user-and-generate-access-and-secret-keys" class="md-nav__link">
+    Create a separate AM user and generate access and secret keys
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attach-policy-to-iam-role" class="md-nav__link">
+    Attach policy to iam role
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#azure-and-gcp-authentication-methods-and-summary" class="md-nav__link">
+    Azure and GCP Authentication Methods and Summary
+  </a>
+  
+    <nav class="md-nav" aria-label="Azure and GCP Authentication Methods and Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#azure-and-aws-accounts-and-subscriptions" class="md-nav__link">
+    Azure and AWS accounts and subscriptions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#google" class="md-nav__link">
+    Google
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    Summary
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="l3-working-with-tokens"><strong>L3 Working with Tokens</strong></h1>
+<h2 id="many-users-systems-all-using-tokens">Many Users &amp; Systems - All Using Tokens</h2>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_1.png" title="Body image" /></p>
+<p><strong>All users, applications, and systems rely on tokens to create and obtain secrets from Vault.</strong> </p>
+<p>First, they get the tokens and then use them to gain access to target systems at the proper authorization levels.</p>
+<p><strong>External users and systems also rely on Vault for authentication and authorization.</strong></p>
+<p>These include cloud users, applications, and services, as well as mobile apps and remote employees. </p>
+<h2 id="token-types">Token Types</h2>
+<h3 id="service-token">Service Token</h3>
+<ul>
+<li>
+<p><strong>Regular</strong></p>
+<ul>
+<li>ttl <code>and/or</code> </li>
+<li>max-ttl </li>
+<li>stored</li>
+</ul>
+</li>
+</ul>
+<p>Regular tokens with time to live that can also have a max time to live, which are stored internally by Vault. </p>
+<p>Regular tokens with time to live that can also have a max time to live, which are stored internally by Vault.</p>
+<ul>
+<li>
+<p><strong>Use Limit</strong></p>
+<ul>
+<li><code>ttl &amp; max-ttl</code> </li>
+<li><code># of uses</code> </li>
+<li>Expire @ maxttl or max # use</li>
+</ul>
+</li>
+</ul>
+<p>Use limit tokens that also have time to live and max time to live, but also add a number of times the token can be used into the mix.</p>
+<p>These tokens expire either when the <strong>max number of uses is reached or when their ttl period expires</strong>. </p>
+<ul>
+<li>
+<p><strong>Periodic</strong></p>
+<ul>
+<li>ttl</li>
+<li>No max-ttl</li>
+<li>Long-running services</li>
+</ul>
+</li>
+</ul>
+<p>Periodic tokens can only be created by root and sudo users. </p>
+<p>They have a ttl and no max‑ttl, and thus can be renewed indefinitely before they expire</p>
+<p><strong>This token type is suitable for long‑running services whose ability to regenerate a token is problematic.</strong> </p>
+<ul>
+<li>
+<p><strong>Short-lived</strong></p>
+<ul>
+<li>Short ttl </li>
+<li>No max-ttl</li>
+</ul>
+</li>
+</ul>
+<p>Short‑lived tokens simply have a very short time to live, for example, 60 seconds, and no max time to live.</p>
+<ul>
+<li><strong>Orphan</strong><ul>
+<li>Do NOT expire when parent expires</li>
+</ul>
+</li>
+</ul>
+<p>These can be of any of the other service subtypes, but get revoked the moment their parent is revoked, <strong>either when its tto expires or a Vault admin manually revokes their parent</strong>.</p>
+<ul>
+<li><strong>Root</strong><ul>
+<li>Do NOT expire</li>
+</ul>
+</li>
+</ul>
+<h3 id="batch">Batch</h3>
+<ul>
+<li>Not stored - in-memory only </li>
+<li>Light weight - limited features </li>
+<li>Fixed ttl</li>
+<li>No accessor </li>
+<li>Cannot be renewed </li>
+<li>Must be expressly created: <code>-type=batch</code></li>
+<li>Cannot be root tokens (the latter never expire)</li>
+<li>ID begins with “b.” </li>
+<li>Can be used across Vault clusters </li>
+<li>Designed for scalability</li>
+</ul>
+<blockquote>
+<p>Batch tokens are not persisted in backend storage. they're only kept in‑memory while in use. </p>
+<p>They're lightweight, which means they have limited features, like a fixed time to live and no accessor.</p>
+<p>They cannot be renewed and must be expressly created with the <code>‑type=batch</code> option</p>
+<p>Their ID begins with a "b," followed by a dot. </p>
+<p>Can be used across Vault clusters with performance replication enabled. This feature is only available in Vault Enterprise and allows for batch tokens to be encrypted and sent across the barrier to other clusters.</p>
+</blockquote>
+<p>Finally, they are designed for scalability, or more specifically, for cases where your application needs to scale quickly to hundreds or thousands of instances. </p>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_3.png" title="Body image" /></p>
+<p><strong>Performance Replication - Vault Enterprise</strong></p>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_2.png" title="Body image" /></p>
+<h2 id="demo-token-types-and-token-lifecycle">Demo: Token Types and Token Lifecycle</h2>
+<h3 id="token-lease">Token Lease</h3>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_4.png" title="Body image" /></p>
+<p>Leases don't live forever. </p>
+<p>They have a <strong>time to live, or a TTL, which determines how long a token has access to secrets</strong>. </p>
+<p>When the lease TTL is up, Vault expires the token by revoking it. </p>
+<p>Administrators can also revoke tokens manually using the CLI or API. </p>
+<p>Tokens can also be issued with a limited number of uses. </p>
+<p><strong>Leases force clients to periodically authenticate to Vault to maintain access to secrets.</strong></p>
+<p>This prevents long‑lived secrets from being used to compromise data security. </p>
+<p>For token lifecycle management, just refer to this slide that <strong>illustrates TTL, explicit Max TTL, and token renewal</strong></p>
+<h3 id="leases"><strong>Leases</strong></h3>
+<ul>
+<li>Tokens can be issued with limited number of uses</li>
+<li>Leases require clients to re-authenticate</li>
+</ul>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_5.png" title="Body image" /></p>
+<ul>
+<li><strong><code>devteam_policy.hcl</code></strong></li>
+</ul>
+<pre><code># Dev Team policy that allows members to do anythig with secrets related to this path
+path &quot;secret/data/devteam&quot; {
+   capabilities = [ &quot;create&quot;, &quot;read&quot;, &quot;update&quot;, &quot;delete&quot; ]
+}
+</code></pre>
+<pre><code># Create a policy for testing
+vault policy write devteam devteam_policy.hcl
+
+# Create a regular token without specifying a ttl or a max - we specify policy to avoid creating another root token
+vault token create -policy=devteam_policy
+
+$ vault token create -policy=devteam_policy
+Key                  Value
+---                  -----
+token                hvs.CAESIH1u8Sj9UWGjhqCWXQy-JQyeLnYTxn6GmNCbdf4slRN4Gh4KHGh2cy5IVVJBbmoxdVNUT2RjQUhLaUxaank5Qnc
+token_accessor       ZoRcoLZbklHz3uNItCynNybS
+token_duration       768h
+token_renewable      true
+token_policies       [&quot;default&quot; &quot;devteam_policy&quot;]
+identity_policies    []
+
+$ vault token lookup hvs.CAESIH1u8Sj9UWGjhqCWXQy-JQyeLnYTxn6GmNCbdf4slRN4Gh4KHGh2cy5IVVJBbmoxdVNUT2RjQUhLaUxaank5Qnc
+Key                 Value
+---                 -----
+accessor            ZoRcoLZbklHz3uNItCynNybS
+creation_time       1671715446
+creation_ttl        768h
+display_name        token
+entity_id           n/a
+expire_time         2023-01-23T21:24:06.922434+08:00
+explicit_max_ttl    0s
+id                  hvs.CAESIH1u8Sj9UWGjhqCWXQy-JQyeLnYTxn6GmNCbdf4slRN4Gh4KHGh2cy5IVVJBbmoxdVNUT2RjQUhLaUxaank5Qnc
+issue_time          2022-12-22T21:24:06.922439+08:00
+meta                &lt;nil&gt;
+num_uses            0
+orphan              false
+path                auth/token/create
+policies            [default devteam_policy]
+renewable           true
+ttl                 767h59m38s
+type                service
+
+$ vault policy list | grep dev
+devteam_policy
+</code></pre>
+<pre><code># Create regular token with ttl equal to 30 seconds and max ttl equalt to 60 seconds
+vault token create -policy=devteam -ttl=30s -explicit-max-ttl=60s
+
+$ vault token create -policy=devteam -ttl=30s -explicit-max-ttl=60s
+Key                  Value
+---                  -----
+token                hvs.CAESIDBOJ6glyIN2JeCq4cdW8BrnHTtLVRc5HxsmT8oC2FbEGh4KHGh2cy5zMm9vbWRGMlkySWZacmh5S1NBQmR4ZDU
+token_accessor       A30nfwE746aVSdhw8QtFW1In
+token_duration       30s
+token_renewable      true
+token_policies       [&quot;default&quot; &quot;devteam&quot;]
+identity_policies    []
+policies             [&quot;default&quot; &quot;devteam&quot;]
+</code></pre>
+<pre><code> vault token create -policy=devteam -ttl=30s -explicit-max-ttl=60s
+Key                  Value
+---                  -----
+token                hvs.CAESINGSFhX_Vc5wEnnFTw9qMb0V1BQrp46ukq572m6iqejSGh4KHGh2cy5lWXk4N2FhbkVLQnF3SUF1Nm5tSW5SS2c
+token_accessor       IYghxZIunASGjp662CxNLPol
+token_duration       30s
+token_renewable      true
+token_policies       [&quot;default&quot; &quot;devteam&quot;]
+identity_policies    []
+policies             [&quot;default&quot; &quot;devteam&quot;]
+
+
+$ vault token lookup hvs.CAESINGSFhX_Vc5wEnnFTw9qMb0V1BQrp46ukq572m6iqejSGh4KHGh2cy5lWXk4N2FhbkVLQnF3SUF1Nm5tSW5SS2c
+Key                 Value
+---                 -----
+accessor            IYghxZIunASGjp662CxNLPol
+creation_time       1671715594
+creation_ttl        30s
+display_name        token
+entity_id           n/a
+expire_time         2022-12-22T21:27:04.477516+08:00
+explicit_max_ttl    1m
+id                  hvs.CAESINGSFhX_Vc5wEnnFTw9qMb0V1BQrp46ukq572m6iqejSGh4KHGh2cy5lWXk4N2FhbkVLQnF3SUF1Nm5tSW5SS2c
+issue_time          2022-12-22T21:26:34.477522+08:00
+meta                &lt;nil&gt;
+num_uses            0
+orphan              false
+path                auth/token/create
+policies            [default devteam]
+renewable           true
+ttl                 16s
+type                service
+</code></pre>
+<h3 id="vault-token-renew"><code>vault token renew</code></h3>
+<pre><code>$  vault token renew hvs.CAESIDhAEwP-pMqGQpe5Z9tPHHQ5PLoUc8SwhZ6eFkkK244CGh4KHGh2cy51dTRaTWFiY1Byd1pUT05BdW91WlVTbGk
+Key                  Value
+---                  -----
+token                hvs.CAESIDhAEwP-pMqGQpe5Z9tPHHQ5PLoUc8SwhZ6eFkkK244CGh4KHGh2cy51dTRaTWFiY1Byd1pUT05BdW91WlVTbGk
+token_accessor       FWaIz6NW4zMCBLIydMbF1nIn
+token_duration       30s
+token_renewable      true
+token_policies       [&quot;default&quot; &quot;devteam&quot;]
+identity_policies    []
+policies             [&quot;default&quot; &quot;devteam&quot;]
+</code></pre>
+<pre><code>$  vault token lookup hvs.CAESIFhcTv6ykU4Kw7Zu016QKlsXsf3gBpVRrxI0_5A80ijRGh4KHGh2cy5qdWxncVk3N2xiVW5iU0UxR2NqVXVIcEg
+
+
+....
+last_renewal         2022-12-22T21:30:21.783806+08:00
+last_renewal_time    1671715821
+...
+</code></pre>
+<h3 id="create-use-limit-token">Create Use Limit token</h3>
+<pre><code>vault token create -policy=devteam -ttl=30s -explicit-max-ttl=60s -use-limit=3
+
+
+vault token create -policy=devteam -ttl=2m -explicit-max-ttl=4m -use-limit=3
+</code></pre>
+<pre><code> vault token create -policy=devteam -ttl=30s -explicit-max-ttl=60s -use-limit=3
+Key                  Value
+---                  -----
+token                hvs.CAESIAEL8l_QR6PkgBQKoTU7gjCvvG2wBWiklq4LgOMN1zckGh4KHGh2cy5PcG9GcjdqN2dFaUJBazNuajV0bng1NnE
+token_accessor       RJQUfOWBZGlxdg58x0BE3Pj3
+token_duration       30s
+token_renewable      true
+token_policies       [&quot;default&quot; &quot;devteam&quot;]
+identity_policies    []
+policies             [&quot;default&quot; &quot;devteam&quot;]
+
+$ vault login hvs.CAESIAEL8l_QR6PkgBQKoTU7gjCvvG2wBWiklq4LgOMN1zckGh4KHGh2cy5PcG9GcjdqN2dFaUJBazNuajV0bng1NnE
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run &quot;vault login&quot;
+again. Future Vault requests will automatically use this token.
+
+Key                  Value
+---                  -----
+token                hvs.CAESIAEL8l_QR6PkgBQKoTU7gjCvvG2wBWiklq4LgOMN1zckGh4KHGh2cy5PcG9GcjdqN2dFaUJBazNuajV0bng1NnE
+token_accessor       RJQUfOWBZGlxdg58x0BE3Pj3
+token_duration       20s
+token_renewable      true
+token_policies       [&quot;default&quot; &quot;devteam&quot;]
+identity_policies    []
+policies             [&quot;default&quot; &quot;devteam&quot;]
+</code></pre>
+<p><strong>Over 30s</strong></p>
+<pre><code>$ vault login hvs.CAESIAEL8l_QR6PkgBQKoTU7gjCvvG2wBWiklq4LgOMN1zckGh4KHGh2cy5PcG9GcjdqN2dFaUJBazNuajV0bng1NnE
+Error authenticating: error looking up token: Error making API request.
+
+URL: GET http://127.0.0.1:8200/v1/auth/token/lookup-self
+Code: 403. Errors:
+
+* permission denied
+</code></pre>
+<h3 id="use-limit">Use limit</h3>
+<pre><code>$ vault login hvs.EiYGguIh98HdbF3NkfrzQhM6
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run &quot;vault login&quot;
+again. Future Vault requests will automatically use this token.
+
+Key                  Value
+---                  -----
+token                hvs.EiYGguIh98HdbF3NkfrzQhM6
+token_accessor       TrsQs8oybr7vyHRuJOJGGohH
+token_duration       ∞
+token_renewable      false
+token_policies       [&quot;root&quot;]
+identity_policies    []
+policies             [&quot;root&quot;]
+</code></pre>
+<pre><code>vault token create -policy=devteam -ttl=2m -explicit-max-ttl=4m -use-limit=3
+
+$ vault token create -policy=devteam -ttl=2m -explicit-max-ttl=4m -use-limit=3
+Key                  Value
+---                  -----
+token                hvs.CAESIG_fDU4XR2uronpEiwVkHWMWO8GqR0ubRnLQnMoTUaH1Gh4KHGh2cy5rUm9FNG9TOVJQMGRMcW40SlJ3RlV6SlA
+token_accessor       EmVPTaGsZzJINQzVQL1N16Fj
+token_duration       2m
+token_renewable      true
+token_policies       [&quot;default&quot; &quot;devteam&quot;]
+identity_policies    []
+policies             [&quot;default&quot; &quot;devteam&quot;]
+</code></pre>
+<pre><code>vault login hvs.CAESIG_fDU4XR2uronpEiwVkHWMWO8GqR0ubRnLQnMoTUaH1Gh4KHGh2cy5rUm9FNG9TOVJQMGRMcW40SlJ3RlV6SlA
+</code></pre>
+<pre><code>$ vault token lookup hvs.CAESIB3VTtkE7T_Xf5ALfsmzM6QHrWfoZkUQgqzwtbe2R0PsGh4KHGh2cy5scmEwSFduTExiVTdrWXRvajlmRzJjc2s
+Key                 Value
+---                 -----
+...
+num_uses            3
+...
+</code></pre>
+<h3 id="enable-userpass-authentication-method">Enable userpass authentication method</h3>
+<pre><code># Login as root
+# Enable userpass authentication method
+
+vault login  hvs.EiYGguIh98HdbF3NkfrzQhM6
+
+vault auth enable userpass
+
+# Create a sample user and log in with that user
+vault write auth/userpass/users/tokentester password=tokentester policies=devteam
+
+vault login -method=userpass username=tokentester password=tokentester
+
+Key                    Value
+---                    -----
+token                  hvs.CAESIIr8pythMlIOWgdOFdN46bTQxtiCYdE2ZLaxfiJOF7xbGh4KHGh2cy5OVUtBc2V6TWZrSVI0UFF4ZkhLQlZzOGs
+token_accessor         VdnFoTgvOUT78lSVXeiSqPYb
+token_duration         768h
+token_renewable        true
+token_policies         [&quot;default&quot; &quot;devteam&quot;]
+identity_policies      []
+policies               [&quot;default&quot; &quot;devteam&quot;]
+token_meta_username    tokentester
+
+
+# Attempt to create periodic token
+vault token create -policy=devteam -period=6h # Fails because we are not root or sudo user
+
+Error creating token: Error making API request.
+
+URL: POST http://127.0.0.1:8200/v1/auth/token/create
+Code: 403. Errors:
+
+* 1 error occurred:
+        * permission denied
+
+# Try with root
+
+$ vault login hvs.EiYGguIh98HdbF3NkfrzQhM6
+
+$ vault token create -policy=devteam -period=6h # OK
+Key                  Value
+---                  -----
+token                hvs.CAESIHuf_jIdABA6VM78zqw9ReS51Kw1iy6LEl4GD5NTxqOOGh4KHGh2cy4wVUcxZEZCTTNzaDFRRkZrQVQxQzJmbDk
+token_accessor       6KSmLWarfZTEmClANRjnG37G
+token_duration       6h
+token_renewable      true
+token_policies       [&quot;default&quot; &quot;devteam&quot;]
+identity_policies    []
+policies             [&quot;default&quot; &quot;devteam&quot;]
+
+$ vault token lookup hvs.CAESIHuf_jIdABA6VM78zqw9ReS51Kw1iy6LEl4GD5NTxqOOGh4KHGh2cy4wVUcxZEZCTTNzaDFRRkZrQVQxQzJmbDk
+
+$ vault token lookup hvs.CAESIHuf_jIdABA6VM78zqw9ReS51Kw1iy6LEl4GD5NTxqOOGh4KHGh2cy4wVUcxZEZCTTNzaDFRRkZrQVQxQzJmbDk
+Key                 Value
+---                 -----
+accessor            6KSmLWarfZTEmClANRjnG37G
+creation_time       1671717703
+creation_ttl        6h
+display_name        token
+entity_id           n/a
+expire_time         2022-12-23T04:01:43.545968+08:00
+explicit_max_ttl    0s
+id                  hvs.CAESIHuf_jIdABA6VM78zqw9ReS51Kw1iy6LEl4GD5NTxqOOGh4KHGh2cy4wVUcxZEZCTTNzaDFRRkZrQVQxQzJmbDk
+issue_time          2022-12-22T22:01:43.545971+08:00
+meta                &lt;nil&gt;
+num_uses            0
+orphan              false
+path                auth/token/create
+period              6h
+policies            [default devteam]
+renewable           true
+ttl                 5h58m5s
+type                service
+</code></pre>
+<h3 id="periodic-tokens">Periodic Tokens</h3>
+<ul>
+<li><strong>Often No Max TTL</strong></li>
+</ul>
+<p>Long one when they do week, month, etc.</p>
+<ul>
+<li><strong>Fit for Systems / Apps</strong></li>
+</ul>
+<p>Not Humans - password reset for them is different</p>
+<ul>
+<li><strong>Repeated Actions</strong></li>
+</ul>
+<p>Every 5 min, every week, every month, etc.</p>
+<ul>
+<li><strong>Batch Jobs</strong></li>
+</ul>
+<p>Payroll, reconciliation, processing returns, etc.</p>
+<ul>
+<li><strong>Frequent Events</strong></li>
+</ul>
+<p>Generating an insurance quote</p>
+<p>In some cases, having a token be revoked would be problematic -- for instance, <strong>if a long-running service needs to maintain its SQL connection pool over a long period of time. In this scenario, a periodic token can be used</strong>. </p>
+<p>Periodic tokens can be created in a few ways:</p>
+<ul>
+<li>By having
+sudo capability or a
+root token with the <code>auth/token/create</code> endpoint</li>
+<li>By using token store roles</li>
+<li><strong>By using an auth method that supports issuing these, such as AppRole</strong></li>
+</ul>
+<h3 id="token-role">Token role</h3>
+<p>Please note that when we use <strong>token store role</strong>, the current <strong>value of the role's period setting will be used when the token is being renewed</strong>, </p>
+<p>Which implies that <strong>if you change the value by updating the role, that new value will be used next time the token is renewed</strong>. </p>
+<p><strong>Max TTL</strong> specified - <strong>Vault will revoke token after the explicit max TTL expires</strong></p>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_6.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_7.png" title="Body image" /></p>
+<pre><code># Create short-lived token
+vault token create -policy=devteam -ttl=15s
+
+
+vault login -method=userpass username=tokentester password=tokentester
+
+$ vault login -method=userpass username=tokentester password=tokentester
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run &quot;vault login&quot;
+again. Future Vault requests will automatically use this token.
+
+Key                    Value
+---                    -----
+token                  hvs.CAESINPv9wsw2b73HrLJYBagYgcXN5hJCR-N2ReFCdAQy_xfGh4KHGh2cy5FRzVOcmcwb2NVQURURGRWclhHaG5TdXk
+token_accessor         wFij2qnXtytj2ze8z4LZElum
+token_duration         768h
+token_renewable        true
+token_policies         [&quot;default&quot; &quot;devteam&quot;]
+identity_policies      []
+policies               [&quot;default&quot; &quot;devteam&quot;]
+token_meta_username    tokentester
+
+
+$ vault token create -orphan
+Error creating token: Error making API request.
+
+URL: POST http://127.0.0.1:8200/v1/auth/token/create
+Code: 403. Errors:
+
+* 1 error occurred:
+        * permission denied
+</code></pre>
+<p>After logging in with token tester, we attempt to create an orphan token, but we fail because our user does not have sudo privileges.</p>
+<pre><code>vault login hvs.EiYGguIh98HdbF3NkfrzQhM6
+
+vault token create -orphan
+
+$ vault token create -orphan
+Key                  Value
+---                  -----
+token                hvs.2V4XRoX99MV520WXmbIvKLiI
+token_accessor       TA23xPGQhuLnbpplszEt5xqM
+token_duration       ∞
+token_renewable      false
+token_policies       [&quot;root&quot;]
+identity_policies    []
+policies             [&quot;root&quot;]
+</code></pre>
+<h3 id="root-tokens-best-practices"><strong>Root Tokens Best Practices</strong></h3>
+<ul>
+<li>Avoid creating additional root tokens</li>
+<li>Revoke root token(s) after initial configuration</li>
+</ul>
+<p>A parent token prevents the child tokens under it to be renewed indefinitely. When the parent token expires or gets manually revoked, all child tokens it spawned are also revoked</p>
+<p>By contrast, <strong>orphan tokens continue to exist independently of the token that was used to create them</strong>. </p>
+<h3 id="token-hierarchies"><strong>Token Hierarchies</strong></h3>
+<p><strong>When parent TTL expires or parent is revoked, children also expire or are revoked</strong></p>
+<h3 id="create-orphan-token">Create orphan token</h3>
+<pre><code># Crate a batch token
+vault token create -type=batch -policy=devteam -ttl=30m
+</code></pre>
+<h2 id="response-wrapping">Response Wrapping</h2>
+<h3 id="response-wrapping_1">Response Wrapping</h3>
+<ul>
+<li><strong>Level of indirection</strong> - retrieve hidden secret， or a <strong>hidden token</strong></li>
+<li>Secret / token retrieval happens only once</li>
+</ul>
+<h3 id="single-retrieval"><strong>Single Retrieval</strong></h3>
+<ul>
+<li><strong>Single client can retrieve</strong></li>
+</ul>
+<p>Reduced risk of secret exposure</p>
+<ul>
+<li><strong>Trigger an alert</strong></li>
+</ul>
+<p>In case of bad-actor intercept</p>
+<blockquote>
+<p>In case of bad actor intercepts the wrapping token and attempts to use it to get to the secret after our client has already used the wrapping token.</p>
+</blockquote>
+<h3 id="response-wrapping_2">Response Wrapping</h3>
+<p>Response wrapping tends to be used in situations where you lack a reliable authentication mechanism like AWS Identity and Access Management or Azure's Active Directory.  </p>
+<ul>
+<li>Lack of reliable authentication method </li>
+<li><strong>Additional layer of security - guaranteethe secret ends up with the target recipient</strong></li>
+</ul>
+<h3 id="tokens-as-secrets">Tokens as Secrets</h3>
+<p>As you can probably already suspect, t<strong>okens themselves become secrets and need to be protected</strong>. This is especially true for keys delivered via automation to applications and systems.</p>
+<p>There is a special term HashiCorp uses for t<strong>he secure delivery of keys to deployed applications. It is called Secure Introduction</strong>. </p>
+<p><strong>Secrets Delivered by Automation Systems</strong></p>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_8.png" title="Body image" /></p>
+<h3 id="automation-system-categories">Automation System Categories</h3>
+<p>The keys are usually delivered by an automation system. The categories of such systems include: </p>
+<ul>
+<li>Container orchestrators, the main ones being Kubernetes and Docker Swarm, </li>
+<li>Continuous integration and continuous delivery systems like Jenkins, </li>
+<li>Configuration management systems like Chef, Puppet, and Ansible. </li>
+</ul>
+<p>These systems need to be configured to connect to Vault, then generate a token from Vault, and embed it in a software build or another construct with a high degree of automation. </p>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_9.png" title="Body image" /></p>
+<h3 id="response-wrapping-cases">Response Wrapping Cases</h3>
+<ul>
+<li><strong>Wrap exiting secret</strong></li>
+</ul>
+<p>Written to a path in Vault</p>
+<ul>
+<li><strong>Secret does not yet exit</strong></li>
+</ul>
+<p>Even Vault admins cannot see it</p>
+<p><strong>Then the applications that need the secrets can request them directly from Vault using the embedded wrapping token.</strong> </p>
+<p>There are two cases that we can apply response wrapping to. </p>
+<ul>
+<li>The first one involves wrapping a secret that already exists and was written to a path in Vault. </li>
+<li>And the second case is when we want to generate a token or a secret that does not yet exist, <strong>and we don't want even the Vault administrator to be able to see it, unless of course, the administrator decides to go ahead and use the wrapping token that will also be generated.</strong> </li>
+</ul>
+<h3 id="wrapping-token-use-restrictions">Wrapping Token Use Restrictions</h3>
+<p>For the second case, the wrapping token is limited to only two uses, <strong>once to write the wrapped token, and once to read it</strong>.</p>
+<ul>
+<li><strong>Write wrapped token</strong></li>
+</ul>
+<p>This happens when the new secret is generated</p>
+<ul>
+<li><strong>Read wrapped token</strong></li>
+</ul>
+<p><strong>This happens when a client uses the wrapping token to get to the secret</strong></p>
+<p><strong><mark>This wrapped or permanent token is stored in a cubbyhole of the cubbyhole secrets engine. </mark></strong></p>
+<pre><code># These are the general commands
+vault token renew [&lt;token_id&gt; | &lt;accessor_id&gt;]
+vault token revoke [&lt;token_id&gt; | &lt;accessor_id&gt;]
+</code></pre>
+<pre><code>
+# Create secret and then wrap existing secret
+vault kv put secret/db-admin pwd=dbadmin_pwd
+
+$ vault kv put secret/db-admin pwd=dbadmin_pwd
+==== Secret Path ====
+secret/data/db-admin
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2022-12-23T15:19:31.896734Z
+custom_metadata    &lt;nil&gt;
+deletion_time      n/a
+destroyed          false
+version            1
+
+vault kv get -wrap-ttl=420 secret/db-admin
+
+$ vault kv get -wrap-ttl=420 secret/db-admin
+Key                              Value
+---                              -----
+wrapping_token:                  hvs.CAESILdV_ojWejCHAOreO4P-I5SnQlVi5bBafTs97yjGvnbUGh4KHGh2cy5nNlBXWkd1bkQyVUxObktCcThUSWhLU08
+wrapping_accessor:               TdNcOIZiiwH6MbZSnrBTnNaw
+wrapping_token_ttl:              7m
+wrapping_token_creation_time:    2022-12-23 23:21:20.044418 +0800 CST
+wrapping_token_creation_path:    secret/data/db-admin
+</code></pre>
+<pre><code>curl --header &quot;X-Vault-Token: hvs.CAESILdV_ojWejCHAOreO4P-I5SnQlVi5bBafTs97yjGvnbUGh4KHGh2cy5nNlBXWkd1bkQyVUxObktCcThUSWhLU08&quot; --request POST $VAULT_ADDR/v1/sys/wrapping/unwrap | jq
+
+
+ curl --header &quot;X-Vault-Token: hvs.CAESILdV_ojWejCHAOreO4P-I5SnQlVi5bBafTs97yjGvnbUGh4KHGh2cy5nNlBXWkd1bkQyVUxObktCcThUSWhLU08&quot; --request POST $VAULT_ADDR/v1/sys/wrapping/unwrap | jq
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   317  100   317    0     0  23165      0 --:--:-- --:--:-- --:--:--  103k
+{
+  &quot;request_id&quot;: &quot;3f1e3232-081b-e056-3bf1-ca85fb48765f&quot;,
+  &quot;lease_id&quot;: &quot;&quot;,
+  &quot;renewable&quot;: false,
+  &quot;lease_duration&quot;: 0,
+  &quot;data&quot;: {
+    &quot;data&quot;: {
+      &quot;pwd&quot;: &quot;dbadmin_pwd&quot;
+    },
+    &quot;metadata&quot;: {
+      &quot;created_time&quot;: &quot;2022-12-23T15:19:31.896734Z&quot;,
+      &quot;custom_metadata&quot;: null,
+      &quot;deletion_time&quot;: &quot;&quot;,
+      &quot;destroyed&quot;: false,
+      &quot;version&quot;: 1
+    }
+  },
+  &quot;wrap_info&quot;: null,
+  &quot;warnings&quot;: null,
+  &quot;auth&quot;: null
+}
+</code></pre>
+<pre><code># Generate and store a token as a secret in a cubbyhole 
+vault token create -wrap-ttl=420 -policy=devteam
+
+$ vault token create -wrap-ttl=420 -policy=devteam
+Key                              Value
+---                              -----
+wrapping_token:                  hvs.CAESIB6OZIdLlNUsLV7NrheNG9Q9zZxnH8vJb5Nc_OdovLb8Gh4KHGh2cy5PSFZaNVVIeGMyTnhqYUt1bzRSWFk3WVE
+wrapping_accessor:               BdCRU6wdKyLlyAMpQBvlTtdO
+wrapping_token_ttl:              7m
+wrapping_token_creation_time:    2022-12-23 23:23:32.440229 +0800 CST
+wrapping_token_creation_path:    auth/token/create
+wrapped_accessor:                AFcuSny3EAbOvw1GPpXRhOya
+
+
+vault unwrap hvs.CAESIB6OZIdLlNUsLV7NrheNG9Q9zZxnH8vJb5Nc_OdovLb8Gh4KHGh2cy5PSFZaNVVIeGMyTnhqYUt1bzRSWFk3WVE
+
+$ vault unwrap hvs.CAESIB6OZIdLlNUsLV7NrheNG9Q9zZxnH8vJb5Nc_OdovLb8Gh4KHGh2cy5PSFZaNVVIeGMyTnhqYUt1bzRSWFk3WVE
+Key                  Value
+---                  -----
+token                hvs.CAESIJke72mTeSOK1BtSqsUUbT6H_0I2omptwS_4V_slfQqgGh4KHGh2cy45MTF5WHowMElxbDVncHpsMDlaNzZyZko
+token_accessor       AFcuSny3EAbOvw1GPpXRhOya
+token_duration       768h
+token_renewable      true
+token_policies       [&quot;default&quot; &quot;devteam&quot;]
+identity_policies    []
+policies             [&quot;default&quot; &quot;devteam&quot;]
+</code></pre>
+<h2 id="ldap-authentication-method">LDAP Authentication Method</h2>
+<p>We're going to use Vault in combination with Apache Directory Studio, which is a completely free, open‑source implementation of the LDAP protocol. </p>
+<p>First, <strong>enable the LDAP authentication method</strong>. Then, <strong>we need a policy for our dev team</strong>, so let's upload one. The policy itself just gives us the run‑of‑the‑mill CRUD capabilities on that path. </p>
+<pre><code> # Enable and configure LDAP authentication method; cn=vaultadmin sn=vaultadmin userPassword=vaultadmin
+# billykid, pwd=b1g23f0ot, same for gcharm user
+# groupdn=&quot;ou=groups,ou=system&quot; \
+# groupfilter=&quot;(&amp;(objectClass=person)(cn={{.Username}}))&quot; \
+</code></pre>
+<ul>
+<li>Configuring Vault to talk to our open source LDAP server. </li>
+<li>We are writing to the <code>auth/ldap/config</code> path, and as part of the configuration, we specify the URL that begins with the LDAP protocol, followed by the domain of our server and its port number, 10389. </li>
+<li>We set our <strong>username</strong> to cn, or common name, that is essentially equivalent to user id in our case. </li>
+<li>This is followed by the user distinguished name, the common identifier for entities in LDAP where the first component, cn, is set to vaultadmin. </li>
+<li><code>groupdn</code> that will be used to find out what group our user belongs to. </li>
+<li><code>binddn</code> here is the same as the userdn, which specified the bindpass.</li>
+<li>The value here needs to match what we have set up in LDAP.</li>
+<li>Groupattr is set to uniqueMember</li>
+<li>We set <code>insecure_tls</code> to true because for testing purposes, we don't need any encryption, and correspondingly, we specify false for starttls.</li>
+</ul>
+<pre><code>vault auth enable ldap
+vault write auth/ldap/config \
+url=&quot;ldap://example.com:10389&quot; \
+userattr=&quot;cn&quot; \
+userdn=&quot;cn=vaultadmin,ou=users,ou=system&quot; \
+groupdn=&quot;ou=groups,ou=system&quot; \
+groupfilter=&quot;(|(memberUid={{.Username}})(member={{.UserDN}})(uniqueMember={{.UserDN}}))&quot;
+binddn=&quot;cn=vaultadmin,ou=users,ou=system&quot; \
+bindpass=&quot;vaultadmin&quot; \
+groupattr=&quot;uniqueMember&quot; \
+insecure_tls=true \
+starttls=false
+</code></pre>
+<p>PRODUCTION</p>
+<ul>
+<li><code>insecure tls=false</code></li>
+<li><code>starttls=true</code></li>
+</ul>
+<p>For production, you will have to set the last two options to false and true respectively and specify the CA certificate with the certificate option whose value is a file name preceded by an at sign</p>
+<pre><code># Valid search base:
+# cn=vaultadmin,ou=users,ou=system
+# filter=&quot;(objectClass=*)&quot; \ - to filter users but is not part of the Vault documentation
+</code></pre>
+<p><strong><code>devteam_policy.hcl</code></strong></p>
+<pre><code># Dev Team policy that allows members to do anythig with secrets related to this path
+path &quot;secret/data/devteam&quot; {
+   capabilities = [ &quot;create&quot;, &quot;read&quot;, &quot;update&quot;, &quot;delete&quot; ]
+}
+</code></pre>
+<pre><code># Upload the policy
+vault policy write devteam devteam_policy.hcl
+</code></pre>
+<pre><code># Create a user group in vault to match the setup on the LDAP server
+vault write auth/ldap/groups/devstars policies=devteam
+</code></pre>
+<pre><code># No need to create a user in vault - vaultadmin with password &quot;vaultadmin&quot; was already created on the LDAP server
+vault login -method=ldap username=vaultadmin
+# vaultadmin
+
+# Log in with LDAP method
+vault login -method=ldap username=vaultadmin
+</code></pre>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_10.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_11.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_12.png" title="Body image" /></p>
+<pre><code># Sample search
+# LDAP Search Example
+ldapsearch -h localhost -p 10389 -x -b &quot;dc=example,dc=com&quot; 'cn=billykid'
+
+# which returned
+# extended LDIF
+#
+# LDAPv3
+# base &lt;dc=example,dc=com&gt; with scope subtree
+# filter: cn=billykid
+# requesting: ALL
+#
+
+# search result - &quot;my note: the next two lines did not have a comment #, I put it in.&quot;
+# search: 2
+# result: 0 Success
+
+# numResponses: 1
+</code></pre>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_13.png" title="Body image" /></p>
+<h2 id="tls-certificates-and-pki">TLS Certificates and PKI</h2>
+<p><strong>Using TLS certificates makes the connection between client and server.</strong></p>
+<p>They're secure. </p>
+<p>The hard part about certificates is managing them. <strong>They need to be generated, distributed, configured for use, revoked, and kept track of, and finally, be renewed or reissued</strong>. </p>
+<h3 id="tls-certificate-management">TLS Certificate Management</h3>
+<ul>
+<li><strong>Generate</strong></li>
+</ul>
+<p>Via OpenSSL or commercial tools</p>
+<ul>
+<li><strong>Distributed</strong></li>
+</ul>
+<p>You need to send them securely to many clients</p>
+<ul>
+<li><strong>Configured for use</strong></li>
+</ul>
+<p>Browsers and other clients need to be set up</p>
+<ul>
+<li><strong>CRLs Management</strong></li>
+</ul>
+<p>Certificate revocation lists need to be maintained</p>
+<ul>
+<li><strong>Renew or Reissue</strong></li>
+</ul>
+<p>Not easy to do on a mass scale. People often forget</p>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_14.png" title="Body image" /></p>
+<p><strong>TLS Certificate Chain</strong></p>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_15.png" title="Body image" /></p>
+<h3 id="letsencrypt">Letsencrypt</h3>
+<ul>
+<li>Free TLS certificates with DNS zone</li>
+<li>DNS zone is is a distinct part of the domain namespace managed by a legal entity</li>
+</ul>
+<p><strong><code>selfsigned.cfr</code></strong></p>
+<pre><code>[req]
+distinguished_name = req_distinguished_name
+x509_extensions = v3_req
+prompt = no
+
+[req_distinguished_name]
+C = CA
+ST = BC
+L =  Vancouver
+O = Globomantics
+CN = *
+
+[v3_req]
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+basicConstraints = CA:TRUE
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = *
+DNS.2 = *.*
+DNS.3 = *.*.*
+DNS.4 = *.*.*.*
+DNS.5 = *.*.*.*.*
+DNS.6 = *.*.*.*.*.*
+DNS.7 = *.*.*.*.*.*.*
+IP.1 = 127.0.0.1
+</code></pre>
+<pre><code>$ openssl req -x509 -batch -nodes -newkey rsa:2048 -keyout selfsigned.key -out selfsigned.crt -config selfsigned.cfr -days 365
+
+Generating a RSA private key
+
+writing new private key to
+'selfsigned.key
+
+$ ll
+cert.pem
+key.pem
+selfsigned.cfr
+selfsigned.crt
+selfsigned.key
+</code></pre>
+<pre><code>sudo cp -p selfsigned.* /opt/vault/tls
+
+sudo chown vault:vault /opt/vault/tls/selfsigned.crt
+
+sudo chown vault:vault /opt/vault/tls/selfsigned.kev
+
+sudo ls -1 /opt/vault/tis
+</code></pre>
+<p><strong><code>vault.hcl</code></strong></p>
+<pre><code># Full configuration options can be found at https://www.vaultproject.io/docs/configuration
+
+ui = true
+
+#mlock = true
+#disable_mlock = true
+
+storage &quot;file&quot; {
+  path = &quot;/opt/vault/data&quot;
+}
+
+#storage &quot;consul&quot; {
+#  address = &quot;127.0.0.1:8500&quot;
+#  path    = &quot;vault&quot;
+#}
+
+# HTTP listener
+#listener &quot;tcp&quot; {
+#  address = &quot;127.0.0.1:8200&quot;
+#  tls_disable = 1
+#}
+
+# HTTPS listener
+listener &quot;tcp&quot; {
+  address       = &quot;127.0.0.1:8200&quot;
+  tls_cert_file = &quot;/opt/vault/tls/selfsigned.crt&quot;
+  tls_key_file  = &quot;/opt/vault/tls/selfsigned.key&quot;
+}
+</code></pre>
+<pre><code>sudo vault server -config=/etc/vault.d/vault.hel
+</code></pre>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_16.png" title="Body image" /></p>
+<pre><code>vault operator init
+
+Unseal Key 1: GYeeavH0KXykZb7TgDYGlz8mTxbch6nGGcrUipLMiws]
+Unseal Key 2: 1DHyX/RXg61paJ4wyfWxv08PU+9501dMJ70AA/puCP15
+Unseal Key 3: 2uP6GJdQECq0L2fuRBTNx3q7A0PO+pdpqUXpmgeVq+jn
+Unseal Key 4: usqDmFy6n(3MEDQwaj 7kGbXkfKYNq13WusVPsOlsSWVG
+Unseal Key 5: wFrUAfFKFLiRO/dgRDt5gaTcYq3ckDXPB202qLIBH6SZ
+
+
+Initial Root Token: s.HF5qwhddBJj1dvLU82Br1HDc
+Vault initialized with 5 key shares and a key threshold of 3. Please securely
+distribute the key shares printed above. When the Vault is re-sealed,
+restarted, or stopped, you must supply at least 3 of these keys to unseal it
+before it can start servicing requests.
+Vault does not store the generated master key. Without at least 3 keys to
+reconstruct the master key, Vault will remain permanently sealed!
+It is possible to generate new unseal keys, provided you have a quorum of
+existing unseal keys shares. See &quot;vault operator rekey&quot; for more information.
+</code></pre>
+<pre><code>$ vault operator unseal GYeeavH0KXykZb7TgDYGlz8mTxbch6nGGcrUipLMiws]
+
+$ vault operator unseal 1DHyX/RXg61paJ4wyfWxv08PU+9501dMJ70AA/puCP15
+
+$ vault operator unseal 2uP6GJdQECq0L2fuRBTNx3q7A0PO+pdpqUXpmgeVq+jn
+</code></pre>
+<h3 id="set-up-root-ca">Set up Root CA</h3>
+<pre><code>###########################
+#      Set up Root CA     #
+###########################
+
+# Enable cert secrets engine
+vault secrets enable pki
+
+# Bump up the max lease ttl to 10 years
+vault secrets tune -max-lease-ttl=87600h pki
+
+ Generate root cert
+vault write -format=json pki/root/generate/internal \
+common_name=”vault-ca-root-pki” | tee \
+&gt;(jq -r .data.certificate &gt; vault-ca-root-pki.pem) \
+&gt;(jq -r .data.issuing_ca &gt; vault-ca-root-pki-issuing.pem) \
+&gt;(jq -r .data.private_key &gt; vault-ca-root-pki-key.pem)
+</code></pre>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_17.png" title="Body image" /></p>
+<pre><code># Setup CRL and issuing URL
+vault write pki/config/urls issuing_certificates=&quot;http://127.0.0.1:8300/v1/pki/ca&quot; crl_distribution_points=&quot;http://127.0.0.1:8300/v1/pki/crl&quot;
+
+# Create intermediate CA
+vault secrets enable -path=pki_int pki
+vault secrets tune -max-lease-ttl=43800h pki_int
+
+# Generate intermediate CA signed request
+vault write -format=json pki_int/intermediate/generate/internal \
+common_name=&quot;vault-ca-root-pki Intermediate Authority&quot; \
+| jq -r '.data.csr' &gt; vault-ca-root-pki-int.csr
+
+# Setting up our Intermediate CA requires signing our CSR using our Root CA
+vault write -format=json pki/root/sign-intermediate csr=@vault-ca-root-pki-int.csr \
+common_name=&quot;vault-ca-root-pki-int&quot; \
+format=pem_bundle ttl=&quot;43800h&quot; \
+| jq -r '.data.certificate' &gt; vault-ca-root-pki-int.pem
+
+#  Inject intermediate certificate into Intermediate CA config
+vault write pki_int/intermediate/set-signed certificate=@vault-ca-root-pki-int.pem
+
+# Configure URL
+vault write pki_int/config/urls issuing_certificates=&quot;http://127.0.0.1:8300/v1/pki_int/ca&quot; crl_distribution_points=&quot;http://127.0.0.1:8300/v1/pki_int/crl&quot;
+</code></pre>
+<h3 id="authenticate-with-cert">Authenticate with Cert</h3>
+<pre><code>###########################
+# Authenticate with Cert  #
+###########################
+# Enable cert auth method
+vault auth enable cert
+
+
+# Enable the PKI secrets engine at path &quot;pki_int&quot;
+vault secrets enable -path=pki_int pki # Done previously because I executed the command as part of authentication below
+# Create a role
+vault write pki_int/roles/vault-cert allow_any_name=true max_ttl=&quot;1440h&quot; generate_lease=true
+
+# Upload the policy
+vault policy write vault-cert vault-cert.hcl
+</code></pre>
+<ul>
+<li><code>vault-cert.hcl</code></li>
+</ul>
+<pre><code>path &quot;pki_int/issue/*&quot; {
+    capabilities = [&quot;create&quot;, &quot;update&quot;]
+}
+
+path &quot;pki_int/certs&quot; {
+    capabilities = [&quot;list&quot;]
+}
+
+path &quot;pki_int/revoke&quot; {
+    capabilities = [&quot;create&quot;, &quot;update&quot;]
+}
+
+path &quot;pki_int/tidy&quot; {
+    capabilities = [&quot;create&quot;, &quot;update&quot;]
+}
+
+path &quot;pki/cert/ca&quot; {
+    capabilities = [&quot;read&quot;]
+}
+
+path &quot;auth/token/renew&quot; {
+    capabilities = [&quot;update&quot;]
+}
+
+path &quot;auth/token/renew-self&quot; {
+    capabilities = [&quot;update&quot;]
+}
+
+# Roles to create, update secrets
+path &quot;/sys/mounts&quot; {
+    capabilities = [&quot;read&quot;, &quot;update&quot;, &quot;list&quot;]
+}
+
+path &quot;/sys/mounts/*&quot; {
+capabilities = [&quot;update&quot;, &quot;create&quot;]
+}
+
+path &quot;sys/policies/acl&quot; {
+    capabilities = [&quot;read&quot;]
+}
+
+path &quot;secret/*&quot; {
+    capabilities = [&quot;read&quot;, &quot;create&quot;, &quot;update&quot;, &quot;delete&quot;]
+}
+</code></pre>
+<pre><code># Generate certificates
+vault write -format=json pki_int/issue/vault-cert \
+common_name=&quot;vault-cert&quot; | tee \
+&gt;(jq -r .data.certificate &gt; vault-cert-certificate.pem) \
+&gt;(jq -r .data.issuing_ca &gt; vault-cert-issuing-ca.pem) \
+&gt;(jq -r .data.private_key &gt; vault-cert-private-key.pem)
+
+$ Upload the certificate to Vault and specify the policy for the users of that certificate
+vault write auth/cert/certs/vault-cert \
+display_name=vault-cert \
+policies=vault-cert \
+certificate=@vault-cert-certificate.pem
+
+# Log in with our certs
+vault login -method=cert -client-cert=vault-cert-certificate.pem -client-key=vault-cert-private-key.pem name=vault-cert 
+</code></pre>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_18.png" title="Body image" /></p>
+<h2 id="using-the-approle-authentication-method-with-jenkins">Using the AppRole Authentication Method with Jenkins</h2>
+<h3 id="approle-with-jenkins-and-vault">AppRole with Jenkins and Vault</h3>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_19.png" title="Body image" /></p>
+<pre><code># Install the latest LTS version 
+brew install jenkins-lts
+
+# Get intiial admin password
+sudo cat /Users/$(whoami)/.jenkins/secrets/initialAdminPassword
+
+# Install a specific LTS version: 
+brew install jenkins-lts@YOUR_VERSION
+
+# Start/restart/stop/ the Jenkins service: 
+brew services start jenkins-lts
+brew services restart jenkins-lts
+brew services stop jenkins-lts
+
+# Upgrade the Jenkins version: 
+brew upgrade jenkins-lts
+
+sudo cat /Users/$(whoami)/.jenkins/secrets/initialAdminPassword
+
+
+4d21978f240c41a5aa482323994a1162
+</code></pre>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_20.png" title="Body image" /></p>
+<h3 id="install-vault-plugin-and-configure-vault-secret">Install Vault plugin and configure vault secret</h3>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_21.png" title="Body image" /></p>
+<pre><code>vault login root
+
+# Create a secret
+vault kv put secret/devops/jenkinssecret uid=dbadmin pwd=sup3rb@dsEcr1t
+Success! Data written to: secret/devops/jenkinssecret
+
+# Enable AppRole authentication method
+vault auth enable approle
+</code></pre>
+<p><strong>Upload Jenkins policy to Vault</strong></p>
+<pre><code>vault policy write jenkins jenkins.hcl
+Success! Uploaded policy: jenkins
+</code></pre>
+<p><strong><code>jenkins.hcl</code></strong></p>
+<pre><code># Ability to login
+path &quot;auth/approle/login&quot; {
+    capabilities = [&quot;create&quot;, &quot;read&quot;, &quot;list&quot;]
+}
+
+# List and read devops secrets
+path &quot;secret/devops/*&quot; {
+    capabilities = [&quot;read&quot;, &quot;list&quot;]
+}
+</code></pre>
+<pre><code>$ vault policy write jenkins jenkins.hcl
+Success! Uploaded policy: jenkins
+
+$ vault write auth/approle/role/jenkins policies=jenkins
+Success! Data written to: auth/approle/role/jenkins
+
+# Get the role-id a and generate a secret-id
+$ vault read auth/approle/role/jenkins/role-id
+
+$ vault write -f auth/approle/role/jenkins/secret-id
+# role_id    97bab030-871b-31ba-1f7c-3b1036d7cc55
+# secret_id             8805d584-c12e-9b34-4f33-bb596b968467
+# secret_id_accessor    f75eef4e-fb88-f745-dafa-3ee5b671a87c
+# secret_id_ttl         0s
+# Description: Jenkins will use these credentials to authenticate to Vault
+</code></pre>
+<pre><code>vault read auth/approle/role/jenkins/role-id
+Key       Value
+role_id   97bab030-871b-31ba-1f7c-3b1036d7cc55
+</code></pre>
+<h3 id="unlock-jenkins"><strong>Unlock Jenkins</strong></h3>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_22.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_23.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_24.png" title="Body image" /></p>
+<h3 id="create-jenkisn-pipeline-to-test">Create Jenkisn pipeline to test</h3>
+<p><code>Test_ Jenkins_to_Vault</code></p>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_25.png" title="Body image" /></p>
+<p><strong>Vault plugin</strong></p>
+<ul>
+<li>VAULT URL: http://127.0.0.1:8200</li>
+<li>Path： <code>secret/devops/jenkinssecret</code></li>
+<li>Environment Variable: <code>VAULT_PROVIDED_SECRET</code></li>
+<li>Key Name: uid</li>
+<li>K/V Engine Version : 1</li>
+</ul>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_26.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_27.png" title="Body image" /></p>
+<h2 id="aws-authentication-method">AWS Authentication Method</h2>
+<p>With the AWS authentication method, we'll be relying on AWS entities, and I repeat, AWS entities to help with the authentication. These are users, groups, and so on, which have more or less permanent credentials. </p>
+<ul>
+<li>These entities can assume roles, which serve as containers for a set of permissions grouped into policies that allow the entities to perform certain actions like reading AWS RDS instance metadata, starting and stopping EC2 instances, etc. </li>
+</ul>
+<h3 id="authenticate-and-play-with-secrets">Authenticate and Play with Secrets</h3>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_28.png" title="Body image" /></p>
+<p><strong>Entities</strong></p>
+<ul>
+<li>Users - have more or less permanent credentials</li>
+<li>Groups - users can become members of groups</li>
+<li>Roles - users can assume roles to perform actions</li>
+</ul>
+<h2 id="authentication-workflow">Authentication Workflow</h2>
+<p>There are two authentication types present in the aws auth method: <code>iam</code> and <code>ec2</code></p>
+<p>With the <code>iam</code> method, a special AWS request signed with AWS IAM credentials is used for authentication. </p>
+<p>The IAM credentials are automatically supplied to AWS instances in AM instance profiles, Lambda functions, and others, and it is this information already provided by AWS which Vault can use to authenticate clients.</p>
+<p>With the ec2 method <strong>AWS is treated as a Trusted Third Party</strong> and cryptographically signed dynamic metadata information that uniquely represents each EC2 instance is used for authentication. This metadata information is automatically supplied by AWS to all EC2 instances.</p>
+<p>Based on how you attempt to authenticate, Vault will determine if you are attempting to use the <code>iam</code> or <code>ec2</code> type. Each has a different authentication workflow, and each can solve different use cases.</p>
+<p>Note: The <code>ec2</code> method was implemented before the primitives to implement the <code>iam</code> method were supported by AWS. </p>
+<p>The <code>iam</code> method is the recommended approach as it is more flexible and aligns with best practices to perform access control and authentication. See the section on comparing the two auth methods below for more information.</p>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_29.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_30.png" title="Body image" /></p>
+<h3 id="aws-authentication-method_1"><strong>AWS Authentication Method</strong></h3>
+<ul>
+<li>Set up AWS credentials and Vault role and policy</li>
+<li>Create related AWS role and policy plus an IAM user</li>
+<li>Link the vault role to the AWS role or user</li>
+<li>Log in using AWS as a Trusted 3rd party</li>
+</ul>
+<h3 id="demo">Demo</h3>
+<ul>
+<li>Set up AWS credentials and Vault role and policy</li>
+<li>Create related AWS role and policy plus an IAM user</li>
+<li>Link the vault role to the AWS role or user</li>
+<li>Log in using AWS as a Trusted 3rd party</li>
+</ul>
+<pre><code>$ vault secrets list
+Path          Type         Accessor              Description
+----          ----         --------              -----------
+cubbyhole/    cubbyhole    cubbyhole_05f910b5    per-token private secret storage
+identity/     identity     identity_a798004e     identity store
+secret/       kv           kv_cca718d1           key/value secret storage
+secretv1/     kv           kv_205e10b5           KVv1 for Policy Parameter Testing
+sys/          system       system_c13790f5       system endpoints used for control, policy and debugging
+
+vault secrets enable -path=secret kv
+Success! Enabled the kv secrets engine at: secret/
+
+# Write some test data
+vault kv put secret/awsauthdemo/config ttl=10m username=devuser password=b3st4secret
+
+# Enable AWS authentication method
+vault auth enable aws
+Success! Enabled aws auth method at: aws/
+
+vault policy write awsauth awsauth.hcl
+</code></pre>
+<ul>
+<li><code>awsauth.hcl</code></li>
+</ul>
+<pre><code># Demo AWS authentication method policy
+path &quot;secret/awsauthdemo/*&quot; {
+    capabilities = [&quot;read&quot;, &quot;list&quot;]
+}
+</code></pre>
+<pre><code>
+# Configure the AWS credentials
+vault write auth/aws/config/client secret_key=N8F8L3CmthvxwHrGPjoALBjRe9khWFxrfbCma/y9 access_key=AKIATPLNME26BEGUOLUL
+</code></pre>
+<h3 id="create-a-separate-am-user-and-generate-access-and-secret-keys">Create a separate AM user and generate access and secret keys</h3>
+<p><strong>Vault looks for access and secret keys at the default locations, e.g.</strong>  <code>~/.aws/credentials</code></p>
+<p><strong>Override AWS Key Set Values</strong></p>
+<pre><code># Create AWS policy and role, then attach the policy to the role
+aws iam create-policy --policy-name vault-docs-awsauth-policy --policy-document file://awsauth_recommended_policy.json
+</code></pre>
+<ul>
+<li><code>awsauth_recommended_policy.json</code></li>
+</ul>
+<pre><code>{
+    &quot;Version&quot;: &quot;2012-10-17&quot;,
+    &quot;Statement&quot;: [
+      {
+        &quot;Effect&quot;: &quot;Allow&quot;,
+        &quot;Action&quot;: [
+          &quot;ec2:DescribeInstances&quot;,
+          &quot;iam:GetInstanceProfile&quot;,
+          &quot;iam:GetUser&quot;,
+          &quot;iam:GetRole&quot;
+        ],
+        &quot;Resource&quot;: &quot;*&quot;
+      },
+      {
+        &quot;Effect&quot;: &quot;Allow&quot;,
+        &quot;Action&quot;: [&quot;sts:AssumeRole&quot;],
+        &quot;Resource&quot;: [&quot;arn:aws:iam::239136941756:role/vault-aws-auth-role&quot;]
+      },
+      {
+        &quot;Sid&quot;: &quot;ManageOwnAccessKeys&quot;,
+        &quot;Effect&quot;: &quot;Allow&quot;,
+        &quot;Action&quot;: [
+          &quot;iam:CreateAccessKey&quot;,
+          &quot;iam:DeleteAccessKey&quot;,
+          &quot;iam:GetAccessKeyLastUsed&quot;,
+          &quot;iam:GetUser&quot;,
+          &quot;iam:ListAccessKeys&quot;,
+          &quot;iam:UpdateAccessKey&quot;
+        ],
+        &quot;Resource&quot;: &quot;arn:aws:iam::*:user/${aws:username}&quot;
+      }
+    ]
+}
+</code></pre>
+<pre><code>aws iam create-role --role-name vault-aws-auth-role --assume-role-policy-document file://vault-aws-auth-role.json
+</code></pre>
+<ul>
+<li><code>vault-aws-auth-role.json</code></li>
+</ul>
+<pre><code>{
+    &quot;Version&quot;: &quot;2012-10-17&quot;,
+    &quot;Statement&quot;: [
+      {
+        &quot;Effect&quot;: &quot;Allow&quot;,
+        &quot;Principal&quot;: {
+          &quot;Service&quot;: &quot;iam.amazonaws.com&quot;
+        },
+        &quot;Action&quot;: &quot;sts:AssumeRole&quot;
+      },
+      {
+        &quot;Effect&quot;: &quot;Allow&quot;,
+        &quot;Principal&quot;: {
+          &quot;AWS&quot;: &quot;arn:aws:iam::239136941756:root&quot;
+        },
+        &quot;Action&quot;: &quot;sts:AssumeRole&quot;
+      }
+    ]
+  }
+</code></pre>
+<h3 id="attach-policy-to-iam-role">Attach policy to iam role</h3>
+<pre><code>aws iam attach-role-policy --role-name vault-aws-auth-role --policy-arn arn:aws:iam::239136941756:policy/vault-docs-awsauth-policy
+</code></pre>
+<pre><code> Create the vault-aws-auth-role manually in AWS IAM console and attach to it the vault-docs-awsauth-policy just created above
+# Or user the attach-role-policy iam command, as shown above
+# To use this: delete prior versions: aws iam delete-policy --policy-arn arn:aws:iam::&lt;aws_account_number&gt;:policy/vault-docs-awsauth-policy
+# Create a Vault role and associate it with an AWS role that has the custom policy we create previously
+# bound_iam_principal_arn=&quot;arn:aws:iam::&lt;aws_account_number&gt;:role/vault-aws-auth-role&quot; \
+# /RoleSessionName
+# bound_iam_principal_arn=&quot;arn:aws:iam::&lt;aws_account_number&gt;:user/*&quot; \
+# bound_iam_principal_arn=&quot;arn:aws:iam::&lt;aws_account_number&gt;:role/vault-aws-auth-role&quot; \
+# vault write auth/aws/role/awsauth-role-iam \
+#     auth_type=iam \
+#     bound_iam_principal_arn=&quot;arn:aws:iam::&lt;aws_account_number&gt;:role/vault-aws-auth-role&quot; resolve_aws_unique_ids=true \
+#     policies=awsauth ttl=24h
+</code></pre>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_31.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_32.png" title="Body image" /></p>
+<pre><code># Works OK, with IAM user vaultiam (created manually via IAM console)
+vault write auth/aws/role/awsauth-role-iam \
+    auth_type=iam \
+    bound_iam_principal_arn=&quot;arn:aws:iam::239136941756:user/vaultiam&quot; resolve_aws_unique_ids=true \
+    policies=awsauth ttl=48h
+</code></pre>
+<pre><code># Allow any Principal to log in - tested OK
+vault write auth/aws/role/awsauth-role-iam \
+    auth_type=iam \
+    bound_iam_principal_arn=&quot;arn:aws:iam::239136941756:*&quot; resolve_aws_unique_ids=true \
+    policies=awsauth ttl=48h
+</code></pre>
+<pre><code># Configure X-Vault-AWS-IAM-Server-ID Header - recommended
+vault write auth/aws/config/client iam_server_id_header_value=vault.example.com
+</code></pre>
+<pre><code># Log in - IAM auth method
+vault login -method=aws header_value=vault.example.com role=awsauth-role-iam
+</code></pre>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_33.png" title="Body image" /></p>
+<ul>
+<li>AWS accound ID</li>
+</ul>
+<pre><code>vault login -method=aws header_value=vault.example.com role=awsauth-role-iam aws_access_key_id=AKIATPLNME26BEGUOLUL aws_secret_access_key=N8F8L3CmthvxwHrGPjoALBjRe9khWFxrfbCma/y9
+</code></pre>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_34.png" title="Body image" /></p>
+<pre><code>$ vault login -method=aws header_value=vault.example.com role=awsauth-role-iam aws_access_key_id=&lt;IAM_user_access_key&gt; aws_secret_access_key=&lt;IAM_user_secret_key&gt;
+</code></pre>
+<h2 id="azure-and-gcp-authentication-methods-and-summary">Azure and GCP Authentication Methods and Summary</h2>
+<ul>
+<li>First enabled the Azure method, then we write its configuration under <code>auth/azure/config</code>.</li>
+<li>We provide values for <code>tenant id</code>, resource, and most importantly, the <code>client_id</code> and <code>client_secret</code> that Vault will use to log in and make API calls against Azure. </li>
+<li>Finally, just as we did with AWS, we create the role involved where we specify the policies that will apply, the bound Azure subscription IDs and resource groups. </li>
+</ul>
+<blockquote>
+<p>Enable Azure authentication in Vault:</p>
+</blockquote>
+<pre><code>$ vault auth enable azure
+</code></pre>
+<blockquote>
+<p>Configure the Azure auth method:</p>
+</blockquote>
+<pre><code>$ vault write auth/azure/config \
+    tenant_id=7cdlf227-ca67-4fc6-ala4-9888ea7f388c \
+    resource=https://vault.hashicorp.com\
+    client_id=dd794de4-4c6c-40b3-a930-d84cd32e9699 \
+    client_secret=IT3B2XfZvWnfB98slcie8EMe7zWg483Xy8zY004=
+</code></pre>
+<p>For the complete list of configuration options, please see the API documentation.</p>
+<blockquote>
+<p>Create a role:</p>
+</blockquote>
+<pre><code>$ vault write auth/azure/role/dev-role
+    policies=&quot;prod, dev&quot;
+    bound_subscription_ids=6a1d5988-5917-4221-b224-904cd7e24a25 \
+    bound_resource_groups=vault
+</code></pre>
+<h3 id="azure-and-aws-accounts-and-subscriptions">Azure and AWS accounts and subscriptions</h3>
+<p><strong>Azure subscriptions are a grouping of resources with an assigned owner responsible for billing and permissions management.</strong></p>
+<p><strong>Unlike AWS, where any resources created under the AWS account are tied to that account, subscriptions exist independently of their owner accounts, and can be reassigned to new owners as needed.</strong></p>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_35.png" title="Body image" /></p>
+<h3 id="google">Google</h3>
+<p>IAM login applies only to roles of type iam . The Vault authentication workflow for AM service accounts looks like this:</p>
+<p><img alt="Alt Image Text" src="../../images/vt4_3_36.png" title="Body image" /></p>
+<ul>
+<li>3 Create a named role:</li>
+</ul>
+<pre><code>$ vault write auth/gcp/role/my-iam-role \
+    type=&quot;iam&quot;
+    policies=&quot;dev, prod&quot;
+    bound_service accounts=&quot;my-service@my-project.iam.gserviceaccount.com&quot;
+</code></pre>
+<p>For a gce <code>-type</code> role:</p>
+<pre><code>$ vault write auth/qcp/role/my-gce-role\
+    type=&quot;gce&quot;\
+    policies=&quot;dev, prod&quot;
+    bound_projects=&quot;my-projectl, my-project2&quot; \
+    bound_zones=&quot;us-eastl-b&quot;\
+    bound_labels=&quot;foo: bar, zip: zap&quot;
+    bound_service accounts=&quot;my-service@my-project.iam.gserviceaccount.com&quot;
+</code></pre>
+<blockquote>
+<p>Note that <code>bound_service_accounts</code> is only required for <code>iam</code> <code>-type</code> roles.</p>
+</blockquote>
+<pre><code>vault login -method=gcp \
+    role=&quot;my-role&quot;\
+    service_account=&quot;authenticating-account@my-project.iam.gserviceaccount.com&quot;\
+    jwt_exp=&quot;15m&quot; \
+    credentials=apath/to/signer/credentials.json
+</code></pre>
+<h2 id="summary">Summary</h2>
+<ul>
+<li>Tokens and token types </li>
+<li>Response wrapping </li>
+<li>Traditional authentication methods </li>
+<li>Cloud authentication methods </li>
+<li>AppRole with Jenkins</li>
+</ul>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2021-9999 Jacob Xi
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a51614de.min.js"></script>
+      
+    
+  </body>
+</html>

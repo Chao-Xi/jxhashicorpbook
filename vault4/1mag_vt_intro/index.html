@@ -1,0 +1,1779 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Jacob's Hashicorp Tutorial Book">
+      
+      
+        <meta name="author" content="Jacob Xi">
+      
+      
+        <link rel="canonical" href="https://chao-xi.github.io/jxhashicorpbook/vault4/1mag_vt_intro/">
+      
+      
+        <link rel="prev" href="../../vault3/8vaba_monitor/">
+      
+      
+        <link rel="next" href="../2vt_auth_method/">
+      
+      <link rel="icon" href="../../images/logo.png">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.16">
+    
+    
+      
+        <title>L1 Secrets in HashiCorp Vault Introduction - Jacob Hashicorp Book</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.26e3688c.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ecc896b0.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="blue-greay">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#l1-secrets-in-hashicorp-vault-introduction" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="Jacob Hashicorp Book" class="md-header__button md-logo" aria-label="Jacob Hashicorp Book" data-md-component="logo">
+      
+  <img src="../../images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Jacob Hashicorp Book
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              L1 Secrets in HashiCorp Vault Introduction
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Chao-Xi/jxhashicorpbook.git" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jxhashicorpbook
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Jacob Hashicorp Book" class="md-nav__button md-logo" aria-label="Jacob Hashicorp Book" data-md-component="logo">
+      
+  <img src="../../images/logo.png" alt="logo">
+
+    </a>
+    Jacob Hashicorp Book
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Chao-Xi/jxhashicorpbook.git" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jxhashicorpbook
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Welcome
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          私密信息管理利器Vault
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          私密信息管理利器Vault
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/1vault_intro/" class="md-nav__link">
+        1 私密信息管理利器 HashiCorp Vault——简介
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/2vault_start/" class="md-nav__link">
+        2 私密信息管理利器 HashiCorp Vault——启动和读写
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/3vault_secretengine/" class="md-nav__link">
+        3 私密信息管理利器 HashiCorp Vault——Secret Engine
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/4vault_auth/" class="md-nav__link">
+        4 私密信息管理利器 HashiCorp Vault——验证和授权
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/5vault_deploy/" class="md-nav__link">
+        5 私密信息管理利器 HashiCorp Vault——部署
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/6vault_api/" class="md-nav__link">
+        6 私密信息管理利器 HashiCorp Vault——REST API
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/7vault_impl/" class="md-nav__link">
+        7 密钥管理神器之 Vault 集群搭建
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/8vault_k8s/" class="md-nav__link">
+        8 K8S与Vault集成，进行Secret管理
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/9vault_docker/" class="md-nav__link">
+        9 使用 Docker 和 Traefik 搭建 Vault
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/10vault_cm/" class="md-nav__link">
+        10 使用 Vault + Cert Manager 管理 Kubernetes 集群中的数字证书
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/13vault_ack_cloud/" class="md-nav__link">
+        11 云原生更安全的密文管理 Vault on ACK
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/14K8s_secret/" class="md-nav__link">
+        12 Kubernetes 的 secret 并不是真正的 secret
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          Vault on K8S
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Vault on K8S
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/0k8s_vault/" class="md-nav__link">
+        L0 在 Kubernetes 上部署 Vault
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/1Vault_basic/" class="md-nav__link">
+        L1 Hashcorp Vault 基础使用教程
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/2vault_k8s/" class="md-nav__link">
+        L2 在 Kubernetes 读取 Vault 中的机密信息
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/3vault_rotate/" class="md-nav__link">
+        L3 透过 Vault 定期 rotate credentials
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/4vault_int_k8s/" class="md-nav__link">
+        L4 Vault 与 Kubernetes 的深度整合
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          Hashicorp Certified Vault Associate
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Hashicorp Certified Vault Associate
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/1vaba_intro/" class="md-nav__link">
+        L1 Vault Associate: Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/2vaba_auth_poly/" class="md-nav__link">
+        L2 Authentication and Policies
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/3vaba_token/" class="md-nav__link">
+        L3 Vault Token
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/4vaba_engines/" class="md-nav__link">
+        L4 Using Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/5vaba_lease/" class="md-nav__link">
+        L5 Using Vault Leases
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          Installing Configuring Vault
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Installing Configuring Vault
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/1intro/" class="md-nav__link">
+        L1 HashiCorp Vault Overview and Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/2dev_model/" class="md-nav__link">
+        L2 Vault a Deployment Model
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/3deploy_valut/" class="md-nav__link">
+        L3 Deploying Vault Server
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/4encryption_key/" class="md-nav__link">
+        L4 Managing Encryption and Seal Keys
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/5conf_ha/" class="md-nav__link">
+        L5 Configuring High Availability
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/6basic_auth/" class="md-nav__link">
+        L6 Configuring Basic Authentication
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/7vaba_secret_engine/" class="md-nav__link">
+        L7 Using Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/8vaba_monitor/" class="md-nav__link">
+        L8 Configuring Auditing and Monitoring
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          Managing Access and Secrets(Adv.)
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Managing Access and Secrets(Adv.)
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          L1 Secrets in HashiCorp Vault Introduction
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        L1 Secrets in HashiCorp Vault Introduction
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-why-encryption-as-a-service" class="md-nav__link">
+    1 Why Encryption as a Service?
+  </a>
+  
+    <nav class="md-nav" aria-label="1 Why Encryption as a Service?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#secrets-examples" class="md-nav__link">
+    Secrets Examples
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secrets-management" class="md-nav__link">
+    Secrets Management
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secrets-sprawl" class="md-nav__link">
+    Secrets Sprawl
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#centralized-secrets-management" class="md-nav__link">
+    Centralized Secrets Management
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-vault-architecture-explained" class="md-nav__link">
+    2 Vault Architecture Explained
+  </a>
+  
+    <nav class="md-nav" aria-label="2 Vault Architecture Explained">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vault-architecture" class="md-nav__link">
+    Vault Architecture
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault-backend" class="md-nav__link">
+    Vault Backend
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-install-with-package-managers" class="md-nav__link">
+    Quick Install with Package Managers
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Install with Package Managers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#install-on-windows" class="md-nav__link">
+    Install on Windows
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#install-on-linux" class="md-nav__link">
+    Install on Linux
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#install-on-mac-os" class="md-nav__link">
+    Install on Mac OS
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#install-consul-on-other-linux-distributions" class="md-nav__link">
+    Install Consul on Other Linux Distributions
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vault-cli" class="md-nav__link">
+    Vault CLI
+  </a>
+  
+    <nav class="md-nav" aria-label="Vault CLI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vault-general-commands" class="md-nav__link">
+    Vault General Commands
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2vt_auth_method/" class="md-nav__link">
+        L2 Installing and Configuring Authentication Methods
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3vt_token/" class="md-nav__link">
+        L3 Working with Tokens
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3vt_token/" class="md-nav__link">
+        L4 Managing Secrets with Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          Integrating with DevOps
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Integrating with DevOps
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/1cicd_pipeline/" class="md-nav__link">
+        L1 Accessing Secrets in CI/CD Pipelines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/2vault_agent/" class="md-nav__link">
+        L2 Securely Introducing Clients Using Vault Agent
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/3vault_tf_nd/" class="md-nav__link">
+        L3 Integrating Vault with Terraform & Nomad
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/4vault_consul/" class="md-nav__link">
+        L4 Integrating Vault with Consul
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/5vault_cloud/" class="md-nav__link">
+        L5 Authenticating Using Cloud Machine Identity
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/6vault_k8s/" class="md-nav__link">
+        L6 Integrating Vault with Kubernetes
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          Ops on Vault Server
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Ops on Vault Server
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/1encrypt_key/" class="md-nav__link">
+        L1 Managing the Encryption Key
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/2bak_storage/" class="md-nav__link">
+        L2 Managing the Storage Backend
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/3incident/" class="md-nav__link">
+        L3 Managing the Vault Server during an Incident
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/4Plugins/" class="md-nav__link">
+        L4 Managing External Plugins and Server Upgrades
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+          Terraform Tools
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          Terraform Tools
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tfm1/1Terragrunt/" class="md-nav__link">
+        L1 使用Terragrunt优化Terraform代码
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tfm1/2TMF_JENKINS/" class="md-nav__link">
+        L2 基础设施即代码 - 使用Terraform创建AWS EC2实例并部署Jenkins服务
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-why-encryption-as-a-service" class="md-nav__link">
+    1 Why Encryption as a Service?
+  </a>
+  
+    <nav class="md-nav" aria-label="1 Why Encryption as a Service?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#secrets-examples" class="md-nav__link">
+    Secrets Examples
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secrets-management" class="md-nav__link">
+    Secrets Management
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secrets-sprawl" class="md-nav__link">
+    Secrets Sprawl
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#centralized-secrets-management" class="md-nav__link">
+    Centralized Secrets Management
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-vault-architecture-explained" class="md-nav__link">
+    2 Vault Architecture Explained
+  </a>
+  
+    <nav class="md-nav" aria-label="2 Vault Architecture Explained">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vault-architecture" class="md-nav__link">
+    Vault Architecture
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault-backend" class="md-nav__link">
+    Vault Backend
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-install-with-package-managers" class="md-nav__link">
+    Quick Install with Package Managers
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Install with Package Managers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#install-on-windows" class="md-nav__link">
+    Install on Windows
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#install-on-linux" class="md-nav__link">
+    Install on Linux
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#install-on-mac-os" class="md-nav__link">
+    Install on Mac OS
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#install-consul-on-other-linux-distributions" class="md-nav__link">
+    Install Consul on Other Linux Distributions
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vault-cli" class="md-nav__link">
+    Vault CLI
+  </a>
+  
+    <nav class="md-nav" aria-label="Vault CLI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vault-general-commands" class="md-nav__link">
+    Vault General Commands
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="l1-secrets-in-hashicorp-vault-introduction"><strong>L1 Secrets in HashiCorp Vault Introduction</strong></h1>
+<h2 id="1-why-encryption-as-a-service"><strong>1 Why Encryption as a Service?</strong></h2>
+<p><img alt="Alt Image Text" src="../../images/vt4_1_0.png" title="Body image" /></p>
+<p>The company has created a number of successful digital products and services, and continues to expand its portfolio as demand surges higher and higher year over year.</p>
+<p><img alt="Alt Image Text" src="../../images/vt4_1_1.png" title="Body image" /></p>
+<h3 id="secrets-examples"><strong>Secrets Examples</strong></h3>
+<ul>
+<li>Usernames &amp; Passwords</li>
+<li>Database Credentials</li>
+<li>API Tokens</li>
+<li>TLS Certificates</li>
+</ul>
+<p>Some common examples of credentials can be usernames and passwords, <strong>database credentials, API tokens, or Transport Layer Security, or TLS certificates</strong>. </p>
+<h3 id="secrets-management">Secrets Management</h3>
+<ul>
+<li><strong>Access List - who is granted access</strong></li>
+<li><strong>Audit Trail - previous usage</strong></li>
+<li><strong>Secrets Rotation - change them regularly</strong></li>
+</ul>
+<p>When it comes to managing these secrets, </p>
+<ul>
+<li>we usually want to know who has access to them,</li>
+<li>who's been using them, </li>
+<li>when, and how to periodically rotate them, or change them on a regular basis</li>
+</ul>
+<h3 id="secrets-sprawl"><strong>Secrets Sprawl</strong></h3>
+<p>When it comes to secrets management, companies and organizations usually experience something called a <strong>secret sprawl</strong>. </p>
+<p><strong>Source Code - in headers</strong></p>
+<ul>
+<li>Secrets end up in plain text in our source code, usually hardcoded inside headers like username and password. In places like Configuration Management. </li>
+</ul>
+<p><strong>Software Configuration Management Files - Chef, Puppet, Ansible</strong></p>
+<ul>
+<li>These are plain text files for tools like Chef, Puppet, or Ansible, where anyone with a login can see what these credentials are. </li>
+</ul>
+<p><strong>Version Control - GitHun, BitBucket, Sub-Version</strong></p>
+<p>And finally, in version control systems like GitHub, BitBucket, Sub‑version, etc. So this is the actual secrets sprawl, they are all over your IT infrastructure. </p>
+<h3 id="centralized-secrets-management"><strong>Centralized Secrets Management</strong></h3>
+<p><img alt="Alt Image Text" src="../../images/vt4_1_2.png" title="Body image" /></p>
+<p><strong>Centralized Secrets Management</strong></p>
+<p>Enter Encryption as a Service with Vault, which is a way to centralize secrets management and standardize the usage of an ever‑growing array of security systems and mechanisms. </p>
+<p><strong>Vault handles both encryption at rest ‑ when the secrets are persisted in some sort of storage</strong></p>
+<p><strong>In transit ‑ when secrets are transmitted over the network to remote locations.</strong> </p>
+<h2 id="2-vault-architecture-explained"><strong>2 Vault Architecture Explained</strong></h2>
+<h3 id="vault-architecture"><strong>Vault Architecture</strong></h3>
+<p><img alt="Alt Image Text" src="../../images/vt4_1_3.png" title="Body image" /></p>
+<p>We see that Vault can be accessed by applications and users, usually via web clients such as web browsers or operators via the Vault CLI.</p>
+<p><strong>Vault relies on the Transport Layer Security protocol, or TLS,</strong> to ensure your secrets are safe in transit, that is, they're sent and received securely.</p>
+<p>Once secrets arrive securely over the wire, they reach the Vault's HTTP RESTful API. <strong>The API helps users interact with Vault and carry the secrets through the barrier</strong>.</p>
+<p>The secrets are then passed to the core components for encryption and decryption.</p>
+<p>An encrypted data never enters or leaves the barrier through the HTTP API or between Vault and the storage back ends.</p>
+<p><strong>The internal back‑end components talk to the storage back ends.</strong> Vault provides several mechanisms to store secrets. It handles different types of secrets by offering a pluggable architecture <strong>where a set of secrets engines provides storage and interaction implementations for specific types of secrets.</strong></p>
+<h3 id="vault-backend"><strong>Vault Backend</strong></h3>
+<p>Please note that except for its own operational data that includes tokens, policies, and system data, <strong>vault does not itself store secrets.</strong> </p>
+<p><strong>It delegates that responsibility to a wide array of back ends.</strong> </p>
+<p>This is how Vault handles secrets at rest. At the bottom of this diagram, we have depicted the main types of secrets back ends, file system; key‑value pair type, such as console and etcd; cloud solutions by major hyperscalers like AWS, Azure, and GCP; and databases, for example, Postgres, MySQL, Oracle, and many more. </p>
+<p>Storage back ends see only encrypted data. </p>
+<p>If a Vault backend is compromised, the data stored there is unreadable without the Vault server to decrypt it.</p>
+<p><img alt="Alt Image Text" src="../../images/vt4_1_4.png" title="Body image" /></p>
+<p>Vault uses the AES‑256 standard to encrypt and decrypt secrets internally. </p>
+<p>Symmetric algorithms are considerably faster than asymmetric ones. </p>
+<p>Vault encrypts data in 256 blocks. </p>
+<p>Secrets are then stored durably or transmitted securely. </p>
+<p>Once encryption operations are complete, <strong>Vault handles further processing by performing security policy application, auditing, token generation, and path routing to manage and store secrets.</strong></p>
+<p><img alt="Alt Image Text" src="../../images/vt4_1_5.png" title="Body image" /></p>
+<h2 id="quick-install-with-package-managers">Quick Install with Package Managers</h2>
+<h3 id="install-on-windows">Install on Windows</h3>
+<pre><code>choco install vault
+vault version
+vault -h
+</code></pre>
+<h3 id="install-on-linux">Install on Linux</h3>
+<pre><code># Install on Linux - Ubuntu
+# For other Linux distributions, check out this link: 
+# https://www.hashicorp.com/blog/announcing-the-hashicorp-linux-repository#curl-fssl-https-apt-releases-hashicorp-com-gpg-sudo-apt-key-add
+
+curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+sudo apt-add-repository &quot;deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main&quot;
+sudo apt-get update &amp;&amp; sudo apt-get install vault
+</code></pre>
+<pre><code># Verify installation
+ls -l /etc/apt/sources.list.d/ | grep hashi
+vault -v
+</code></pre>
+<pre><code># Create a SystemD unit file called vault.service
+sudo vim /etc/system/system/vault.service
+</code></pre>
+<p><strong><code>vault.service</code></strong></p>
+<pre><code>[Unit]
+Description=Vault-DEV-Instance
+Documentation=https://www.vaultproject.io/docs
+
+[Service]
+ExecStart=/usr/bin/vault server -dev
+ExecReload=/bin/kill -HUP $MAINPID
+LimitNOFILE=65536
+
+[Install]
+WantedBy=mult-.user.target
+</code></pre>
+<p><strong>In the future, change the value ExecStart to work with the -config flag, and point to Vaults configuration file, when you want to run a Production instance of Vault</strong></p>
+<p>Vault as a Service on Linux With SystemD</p>
+<pre><code># Reload SystemD configuration 
+systemctl daemon-reload
+
+# Start Vault service
+systemctl start vault 
+
+# Enable Vault service to run on system boot
+systemctl enable vault 
+
+# Check Vault service status - active (running | waiting | exited), inactive 
+# (stopped), enabled | disabled …, see citation below
+systemctl status vault
+</code></pre>
+<h3 id="install-on-mac-os">Install on Mac OS</h3>
+<pre><code># If you don't have Homebrew installed, use this command first
+/bin/bash -c &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)&quot;
+
+brew install hashicorp/tap/vault
+vault version
+</code></pre>
+<h3 id="install-consul-on-other-linux-distributions">Install Consul on Other Linux Distributions</h3>
+<pre><code># Install Consul as well
+brew install consul
+</code></pre>
+<pre><code># Ubuntu 
+sudo apt-get install -y consul
+
+# Open SUSE
+sudo snap install consul
+
+# RedHat
+sudo yum install -y consul
+
+# Debian - official repository added in 2020
+sudo yum install -y consul
+
+# Download module resources for full details and references
+</code></pre>
+<h2 id="vault-cli">Vault CLI</h2>
+<pre><code>$ vault -h
+Usage: vault &lt;command&gt; [args]
+...
+</code></pre>
+<pre><code># List first level commands 
+vault -h
+
+# Get help on first level commands
+vault &lt;command&gt; -h
+
+# Get help on subcommands
+vault &lt;command&gt; &lt;subcommand&gt; -h
+
+# Sample subcommand
+vault lease renew -h
+</code></pre>
+<pre><code>$ vault renew -h
+Usage: vault &lt;command&gt; [args]
+
+Common commands:
+    read        Read data and retrieves secrets
+    write       Write data, configuration, and secrets
+    delete      Delete secrets and configuration
+    list        List data or secrets
+    login       Authenticate locally
+    agent       Start a Vault agent
+    server      Start a Vault server
+    status      Print seal and HA status
+    unwrap      Unwrap a wrapped secret
+
+...
+</code></pre>
+<h3 id="vault-general-commands"><strong>Vault General Commands</strong></h3>
+<pre><code># General command format 
+vault &lt;command&gt; [options] [path] [args]
+
+
+# Sample command
+vault write -address=“http://127.0.0.1:8200” auth/userpass/users/gsmith password=“pwd123”
+
+
+# Sample command with multiple options and args
+vault write -address=“http://127.0.0.1:8200” -namespace=“my-organization” \
+auth/userpass/users/gsmith password=“pwd123” policies=“admin”
+
+# Auto complete installation
+vault -autocomplete-install
+
+
+# After that execute Ctrl+C to stop Vault, then restart the dev server
+vault server -dev
+# Now vault read + tab will show you the autocomplete options for the &quot;read&quot; command
+</code></pre>
+<h3 id="features">Features</h3>
+<ul>
+<li><strong>Exit Codes</strong></li>
+</ul>
+<p>The Vault CLI aims to be consistent and well-behaved unless documented otherwise.</p>
+<ul>
+<li>Local errors such as incorrect flags, failed validations, or wrong numbers of arguments return an exit code of 1.</li>
+<li>Any remote errors such as API failures, bad TLS, or incorrect API parameters return an exit status of 2</li>
+</ul>
+<p>Some commands override this default where it makes sense. These commands document this anomaly.</p>
+<p><strong>When you get an exit code of 2, this is usually related to remote errors such as API failures, bad TLS, or incorrect API parameters.</strong> </p>
+<p>Another very useful feature is the token helper. This is a mechanism to cache a Vault token after authentication</p>
+<ul>
+<li><strong>Token Helper</strong></li>
+</ul>
+<p>By default, the Vault CLI uses a "token helper" to cache the token after authentication. This is conceptually similar to how a website securely stores your session information as a cookie in the browser. Token helpers are customizable, and you can even build your own.</p>
+<p>The default token helper stores the token in <code>~/.vault-token</code> . You can delete this file at any time to "logout" of Vault.</p>
+<p><strong>Different Ways to Authenticate a Web Application</strong></p>
+<ul>
+<li>The token helper is very similar to a cookie that stores user‑session information in the browser. </li>
+<li>Token helpers are customizable and you can build your own if needed.</li>
+<li>Take a look at the <code>vault‑token</code> hidden file under your home directory. </li>
+<li>This is where the default token helper stores its token. </li>
+<li>
+<p>Deleting this file is equivalent to logging out. </p>
+</li>
+<li>
+<p><strong>Environment Variables</strong></p>
+</li>
+</ul>
+<p>The CLI reads the following environment variables to set behavioral defaults. This can alleviate the need to repetitively type a flag. </p>
+<p>Flags always take precedence over the environment variables.</p>
+<p><strong>They are very useful for sending behavioral defaults such as the <code>VAULT_ADDR</code>, <code>VAULT_TOKEN</code>, <code>VAULT_CACERT</code>, <code>VAULT_CLIENT_KEY</code>, <code>VAULT_CLUSTER_ADDR</code>, and <code>VAULT_FORMAT</code>, and many more.</strong> </p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2021-9999 Jacob Xi
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a51614de.min.js"></script>
+      
+    
+  </body>
+</html>

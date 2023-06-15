@@ -1,0 +1,2479 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Jacob's Hashicorp Tutorial Book">
+      
+      
+        <meta name="author" content="Jacob Xi">
+      
+      
+        <link rel="canonical" href="https://chao-xi.github.io/jxhashicorpbook/vault6/3incident/">
+      
+      
+        <link rel="prev" href="../2bak_storage/">
+      
+      
+        <link rel="next" href="../4Plugins/">
+      
+      <link rel="icon" href="../../images/logo.png">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.16">
+    
+    
+      
+        <title>L3 Managing the Vault Server during an Incident - Jacob Hashicorp Book</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.26e3688c.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ecc896b0.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="blue-greay">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#3-managing-the-vault-server-during-an-incident" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="Jacob Hashicorp Book" class="md-header__button md-logo" aria-label="Jacob Hashicorp Book" data-md-component="logo">
+      
+  <img src="../../images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Jacob Hashicorp Book
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              L3 Managing the Vault Server during an Incident
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Chao-Xi/jxhashicorpbook.git" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jxhashicorpbook
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Jacob Hashicorp Book" class="md-nav__button md-logo" aria-label="Jacob Hashicorp Book" data-md-component="logo">
+      
+  <img src="../../images/logo.png" alt="logo">
+
+    </a>
+    Jacob Hashicorp Book
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Chao-Xi/jxhashicorpbook.git" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jxhashicorpbook
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Welcome
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          私密信息管理利器Vault
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          私密信息管理利器Vault
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/1vault_intro/" class="md-nav__link">
+        1 私密信息管理利器 HashiCorp Vault——简介
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/2vault_start/" class="md-nav__link">
+        2 私密信息管理利器 HashiCorp Vault——启动和读写
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/3vault_secretengine/" class="md-nav__link">
+        3 私密信息管理利器 HashiCorp Vault——Secret Engine
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/4vault_auth/" class="md-nav__link">
+        4 私密信息管理利器 HashiCorp Vault——验证和授权
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/5vault_deploy/" class="md-nav__link">
+        5 私密信息管理利器 HashiCorp Vault——部署
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/6vault_api/" class="md-nav__link">
+        6 私密信息管理利器 HashiCorp Vault——REST API
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/7vault_impl/" class="md-nav__link">
+        7 密钥管理神器之 Vault 集群搭建
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/8vault_k8s/" class="md-nav__link">
+        8 K8S与Vault集成，进行Secret管理
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/9vault_docker/" class="md-nav__link">
+        9 使用 Docker 和 Traefik 搭建 Vault
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/10vault_cm/" class="md-nav__link">
+        10 使用 Vault + Cert Manager 管理 Kubernetes 集群中的数字证书
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/13vault_ack_cloud/" class="md-nav__link">
+        11 云原生更安全的密文管理 Vault on ACK
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/14K8s_secret/" class="md-nav__link">
+        12 Kubernetes 的 secret 并不是真正的 secret
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          Vault on K8S
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Vault on K8S
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/0k8s_vault/" class="md-nav__link">
+        L0 在 Kubernetes 上部署 Vault
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/1Vault_basic/" class="md-nav__link">
+        L1 Hashcorp Vault 基础使用教程
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/2vault_k8s/" class="md-nav__link">
+        L2 在 Kubernetes 读取 Vault 中的机密信息
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/3vault_rotate/" class="md-nav__link">
+        L3 透过 Vault 定期 rotate credentials
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/4vault_int_k8s/" class="md-nav__link">
+        L4 Vault 与 Kubernetes 的深度整合
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          Hashicorp Certified Vault Associate
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Hashicorp Certified Vault Associate
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/1vaba_intro/" class="md-nav__link">
+        L1 Vault Associate: Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/2vaba_auth_poly/" class="md-nav__link">
+        L2 Authentication and Policies
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/3vaba_token/" class="md-nav__link">
+        L3 Vault Token
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/4vaba_engines/" class="md-nav__link">
+        L4 Using Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/5vaba_lease/" class="md-nav__link">
+        L5 Using Vault Leases
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          Installing Configuring Vault
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Installing Configuring Vault
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/1intro/" class="md-nav__link">
+        L1 HashiCorp Vault Overview and Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/2dev_model/" class="md-nav__link">
+        L2 Vault a Deployment Model
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/3deploy_valut/" class="md-nav__link">
+        L3 Deploying Vault Server
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/4encryption_key/" class="md-nav__link">
+        L4 Managing Encryption and Seal Keys
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/5conf_ha/" class="md-nav__link">
+        L5 Configuring High Availability
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/6basic_auth/" class="md-nav__link">
+        L6 Configuring Basic Authentication
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/7vaba_secret_engine/" class="md-nav__link">
+        L7 Using Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/8vaba_monitor/" class="md-nav__link">
+        L8 Configuring Auditing and Monitoring
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          Managing Access and Secrets(Adv.)
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Managing Access and Secrets(Adv.)
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/1mag_vt_intro/" class="md-nav__link">
+        L1 Secrets in HashiCorp Vault Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/2vt_auth_method/" class="md-nav__link">
+        L2 Installing and Configuring Authentication Methods
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/3vt_token/" class="md-nav__link">
+        L3 Working with Tokens
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/3vt_token/" class="md-nav__link">
+        L4 Managing Secrets with Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          Integrating with DevOps
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Integrating with DevOps
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/1cicd_pipeline/" class="md-nav__link">
+        L1 Accessing Secrets in CI/CD Pipelines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/2vault_agent/" class="md-nav__link">
+        L2 Securely Introducing Clients Using Vault Agent
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/3vault_tf_nd/" class="md-nav__link">
+        L3 Integrating Vault with Terraform & Nomad
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/4vault_consul/" class="md-nav__link">
+        L4 Integrating Vault with Consul
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/5vault_cloud/" class="md-nav__link">
+        L5 Authenticating Using Cloud Machine Identity
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/6vault_k8s/" class="md-nav__link">
+        L6 Integrating Vault with Kubernetes
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          Ops on Vault Server
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Ops on Vault Server
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1encrypt_key/" class="md-nav__link">
+        L1 Managing the Encryption Key
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2bak_storage/" class="md-nav__link">
+        L2 Managing the Storage Backend
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          L3 Managing the Vault Server during an Incident
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        L3 Managing the Vault Server during an Incident
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction-to-troubleshooting-concepts" class="md-nav__link">
+    Introduction to Troubleshooting Concepts
+  </a>
+  
+    <nav class="md-nav" aria-label="Introduction to Troubleshooting Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vault-components" class="md-nav__link">
+    Vault Components
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    Troubleshooting
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#demo-troubleshooting-steps" class="md-nav__link">
+    Demo: Troubleshooting Steps
+  </a>
+  
+    <nav class="md-nav" aria-label="Demo: Troubleshooting Steps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#audit-logs-and-debug-command" class="md-nav__link">
+    Audit Logs and Debug Command
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#find-the-vault-leader-node-and-enable-audit-logs" class="md-nav__link">
+    Find the vault leader node and enable audit logs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run-vault-debug-command" class="md-nav__link">
+    Run vault debug command
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recovery-mode" class="md-nav__link">
+    Recovery Mode
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#enable-usage-metrics-in-vault" class="md-nav__link">
+    Enable Usage Metrics in Vault
+  </a>
+  
+    <nav class="md-nav" aria-label="Enable Usage Metrics in Vault">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#successful-incidental-management" class="md-nav__link">
+    Successful Incidental Management
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#telemetry-metrics-part-1-enabling-metrics" class="md-nav__link">
+    Telemetry Metrics Part 1: Enabling Metrics
+  </a>
+  
+    <nav class="md-nav" aria-label="Telemetry Metrics Part 1: Enabling Metrics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#telemetry-metrics-format" class="md-nav__link">
+    Telemetry Metrics Format
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#types-of-telemetry-metrics" class="md-nav__link">
+    Types of Telemetry Metrics
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#demo" class="md-nav__link">
+    Demo
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../4Plugins/" class="md-nav__link">
+        L4 Managing External Plugins and Server Upgrades
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+          Terraform Tools
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          Terraform Tools
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tfm1/1Terragrunt/" class="md-nav__link">
+        L1 使用Terragrunt优化Terraform代码
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tfm1/2TMF_JENKINS/" class="md-nav__link">
+        L2 基础设施即代码 - 使用Terraform创建AWS EC2实例并部署Jenkins服务
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction-to-troubleshooting-concepts" class="md-nav__link">
+    Introduction to Troubleshooting Concepts
+  </a>
+  
+    <nav class="md-nav" aria-label="Introduction to Troubleshooting Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vault-components" class="md-nav__link">
+    Vault Components
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    Troubleshooting
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#demo-troubleshooting-steps" class="md-nav__link">
+    Demo: Troubleshooting Steps
+  </a>
+  
+    <nav class="md-nav" aria-label="Demo: Troubleshooting Steps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#audit-logs-and-debug-command" class="md-nav__link">
+    Audit Logs and Debug Command
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#find-the-vault-leader-node-and-enable-audit-logs" class="md-nav__link">
+    Find the vault leader node and enable audit logs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run-vault-debug-command" class="md-nav__link">
+    Run vault debug command
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recovery-mode" class="md-nav__link">
+    Recovery Mode
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#enable-usage-metrics-in-vault" class="md-nav__link">
+    Enable Usage Metrics in Vault
+  </a>
+  
+    <nav class="md-nav" aria-label="Enable Usage Metrics in Vault">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#successful-incidental-management" class="md-nav__link">
+    Successful Incidental Management
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#telemetry-metrics-part-1-enabling-metrics" class="md-nav__link">
+    Telemetry Metrics Part 1: Enabling Metrics
+  </a>
+  
+    <nav class="md-nav" aria-label="Telemetry Metrics Part 1: Enabling Metrics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#telemetry-metrics-format" class="md-nav__link">
+    Telemetry Metrics Format
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#types-of-telemetry-metrics" class="md-nav__link">
+    Types of Telemetry Metrics
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#demo" class="md-nav__link">
+    Demo
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="3-managing-the-vault-server-during-an-incident">3 Managing the Vault Server during an Incident</h1>
+<h2 id="introduction-to-troubleshooting-concepts">Introduction to Troubleshooting Concepts</h2>
+<ul>
+<li>Define up service level indicators(SLIs)</li>
+<li>Set up service level objectives(SLOs)</li>
+<li>Create service level agreements(SLAs)</li>
+</ul>
+<p>--</p>
+<ul>
+<li>Troubleshoot the incident</li>
+<li>Fix the incident</li>
+<li>Set up monitoring dashboards</li>
+</ul>
+<p><strong>Techniques to troubleshoot and monitor the vault server</strong></p>
+<p><strong>1st part: Debug an incident</strong></p>
+<p>Use server logs, audit logs, vault-debug, vault-diagnose</p>
+<p><strong>2nd part: Monitor the vault server</strong></p>
+<ul>
+<li>Expose and collect vault’s telemetry metrics </li>
+<li>Install prometheus and grafana</li>
+</ul>
+<h3 id="vault-components">Vault Components</h3>
+<ul>
+<li>Database server</li>
+<li>Virtual machine</li>
+<li>Cache server</li>
+<li>Messaging broker</li>
+</ul>
+<p><strong>One System Components</strong></p>
+<ul>
+<li>Virtual machine (VM)</li>
+<li>Vault server</li>
+<li>Consul backend</li>
+</ul>
+<p>Total components = 3</p>
+<p><img alt="Alt Image Text" src="../../images/chap6_3_1.png" title="Body image" /></p>
+<p>Total components = 7</p>
+<h3 id="troubleshooting">Troubleshooting</h3>
+<ul>
+<li>Step-by-step process </li>
+<li>Debug each components one after the other </li>
+<li>Components are dependent<ul>
+<li><strong>Status of one component gives the status 
+of other components</strong></li>
+</ul>
+</li>
+</ul>
+<p><strong>Standalone Setup</strong></p>
+<p><img alt="Alt Image Text" src="../../images/chap6_3_2.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/chap6_3_3.png" title="Body image" /></p>
+<p><strong>Storage Backends</strong></p>
+<p><img alt="Alt Image Text" src="../../images/chap6_3_4.png" title="Body image" /></p>
+<h2 id="demo-troubleshooting-steps">Demo: Troubleshooting Steps</h2>
+<pre><code>export certificate_cn=&quot;&quot;
+export VAULT_ADDR=&quot;http://${certificate_cn}:8200&quot;
+
+## List all pods
+kubectl get pods -n vault
+
+### Find the vault address
+kubectl get svc -n vault
+
+### Describe pods
+kubectl describe pod -n vault vault-raft-0
+
+### Tail the logs
+kubectl logs -n vault vault-raft-0 --tail=100 -f 
+
+[DEBUG] core:
+refreshing forwarding connection
+2022-08-03T20:07:35.212Z [DEBUG] core: clearing forwarding clients
+2022-08-03T20:07:35.212Z [DEBUG] core:
+done clearing forwarding clients
+2022-08-03T20:07:35.212Z [DEBUG] core: done refreshing forwarding connection
+</code></pre>
+<ul>
+<li>Cannot connect to storage backend:  Fix the connection</li>
+<li>TLS Certificate has expired: Generate new TLS certificate</li>
+<li>Out of memory exception: Increase the memory
+requested</li>
+</ul>
+<h3 id="audit-logs-and-debug-command">Audit Logs and Debug Command</h3>
+<p><img alt="Alt Image Text" src="../../images/chap6_3_5.png" title="Body image" /></p>
+<ul>
+<li><strong><code>values-debug.yaml</code></strong></li>
+</ul>
+<pre><code># Vault Helm Chart Value Overrides
+global:  
+  enabled: true  
+  tlsDisable: true
+
+server:
+  readinessProbe:
+    enabled: true
+    path: &quot;/v1/sys/health?standbyok=true&amp;sealedcode=204&amp;uninitcode=204&quot;
+  livenessProbe:
+    enabled: true
+    path: &quot;/v1/sys/health?standbyok=true&quot;
+    initialDelaySeconds: 60
+
+
+  extraEnvironmentVars:
+    VAULT_SKIP_VERIFY: true
+
+  extraSecretEnvironmentVars:
+    - envName: AWS_ACCESS_KEY_ID
+      secretName: aws-secret
+      secretKey: AWS_ACCESS_KEY_ID
+    - envName: AWS_SECRET_ACCESS_KEY
+      secretName: aws-secret
+      secretKey: AWS_SECRET_ACCESS_KEY
+
+  extraVolumes:
+    - type: secret
+      name: vault-tls
+
+  ha:
+    enabled: true
+    replicas: 3
+    raft:
+      enabled: true
+      config: |
+        listener &quot;tcp&quot; {
+          address = &quot;[::]:8200&quot;
+          cluster_address = &quot;[::]:8201&quot;
+          tls_disable = &quot;true&quot;
+          tls_cert_file = &quot;/vault/userconfig/vault-tls/tls.crt&quot;
+          tls_key_file  = &quot;/vault/userconfig/vault-tls/tls.key&quot;
+
+        }
+        log_level = &quot;Debug&quot;
+        seal &quot;awskms&quot;
+        {
+          region     = &quot;us-east-1&quot;
+          kms_key_id = &quot;794c5350-d4ca-4ea0-af29-1f69e6681361&quot;
+        }
+
+        storage &quot;raft&quot; {
+            path = &quot;/vault/data&quot;
+          retry_join {
+            leader_api_addr = &quot;http://vault-raft-0.vault-raft-internal:8200&quot;
+            leader_client_cert_file = &quot;/vault/userconfig/vault-tls/tls.crt&quot;
+            leader_client_key_file = &quot;/vault/userconfig/vault-tls/tls.key&quot;
+          }
+          retry_join {
+            leader_api_addr = &quot;http://vault-raft-1.vault-raft-internal:8200&quot;
+            leader_client_cert_file = &quot;/vault/userconfig/vault-tls/tls.crt&quot;
+            leader_client_key_file = &quot;/vault/userconfig/vault-tls/tls.key&quot;
+          }
+          retry_join {
+            leader_api_addr = &quot;http://vault-raft-2.vault-raft-internal:8200&quot;
+            leader_client_cert_file = &quot;/vault/userconfig/vault-tls/tls.crt&quot;
+            leader_client_key_file = &quot;/vault/userconfig/vault-tls/tls.key&quot;
+          }
+        }
+
+        service_registration &quot;kubernetes&quot; {}
+
+
+  standalone:
+    enabled: &quot;false&quot;
+
+    config: |
+
+      listener &quot;tcp&quot; {
+        address = &quot;[::]:8200&quot;
+        cluster_address = &quot;[::]:8201&quot;
+        tls_cert_file = &quot;/vault/userconfig/vault-tls/tls.crt&quot;
+        tls_key_file  = &quot;/vault/userconfig/vault-tls/tls.key&quot;
+      }
+
+      seal &quot;awskms&quot;
+      {
+        region     = &quot;us-east-1&quot;
+        kms_key_id = &quot;794c5350-d4ca-4ea0-af29-1f69e6681361&quot;
+      }
+
+      storage &quot;consul&quot; {
+        path = &quot;vault&quot;
+        address = &quot;consul-consul-server:8500&quot;
+      }
+      ui = true
+      log_level = &quot;Debug&quot;
+
+
+  service:
+    type: LoadBalancer
+
+  auditStorage:
+      enabled: true
+      size: 10Gi
+      mountPath: &quot;/vault/audit&quot;
+</code></pre>
+<pre><code>auditStorage:
+    enabled: true
+    size: 10Gi
+    mountPath: &quot;/vault/audit&quot;
+</code></pre>
+<p><strong>Kubernetes doesn't allow mount new PVC</strong></p>
+<pre><code>### delete a service
+kubectl delete statefulsets -n vault vault-raft
+
+## upgrade the vault server
+helm upgrade --install vault-raft hashicorp/vault \
+  --namespace vault \
+  --values values-debug.yaml
+</code></pre>
+<pre><code>kubectl get svc -n vault
+
+vault-raft LoadBalancer 172.21.93.101  baf366c6-us-east.lb.appdomain.cloud  8200:31468/TCP, 8201:32365/TCP  157m
+</code></pre>
+<pre><code>export certificate_cn=&quot;baf366c6-us-east.lb.appdomain.cloud&quot;
+export VAULT_ADDR=&quot;http://${certificate_cn}:8200&quot;
+</code></pre>
+<h3 id="find-the-vault-leader-node-and-enable-audit-logs">Find the vault leader node and enable audit logs</h3>
+<p><img alt="Alt Image Text" src="../../images/chap6_3_6.png" title="Body image" /></p>
+<pre><code>### Exec into the vault pods
+kubectl exec -it -n vault vault-raft-0 /bin/sh
+
+### Find the vault leader
+vault operator raft list-peers
+
+vault-raft-0.vault-raft-internal:8201    follower
+vault-raft-1.vault-raft-internal:8201    follower
+vault-raft-2.vault-raft-internal:8201    leader
+
+### Exec into the vault pods
+kubectl exec -it -n vault vault-raft-2 /bin/sh
+
+### enable audit logs
+vault audit enable file file_path=/vault/audit/vault-audit.log
+
+Success! Enabled the file audit device at: file/
+
+### read the audit-log file inside the pod
+tail -f /vault/audit/vault-audit.log
+
+
+### Copy the audit log file to your local
+kubectl cp -n vault vault-raft-2:/vault/audit/vault-audit.log ./vault-audit.log
+
+### Query the audit log file
+export AUDIT_LOG_FILE=./vault-audit.log
+
+#####  Display errors and their timestamp
+jq 'select(.error != null) | [.time,.error]' $AUDIT_LOG_FILE
+
+#####  Display errors and their count
+jq -n '[inputs | {Errors: .error} ] | group_by(.Errors) | map({Errors: .[0].Errors, Count: length}) | sort_by(-.Count) | .[]' $AUDIT_LOG_FILE
+</code></pre>
+<h3 id="run-vault-debug-command">Run vault debug command</h3>
+<pre><code>cd /tmp 
+vault debug
+....
+Finished capturing information,
+bundling files
+Success! Bundle written to: vault-debug-2022-08-03T20-28-27.tar.gz
+</code></pre>
+<h2 id="recovery-mode">Recovery Mode</h2>
+<p><img alt="Alt Image Text" src="../../images/chap6_3_7.png" title="Body image" /></p>
+<p><strong>Recovery Mode</strong></p>
+<ul>
+<li>Enable audit devices</li>
+<li>Enable resource quota on "/sys/health" path</li>
+</ul>
+<pre><code>vault audit enable file file_path=/vault/audit/vault-audit.log
+
+Success! Enabled the file audit device at: file/
+</code></pre>
+<p><strong><code>values-recovery.yaml</code></strong></p>
+<pre><code>...
+server:
+  readinessProbe:
+    enabled: false
+    path: &quot;/v1/sys/health?standbyok=true&amp;sealedcode=204&amp;uninitcode=204&quot;
+  livenessProbe:
+    enabled: false
+    path: &quot;/v1/sys/health?standbyok=true&quot;
+    initialDelaySeconds: 60
+
+extraArgs: &quot;-recovery&quot;
+...
+</code></pre>
+<pre><code>## upgrade the vault server
+helm upgrade --install vault-raft hashicorp/vault \
+  --namespace vault \
+  --values values-recovery.yaml
+
+## enable resource quota
+
+vault write /sys/quotas/config \
+    rate_limit_exempt_paths=sys/health \
+    enable_rate_limit_audit_logging=true \
+    enable_rate_limit_response_headers=true
+Success! Data written to: sys/quotas/config
+
+### Generate root token
+
+vault operator generate-root -generate-otp -recovery-token
+
+vault operator generate-root-init -otp=&quot;wbPut45KNowEQG6MnEccFcxC2V29&quot; -recovery-token
+
+vault operator generate-root-nonce -recovery-token
+
+vault operator generate-root-decode=&quot;&quot; -otp=&quot;wbPut45KNowEQG6MnEccFcxC2V29&quot; -recovery-token
+</code></pre>
+<pre><code>$ vault operator generate-root -init -otp=&quot;wbPut45KNowEQG6MnEccFcxC2V29&quot; -recovery-token
+
+Nonce   dea2166b-c2dc-6547-1aa2-dd49719e0618
+Started true
+Progress  0/2
+Complete  false
+
+
+$ vault operator generate-root -nonce dea2166b-c2dc-6547-1aa2-dd49719e0618 -recovery-token
+
+Encoded Token H×QiWycAUxEcKRh1ZQ9RBwASEDAyMzsMWhOFSA
+
+
+$ vault operator generate-root -decode=&quot;HxQiWycAUxEcKR
+h1ZQ9RBWASEDAyMZsMWhOFSA&quot; -otp=&quot;wbPut45KNowEOG6MnEccEcxc2v2g&quot;
+-recovery-token
+
+hvr.S4fZRFo04HgJnwsStPCohk7g
+
+$ vault list sys/raw
+
+Keys
+audit/
+core/
+logical/
+sys/
+
+$ vault list sys/raw/sys/quotas/
+Keys
+config
+default_rate_limit_exempt_paths_toggle
+</code></pre>
+<p><strong>Stores all the non-sensitive infos</strong></p>
+<pre><code>vault read -field=value sys/raw/sys/quotas/config
+{&quot;enable_rate_limit_audit_logging&quot;: true, &quot;enable_rate_limit_response_headers&quot;:true,
+&quot;rate_limit_exempt_paths&quot;:[&quot;sys/health&quot;]}
+</code></pre>
+<h2 id="enable-usage-metrics-in-vault">Enable Usage Metrics in Vault</h2>
+<h3 id="successful-incidental-management">Successful Incidental Management</h3>
+<ul>
+<li>Deploying the preventive measures</li>
+<li>Documenting the incident and prevention measures</li>
+<li>Fixing the problem</li>
+<li>Troubleshooting the incident</li>
+<li>Categorising the incident</li>
+<li>Logging the incident</li>
+<li>Detecting the incident</li>
+</ul>
+<p><strong>Detecting the incident</strong></p>
+<ul>
+<li>Logging the incident</li>
+<li>Detecting the incident</li>
+</ul>
+<p><strong>Deploying the preventive measures</strong></p>
+<p><strong>Vault Metrics</strong></p>
+<p>Vault exposes both:</p>
+<ul>
+<li>Usage metrics </li>
+<li>Telemetry metrics</li>
+</ul>
+<p><strong><code>policy.hcl</code></strong></p>
+<pre><code># To retrieve the usage metrics
+path &quot;sys/internal/counters/activity&quot; {
+  capabilities = [&quot;read&quot;]
+}
+
+# To read and update the usage metrics configuration
+path &quot;sys/internal/counters/config&quot; {
+  capabilities = [&quot;read&quot;, &quot;update&quot;]
+}
+</code></pre>
+<ul>
+<li><strong><code>values-usage-metrics.yaml</code></strong></li>
+</ul>
+<pre><code># Vault Helm Chart Value Overrides
+global:  
+  enabled: true  
+  tlsDisable: true
+
+server:
+  readinessProbe:
+    enabled: true
+    path: &quot;/v1/sys/health?standbyok=true&amp;sealedcode=204&amp;uninitcode=204&quot;
+  livenessProbe:
+    enabled: true
+    path: &quot;/v1/sys/health?standbyok=true&quot;
+    initialDelaySeconds: 60
+
+  volumes:
+    - name: plugins
+      emptyDir: {}
+
+
+  volumeMounts:
+    - mountPath: /usr/local/libexec/vault
+      name: plugins
+      readOnly: false
+
+  extraEnvironmentVars:
+    VAULT_SKIP_VERIFY: true
+
+  extraSecretEnvironmentVars:
+    - envName: AWS_ACCESS_KEY_ID
+      secretName: aws-secret
+      secretKey: AWS_ACCESS_KEY_ID
+    - envName: AWS_SECRET_ACCESS_KEY
+      secretName: aws-secret
+      secretKey: AWS_SECRET_ACCESS_KEY
+
+  extraVolumes:
+    - type: secret
+      name: vault-tls
+
+  ha:
+    enabled: true
+    replicas: 3
+    raft:
+      enabled: true
+      config: |
+        ui = true
+
+        listener &quot;tcp&quot; {
+          address = &quot;[::]:8200&quot;
+          cluster_address = &quot;[::]:8201&quot;
+          tls_disable = &quot;true&quot;
+          tls_cert_file = &quot;/vault/userconfig/vault-tls/tls.crt&quot;
+          tls_key_file  = &quot;/vault/userconfig/vault-tls/tls.key&quot;
+
+        }
+
+        plugin_directory = &quot;/usr/local/libexec/vault&quot;
+
+        seal &quot;awskms&quot;
+        {
+          region     = &quot;us-east-1&quot;
+          kms_key_id = &quot;794c5350-d4ca-4ea0-af29-1f69e6681361&quot;
+        }
+
+        storage &quot;raft&quot; {
+            path = &quot;/vault/data&quot;
+          retry_join {
+            leader_api_addr = &quot;http://vault-raft-0.vault-raft-internal:8200&quot;
+            leader_client_cert_file = &quot;/vault/userconfig/vault-tls/tls.crt&quot;
+            leader_client_key_file = &quot;/vault/userconfig/vault-tls/tls.key&quot;
+          }
+          retry_join {
+            leader_api_addr = &quot;http://vault-raft-1.vault-raft-internal:8200&quot;
+            leader_client_cert_file = &quot;/vault/userconfig/vault-tls/tls.crt&quot;
+            leader_client_key_file = &quot;/vault/userconfig/vault-tls/tls.key&quot;
+          }
+          retry_join {
+            leader_api_addr = &quot;http://vault-raft-2.vault-raft-internal:8200&quot;
+            leader_client_cert_file = &quot;/vault/userconfig/vault-tls/tls.crt&quot;
+            leader_client_key_file = &quot;/vault/userconfig/vault-tls/tls.key&quot;
+          }
+        }
+
+        service_registration &quot;kubernetes&quot; {}
+
+
+  standalone:
+    enabled: &quot;false&quot;
+
+    config: |
+
+      listener &quot;tcp&quot; {
+        address = &quot;[::]:8200&quot;
+        cluster_address = &quot;[::]:8201&quot;
+        tls_cert_file = &quot;/vault/userconfig/vault-tls/tls.crt&quot;
+        tls_key_file  = &quot;/vault/userconfig/vault-tls/tls.key&quot;
+      }
+
+      seal &quot;awskms&quot;
+      {
+        region     = &quot;us-east-1&quot;
+        kms_key_id = &quot;794c5350-d4ca-4ea0-af29-1f69e6681361&quot;
+      }
+
+      storage &quot;consul&quot; {
+        path = &quot;vault&quot;
+        address = &quot;consul-consul-server:8500&quot;
+      }
+      ui = true
+      log_level = &quot;Debug&quot;
+
+
+  service:
+    type: ClusterIP
+
+  auditStorage:
+      enabled: true
+      size: 10Gi
+      mountPath: &quot;/vault/audit&quot;
+</code></pre>
+<pre><code>## upgrade the vault server
+helm upgrade --install vault-raft hashicorp/vault \
+  --namespace vault \
+  --values values-usage-metrics.yaml
+</code></pre>
+<pre><code>## Get the leader pod
+vault operator raft list-peers
+
+## restart the standby pods
+kubectl delete pods -n vault vault-raft-0 vault-raft-2
+
+## restart the leader pod
+kubectl delete pods -n vault vault-raft-1
+
+## Port forward the vault service
+kubectl port-forward -n vault svc/vault-raft 8200
+
+## Enable the usage metrics
+vault write sys/internal/counters/config enabled=enable retention_months=12
+
+Success! Data written to: svs/internal/counters/confia
+</code></pre>
+<h2 id="telemetry-metrics-part-1-enabling-metrics">Telemetry Metrics Part 1: Enabling Metrics</h2>
+<h3 id="telemetry-metrics-format">Telemetry Metrics Format</h3>
+<p><strong>Datadog / StatsD / Prometheus / Statsite</strong></p>
+<p><img alt="Alt Image Text" src="../../images/chap6_3_8.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/chap6_3_9.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/chap6_3_10.png" title="Body image" /></p>
+<h3 id="types-of-telemetry-metrics"><strong>Types of Telemetry Metrics</strong></h3>
+<p><strong>System level metrics</strong></p>
+<ul>
+<li>CPU </li>
+<li>Network </li>
+<li>Memory </li>
+<li>Disk usage</li>
+</ul>
+<p><strong>Request &amp; response metrics</strong> </p>
+<p><strong>Audit device metrics</strong></p>
+<h3 id="demo">Demo</h3>
+<p>Expose the telemetry metrics<br />
+Install Prometheus to scrape metrics 
+Install Grafana to view metrics</p>
+<p><strong><code>vaules-telemetry.yaml</code></strong></p>
+<pre><code># Vault Helm Chart Value Overrides
+global:  
+  enabled: true  
+  tlsDisable: true
+
+server:
+  readinessProbe:
+    enabled: true
+    path: &quot;/v1/sys/health?standbyok=true&amp;sealedcode=204&amp;uninitcode=204&quot;
+  livenessProbe:
+    enabled: true
+    path: &quot;/v1/sys/health?standbyok=true&quot;
+    initialDelaySeconds: 60
+
+  volumes:
+    - name: plugins
+      emptyDir: {}
+
+
+  volumeMounts:
+    - mountPath: /usr/local/libexec/vault
+      name: plugins
+      readOnly: false
+
+  extraEnvironmentVars:
+    VAULT_SKIP_VERIFY: true
+
+  extraSecretEnvironmentVars:
+    - envName: AWS_ACCESS_KEY_ID
+      secretName: aws-secret
+      secretKey: AWS_ACCESS_KEY_ID
+    - envName: AWS_SECRET_ACCESS_KEY
+      secretName: aws-secret
+      secretKey: AWS_SECRET_ACCESS_KEY
+
+  extraVolumes:
+    - type: secret
+      name: vault-tls
+
+  ha:
+    enabled: true
+    replicas: 3
+    raft:
+      enabled: true
+      config: |
+        ui = true
+
+        telemetry {
+          disable_hostname = true
+          prometheus_retention_time = &quot;12h&quot;
+        }
+
+        listener &quot;tcp&quot; {
+          address = &quot;[::]:8200&quot;
+          cluster_address = &quot;[::]:8201&quot;
+          tls_disable = &quot;true&quot;
+          tls_cert_file = &quot;/vault/userconfig/vault-tls/tls.crt&quot;
+          tls_key_file  = &quot;/vault/userconfig/vault-tls/tls.key&quot;
+
+        }
+
+        plugin_directory = &quot;/usr/local/libexec/vault&quot;
+
+        seal &quot;awskms&quot;
+        {
+          region     = &quot;us-east-1&quot;
+          kms_key_id = &quot;794c5350-d4ca-4ea0-af29-1f69e6681361&quot;
+        }
+
+        storage &quot;raft&quot; {
+            path = &quot;/vault/data&quot;
+          retry_join {
+            leader_api_addr = &quot;http://vault-raft-0.vault-raft-internal:8200&quot;
+            leader_client_cert_file = &quot;/vault/userconfig/vault-tls/tls.crt&quot;
+            leader_client_key_file = &quot;/vault/userconfig/vault-tls/tls.key&quot;
+          }
+          retry_join {
+            leader_api_addr = &quot;http://vault-raft-1.vault-raft-internal:8200&quot;
+            leader_client_cert_file = &quot;/vault/userconfig/vault-tls/tls.crt&quot;
+            leader_client_key_file = &quot;/vault/userconfig/vault-tls/tls.key&quot;
+          }
+          retry_join {
+            leader_api_addr = &quot;http://vault-raft-2.vault-raft-internal:8200&quot;
+            leader_client_cert_file = &quot;/vault/userconfig/vault-tls/tls.crt&quot;
+            leader_client_key_file = &quot;/vault/userconfig/vault-tls/tls.key&quot;
+          }
+        }
+
+        service_registration &quot;kubernetes&quot; {}
+
+
+  standalone:
+    enabled: &quot;false&quot;
+
+    config: |
+
+      listener &quot;tcp&quot; {
+        address = &quot;[::]:8200&quot;
+        cluster_address = &quot;[::]:8201&quot;
+        tls_cert_file = &quot;/vault/userconfig/vault-tls/tls.crt&quot;
+        tls_key_file  = &quot;/vault/userconfig/vault-tls/tls.key&quot;
+      }
+
+      seal &quot;awskms&quot;
+      {
+        region     = &quot;us-east-1&quot;
+        kms_key_id = &quot;794c5350-d4ca-4ea0-af29-1f69e6681361&quot;
+      }
+
+      storage &quot;consul&quot; {
+        path = &quot;vault&quot;
+        address = &quot;consul-consul-server:8500&quot;
+      }
+      ui = true
+      log_level = &quot;Debug&quot;
+
+
+  service:
+    type: ClusterIP
+
+  auditStorage:
+      enabled: true
+      size: 10Gi
+      mountPath: &quot;/vault/audit&quot;
+</code></pre>
+<p>Explicitly enable telemetry metrics</p>
+<p><code>telemetry Stanza</code></p>
+<pre><code>telemetry {
+    statsite_address = &quot;statsite.company.local:8125&quot;
+}
+</code></pre>
+<pre><code>## upgrade the vault server
+helm upgrade --install vault-raft hashicorp/vault \
+  --namespace vault \
+  --values vaules-telemetry.yaml
+
+## Get the leader pod
+vault operator raft list-peers
+
+## restart the standby pods
+kubectl delete pods -n vault vault-raft-0 vault-raft-2
+
+## restart the leader pod
+kubectl delete pods -n vault vault-raft-1
+
+## Port forward the vault service
+kubectl port-forward -n vault svc/vault-raft 8200
+</code></pre>
+<p><img alt="Alt Image Text" src="../../images/chap6_3_11.png" title="Body image" /></p>
+<p><strong>GET</strong> </p>
+<pre><code>localhost:8200/v1/sys/metrics?format=prometheus
+</code></pre>
+<p><img alt="Alt Image Text" src="../../images/chap6_3_12.png" title="Body image" /></p>
+<p><strong><code>Prometeus.policy</code></strong></p>
+<pre><code># To retrieve the telemetry metrics 
+path &quot;/sys/metrics&quot; {
+    capabilities = [&quot;read&quot;]
+}
+</code></pre>
+<pre><code>### Create a policy
+vault policy write prometheus-policy prometheus-policy.hcl
+
+### Attach a token with this policy
+vault token create -format=json -policy=&quot;prometheus-policy&quot; -ttl 64000s
+....
+hvs.CAESIBht...
+
+### Get the token
+token =  hvs.CAESIBht...
+
+</code></pre>
+<ul>
+<li><strong><code>prometheus.yaml</code></strong></li>
+</ul>
+<pre><code>apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus
+rules:
+- apiGroups: [&quot;&quot;]
+  resources:
+  - nodes
+  - nodes/proxy
+  - services
+  - endpoints
+  - pods
+  verbs: [&quot;get&quot;, &quot;list&quot;, &quot;watch&quot;]
+- apiGroups:
+  - extensions
+  resources:
+  - ingresses
+  verbs: [&quot;get&quot;, &quot;list&quot;, &quot;watch&quot;]
+- nonResourceURLs: [&quot;/metrics&quot;]
+  verbs: [&quot;get&quot;]
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus-sa
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+- kind: ServiceAccount
+  name: prometheus-sa
+  namespace: vault
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-server-conf
+  labels:
+    name: prometheus-server-conf
+data:
+  prometheus.yml: |-
+    global:
+      scrape_interval: 5s
+      evaluation_interval: 5s
+    rule_files:
+      - /etc/prometheus/prometheus.rules
+    alerting:
+      alertmanagers:
+      - scheme: http
+        static_configs:
+        - targets:
+          - &quot;alertmanager.monitoring.svc:9093&quot;
+    scrape_configs:
+      - job_name: vault
+        metrics_path: /v1/sys/metrics
+        params:
+          format: ['prometheus']
+        scheme: http
+        authorization:
+          credentials: &quot;hvs.CAESIBhtLbP5NqtwgSXlOgZm0apZEvDex6r2Fk14ODboQdQbGh4KHGh2cy5WWXFzQ25QUE5VNjM1OWJmekdLM1pBb2g&quot;
+        static_configs:
+        - targets: ['vault-raft.vault:8200']
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-deployment
+  labels:
+    app: prometheus-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-server
+  template:
+    metadata:
+      labels:
+        app: prometheus-server
+    spec:
+      serviceAccountName: prometheus-sa
+      containers:
+        - name: prometheus
+          image: prom/prometheus
+          args:
+            - &quot;--config.file=/etc/prometheus/prometheus.yml&quot;
+            - &quot;--storage.tsdb.path=/prometheus/&quot;
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: prometheus-config-volume
+              mountPath: /etc/prometheus/
+            - name: prometheus-storage-volume
+              mountPath: /prometheus/
+      volumes:
+        - name: prometheus-config-volume
+          configMap:
+            defaultMode: 420
+            name: prometheus-server-conf
+
+        - name: prometheus-storage-volume
+          emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-service
+  annotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port:   '9090'
+
+spec:
+  selector: 
+    app: prometheus-server
+  type: NodePort  
+  ports:
+    - port: 9090
+      targetPort: 9090 
+      nodePort: 30000
+</code></pre>
+<pre><code>authorization:
+    credentials: &quot;hvs.CAESIBhtLbP5NqtwgSXlOgZm0apZEvDex6r2Fk14ODboQdQbGh4KHGh2cy5WWXFzQ25QUE5VNjM1OWJmekdLM1pBb2g&quot;
+</code></pre>
+<pre><code>kubectl get pods -n vault
+
+prometheus-deployment-5bcfccb5c7-c4px6
+
+### Port-forward the prometheus service
+kubectl port-forward -n vault svc/prometheus-service 9090
+</code></pre>
+<p><strong><code>http://localhost:9090</code></strong></p>
+<p><img alt="Alt Image Text" src="../../images/chap6_3_13.png" title="Body image" /></p>
+<p><code>vault_audit_log_response</code></p>
+<p><strong>Deploy grafana server</strong></p>
+<p><img alt="Alt Image Text" src="../../images/chap6_3_14.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/chap6_3_15.png" title="Body image" /></p>
+<pre><code>### Deploy the grafana
+kubectl apply -n vault -f grafana.yaml
+
+### Port-forward the grafana service
+kubectl port-forward -n vault svc/grafana 3000
+</code></pre>
+<ul>
+<li><strong><code>grafana.yaml</code></strong></li>
+</ul>
+<pre><code>apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+data:
+  prometheus.yaml: |-
+    {
+        &quot;apiVersion&quot;: 1,
+        &quot;datasources&quot;: [
+            {
+               &quot;access&quot;:&quot;proxy&quot;,
+                &quot;editable&quot;: true,
+                &quot;name&quot;: &quot;vault&quot;,
+                &quot;orgId&quot;: 1,
+                &quot;type&quot;: &quot;prometheus&quot;,
+                &quot;url&quot;: &quot;http://prometheus-service.vault.svc:8080&quot;,
+                &quot;version&quot;: 1
+            }
+        ]
+    }
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      name: grafana
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:latest
+        ports:
+        - name: grafana
+          containerPort: 3000
+        resources:
+          limits:
+            memory: &quot;1Gi&quot;
+            cpu: &quot;1000m&quot;
+          requests: 
+            memory: 500M
+            cpu: &quot;500m&quot;
+        volumeMounts:
+          - mountPath: /var/lib/grafana
+            name: grafana-storage
+          - mountPath: /etc/grafana/provisioning/datasources
+            name: grafana-datasources
+            readOnly: false
+      volumes:
+        - name: grafana-storage
+          emptyDir: {}
+        - name: grafana-datasources
+          configMap:
+              defaultMode: 420
+              name: grafana-datasources
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  annotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port:   '3000'
+spec:
+  selector: 
+    app: grafana
+  type: NodePort  
+  ports:
+    - port: 3000
+      targetPort: 3000
+      nodePort: 32000
+</code></pre>
+<p><img alt="Alt Image Text" src="../../images/chap6_3_16.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/chap6_3_17.png" title="Body image" /></p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2021-9999 Jacob Xi
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a51614de.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2413 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Jacob's Hashicorp Tutorial Book">
+      
+      
+        <meta name="author" content="Jacob Xi">
+      
+      
+        <link rel="canonical" href="https://chao-xi.github.io/jxhashicorpbook/vault3/5conf_ha/">
+      
+      
+        <link rel="prev" href="../4encryption_key/">
+      
+      
+        <link rel="next" href="../6basic_auth/">
+      
+      <link rel="icon" href="../../images/logo.png">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.16">
+    
+    
+      
+        <title>L5 Configuring High Availability - Jacob Hashicorp Book</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.26e3688c.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ecc896b0.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="blue-greay">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#l5-onfiguring-high-availability" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="Jacob Hashicorp Book" class="md-header__button md-logo" aria-label="Jacob Hashicorp Book" data-md-component="logo">
+      
+  <img src="../../images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Jacob Hashicorp Book
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              L5 Configuring High Availability
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Chao-Xi/jxhashicorpbook.git" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jxhashicorpbook
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Jacob Hashicorp Book" class="md-nav__button md-logo" aria-label="Jacob Hashicorp Book" data-md-component="logo">
+      
+  <img src="../../images/logo.png" alt="logo">
+
+    </a>
+    Jacob Hashicorp Book
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Chao-Xi/jxhashicorpbook.git" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jxhashicorpbook
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Welcome
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          私密信息管理利器Vault
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          私密信息管理利器Vault
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/1vault_intro/" class="md-nav__link">
+        1 私密信息管理利器 HashiCorp Vault——简介
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/2vault_start/" class="md-nav__link">
+        2 私密信息管理利器 HashiCorp Vault——启动和读写
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/3vault_secretengine/" class="md-nav__link">
+        3 私密信息管理利器 HashiCorp Vault——Secret Engine
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/4vault_auth/" class="md-nav__link">
+        4 私密信息管理利器 HashiCorp Vault——验证和授权
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/5vault_deploy/" class="md-nav__link">
+        5 私密信息管理利器 HashiCorp Vault——部署
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/6vault_api/" class="md-nav__link">
+        6 私密信息管理利器 HashiCorp Vault——REST API
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/7vault_impl/" class="md-nav__link">
+        7 密钥管理神器之 Vault 集群搭建
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/8vault_k8s/" class="md-nav__link">
+        8 K8S与Vault集成，进行Secret管理
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/9vault_docker/" class="md-nav__link">
+        9 使用 Docker 和 Traefik 搭建 Vault
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/10vault_cm/" class="md-nav__link">
+        10 使用 Vault + Cert Manager 管理 Kubernetes 集群中的数字证书
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/13vault_ack_cloud/" class="md-nav__link">
+        11 云原生更安全的密文管理 Vault on ACK
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/14K8s_secret/" class="md-nav__link">
+        12 Kubernetes 的 secret 并不是真正的 secret
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          Vault on K8S
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Vault on K8S
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/0k8s_vault/" class="md-nav__link">
+        L0 在 Kubernetes 上部署 Vault
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/1Vault_basic/" class="md-nav__link">
+        L1 Hashcorp Vault 基础使用教程
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/2vault_k8s/" class="md-nav__link">
+        L2 在 Kubernetes 读取 Vault 中的机密信息
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/3vault_rotate/" class="md-nav__link">
+        L3 透过 Vault 定期 rotate credentials
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/4vault_int_k8s/" class="md-nav__link">
+        L4 Vault 与 Kubernetes 的深度整合
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          Hashicorp Certified Vault Associate
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Hashicorp Certified Vault Associate
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/1vaba_intro/" class="md-nav__link">
+        L1 Vault Associate: Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/2vaba_auth_poly/" class="md-nav__link">
+        L2 Authentication and Policies
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/3vaba_token/" class="md-nav__link">
+        L3 Vault Token
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/4vaba_engines/" class="md-nav__link">
+        L4 Using Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/5vaba_lease/" class="md-nav__link">
+        L5 Using Vault Leases
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          Installing Configuring Vault
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Installing Configuring Vault
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1intro/" class="md-nav__link">
+        L1 HashiCorp Vault Overview and Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2dev_model/" class="md-nav__link">
+        L2 Vault a Deployment Model
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3deploy_valut/" class="md-nav__link">
+        L3 Deploying Vault Server
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../4encryption_key/" class="md-nav__link">
+        L4 Managing Encryption and Seal Keys
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          L5 Configuring High Availability
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        L5 Configuring High Availability
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-vault-server-clustering" class="md-nav__link">
+    1 Vault Server Clustering
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-vault-cluster-compute" class="md-nav__link">
+    2 Vault Cluster Compute
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-vault-cluster-communications" class="md-nav__link">
+    3 Vault Cluster Communications
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-client-request-handling" class="md-nav__link">
+    4 Client Request Handling
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-dev-requirement" class="md-nav__link">
+    5 Dev Requirement
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-cluster-architecture-update" class="md-nav__link">
+    6 Cluster Architecture Update
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vault-cluster-demo-overview" class="md-nav__link">
+    Vault Cluster Demo Overview
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reviewing-the-vault-template" class="md-nav__link">
+    Reviewing the Vault Template
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploying-the-vault-cluster" class="md-nav__link">
+    Deploying the Vault Cluster
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-infrastructure" class="md-nav__link">
+    deploy infrastructure
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#initializing-and-validating-the-vault-cluster" class="md-nav__link">
+    Initializing and Validating the Vault Cluster
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vault-replication" class="md-nav__link">
+    Vault Replication
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#replication-options" class="md-nav__link">
+    Replication Options
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance" class="md-nav__link">
+    Performance
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-summary" class="md-nav__link">
+    Module Summary
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../6basic_auth/" class="md-nav__link">
+        L6 Configuring Basic Authentication
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../7vaba_secret_engine/" class="md-nav__link">
+        L7 Using Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../8vaba_monitor/" class="md-nav__link">
+        L8 Configuring Auditing and Monitoring
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          Managing Access and Secrets(Adv.)
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Managing Access and Secrets(Adv.)
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/1mag_vt_intro/" class="md-nav__link">
+        L1 Secrets in HashiCorp Vault Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/2vt_auth_method/" class="md-nav__link">
+        L2 Installing and Configuring Authentication Methods
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/3vt_token/" class="md-nav__link">
+        L3 Working with Tokens
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/3vt_token/" class="md-nav__link">
+        L4 Managing Secrets with Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          Integrating with DevOps
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Integrating with DevOps
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/1cicd_pipeline/" class="md-nav__link">
+        L1 Accessing Secrets in CI/CD Pipelines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/2vault_agent/" class="md-nav__link">
+        L2 Securely Introducing Clients Using Vault Agent
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/3vault_tf_nd/" class="md-nav__link">
+        L3 Integrating Vault with Terraform & Nomad
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/4vault_consul/" class="md-nav__link">
+        L4 Integrating Vault with Consul
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/5vault_cloud/" class="md-nav__link">
+        L5 Authenticating Using Cloud Machine Identity
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/6vault_k8s/" class="md-nav__link">
+        L6 Integrating Vault with Kubernetes
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          Ops on Vault Server
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Ops on Vault Server
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/1encrypt_key/" class="md-nav__link">
+        L1 Managing the Encryption Key
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/2bak_storage/" class="md-nav__link">
+        L2 Managing the Storage Backend
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/3incident/" class="md-nav__link">
+        L3 Managing the Vault Server during an Incident
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/4Plugins/" class="md-nav__link">
+        L4 Managing External Plugins and Server Upgrades
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+          Terraform Tools
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          Terraform Tools
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tfm1/1Terragrunt/" class="md-nav__link">
+        L1 使用Terragrunt优化Terraform代码
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tfm1/2TMF_JENKINS/" class="md-nav__link">
+        L2 基础设施即代码 - 使用Terraform创建AWS EC2实例并部署Jenkins服务
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-vault-server-clustering" class="md-nav__link">
+    1 Vault Server Clustering
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-vault-cluster-compute" class="md-nav__link">
+    2 Vault Cluster Compute
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-vault-cluster-communications" class="md-nav__link">
+    3 Vault Cluster Communications
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-client-request-handling" class="md-nav__link">
+    4 Client Request Handling
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-dev-requirement" class="md-nav__link">
+    5 Dev Requirement
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-cluster-architecture-update" class="md-nav__link">
+    6 Cluster Architecture Update
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vault-cluster-demo-overview" class="md-nav__link">
+    Vault Cluster Demo Overview
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reviewing-the-vault-template" class="md-nav__link">
+    Reviewing the Vault Template
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploying-the-vault-cluster" class="md-nav__link">
+    Deploying the Vault Cluster
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-infrastructure" class="md-nav__link">
+    deploy infrastructure
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#initializing-and-validating-the-vault-cluster" class="md-nav__link">
+    Initializing and Validating the Vault Cluster
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vault-replication" class="md-nav__link">
+    Vault Replication
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#replication-options" class="md-nav__link">
+    Replication Options
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance" class="md-nav__link">
+    Performance
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-summary" class="md-nav__link">
+    Module Summary
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="l5-onfiguring-high-availability"><strong>L5 onfiguring High Availability</strong></h1>
+<ul>
+<li>Vault server clustering</li>
+<li>Cluster communications</li>
+<li>Scenario review</li>
+<li>Vault replication options</li>
+</ul>
+<h3 id="1-vault-server-clustering"><strong>1 Vault Server Clustering</strong></h3>
+<p><strong>High Availability Components</strong></p>
+<ul>
+<li>Compute</li>
+</ul>
+<p>The first component to talk about is the compute component, and this could be a set of bare‑metal servers, it could be virtual machines, it could be containers or pods. </p>
+<ul>
+<li>Network</li>
+<li>Storage</li>
+</ul>
+<p>There's a storage component to high availability. The storage you're using needs to be highly available, but it also needs to support the high‑availability feature of Vault</p>
+<h3 id="2-vault-cluster-compute"><strong>2 Vault Cluster Compute</strong></h3>
+<ul>
+<li>Active and standby</li>
+</ul>
+<p>Vault clustering follows an active standby model, so you'll have one active node and one or more standby nodes</p>
+<p>General recommendation is to have an odd number of nodes in your cluster to help with leader election and those types of things. <strong>So, a three‑node cluster or a five‑node cluster is recommended in general</strong>. </p>
+<ul>
+<li>Forward or redirect</li>
+</ul>
+<p>All requests that come in from clients have to be answered by the active node, which means that the standby nodes can take one of two approaches when they get a request from a client. </p>
+<p>They can either forward that request to the active node and <strong>then send the response back to the client, or they can redirect the client to the active node</strong></p>
+<ul>
+<li>Read-only for Enterprise</li>
+</ul>
+<p><strong>Enterprise license, your standby nodes in your compute cluster can be enabled for read‑only access to the data in Vault.</strong></p>
+<p>Means they can't write anything new to Vault, but they can respond to read‑only requests. </p>
+<ul>
+<li>Lock based in datastore</li>
+<li>Different storage for HA</li>
+</ul>
+<p>Once it becomes the active node, it writes some data to the shared data store that the standby nodes can use. </p>
+<p>Because not all storage types support this HA functionality, you can have one storage type for your general data storage and a separate storage type defined just for HA.</p>
+<h3 id="3-vault-cluster-communications"><strong>3 Vault Cluster Communications</strong></h3>
+<p><strong>Network Components</strong></p>
+<ul>
+<li>Listener <code>cluster_address</code></li>
+</ul>
+<p>The value that you set for <code>cluster_address</code> will be the IP address that you want <strong>the node to listen on for all cluster‑specific communications.</strong></p>
+<p><strong>These would be communications from other nodes within the cluster.</strong></p>
+<ul>
+<li>Node  <code>cluster_addr</code></li>
+</ul>
+<p>The <code>cluster_addr</code> tells other nodes in the cluster how to reach this specific node in the cluster for cluster communications,and <strong>it is going to be a URL as opposed to an IP address.</strong> </p>
+<ul>
+<li>Node  <code>api_addr</code></li>
+</ul>
+<p>The other node level setting is <code>api_addr</code>, and this tells other nodes in the cluster where to redirect clients if they want to talk to the active node using the API. This also is going to be a full URL as opposed to an IP address.</p>
+<ul>
+<li>Direct access</li>
+<li>Load balancer</li>
+</ul>
+<p><strong>Cluster Communications</strong></p>
+<p><img alt="Alt Image Text" src="../../images/vt3_5_1.png" title="Body image" /></p>
+<p>Let's say this is node one and node two. </p>
+<p>For the listener communication for node one, I'll specify the address. This is the IP address that it listens on for client requests. These are requests using the API, typically using port 8200. I will also specify a cluster address, and this is the IP address that this node will listen on for cluster communications, typically using port 8201. </p>
+<p>Likewise, on the second node, I will also set the address and cluster address to the local IPv4 address for this particular node. </p>
+<p>For my first node, I'm going to set the <code>cluster_addr</code> and the <code>api_addr</code>. The <code>cluster_addr</code> is going to be a URL, and <strong>this is the URL that other nodes in the cluster should use to communicate with this node</strong>. </p>
+<p>In this case, my node one is server1 listening on port 8201, and that server1 should be resolvable by other nodes in the cluster. The api_addr is also a URL, and this is the URL that clients should use if they've been redirected from a standby node to an active node. </p>
+<h3 id="4-client-request-handling"><strong>4 Client Request Handling</strong></h3>
+<p><strong>Network Traffic - Request Forwarding</strong></p>
+<p><img alt="Alt Image Text" src="../../images/vt3_5_2.png" title="Body image" /></p>
+<ul>
+<li>We've got our client, and in this case we're making each of the nodes directly accessible. </li>
+<li><strong>They're not sitting behind a load balancer.</strong></li>
+<li>So when the client wants to go talk to the Vault cluster, it's going to look up the Vault cluster's IP addresses via DNS, and there's going to be an entry for each Vault server in the DNS. DNS will use round robin to give the client one of those addresses. </li>
+<li>Now, let's assume in this case the client gets the standby server, which is the gray server in this case. </li>
+<li>Let's assume in this case the client gets the standby server, which is the gray server in this case. <strong>The client sends its request to the standby server</strong>.</li>
+<li>The standby server knows it's in standby mode, so what it does is reach out to <strong>the HA storage backend and ask for information about the active node in the cluster</strong>. </li>
+<li>The HA storage backend will respond with information about the active node.</li>
+<li>In this case, because we're using request forwarding, the standby node is going to use the value stored in <code>cluster_addr</code>. </li>
+<li><strong>It's going to use that URL and forward the request from the client to the active server</strong>. </li>
+<li>The active server in turn will respond to the request, and then the standby server will send that response back to the client. </li>
+<li><strong>The client has no idea it wasn't talking to the active server, because the standby server took care of the request forwarding.</strong></li>
+<li>This assumes that every node in the cluster is able to talk to every other node at its <code>cluster_addr</code> setting. </li>
+</ul>
+<p><strong>might work with a load balancer</strong></p>
+<p><img alt="Alt Image Text" src="../../images/vt3_5_3.png" title="Body image" /></p>
+<ul>
+<li>With a load balancer, the client will still look up the IP address for the Vault service, but that's going to resolve to the front end of the load balancer, <strong>and then the load balancer has to decide where to send the traffic</strong>. </li>
+<li>Now it is possible to configure the health check on a load balancer to only <strong>send traffic to the active node, and that is the recommendation</strong>, </li>
+<li>But let's assume for a second you haven't gone with that recommendation, and the load balancer sends traffic to the standby node. </li>
+<li><strong>The standby node will query the HA storage backend and get the setting for the <code>cluster_addr</code></strong>. </li>
+<li>And once it has that information, it will forward the request to the active node, the active node will respond, and then the <strong>standby node will send that response back to the client</strong>. </li>
+</ul>
+<p><strong>client redirection</strong></p>
+<p><img alt="Alt Image Text" src="../../images/vt3_5_4.png" title="Body image" /></p>
+<ul>
+<li>Client redirection is different in the sense that the standby server is not going to forward the request, <strong>it's actually going to redirect the client.</strong></li>
+<li>Once again, the client looks up the IP addresses for the nodes in the Vault cluster via DNS. </li>
+<li>let's assume in this case, once again it gets back the IP address of the standby node.</li>
+</ul>
+<p><img alt="Alt Image Text" src="../../images/vt3_5_5.png" title="Body image" /></p>
+<ul>
+<li>The client will reach out to the standby node, and because the standby node is running in <strong>client redirection mode</strong>, it will query the HA storage backend, and the setting that it's <strong>looking for here is the <code>api_addr</code> of the active node, in this case it's server1</strong>. </li>
+<li>The standby node will send a 302 Redirect response back to the client with the <code>api_addr</code> value of where it should send its requests. </li>
+<li>At that point, the client will respect that redirect, and <strong>instead send its request to the active Vault server, which should respond in kind</strong>. T</li>
+</ul>
+<p><strong>client redirection interacts with a load balancer</strong></p>
+<p><img alt="Alt Image Text" src="../../images/vt3_5_6.png" title="Body image" /></p>
+<ul>
+<li>The standby server in turn will look up the settings in the HA storage backend and get the <code>api_addr</code> and send that redirect message back to the client. </li>
+<li>The client will get the redirect message, and it will try to directly talk to the Vault server at the address server1 port 8200. </li>
+<li>And if that <strong>Vault server is not directly accessible at that API address</strong>, we have a big problem. </li>
+<li>It can't actually fulfill its requests. The alternative is to set the <code>api_addr</code> to the load balancer frontend, and hope that the load balancer sends it to the active Vault server and you don't end up in a client redirection loop. </li>
+</ul>
+<h3 id="5-dev-requirement"><strong>5 Dev Requirement</strong></h3>
+<ul>
+<li>Deploy in Azure</li>
+<li>Publicly available endpoint</li>
+<li>Use third-party certificates</li>
+<li>SLA of 99.99% for Vault</li>
+<li>Auto unseal of Vault</li>
+</ul>
+<h3 id="6-cluster-architecture-update"><strong>6 Cluster Architecture Update</strong></h3>
+<p><img alt="Alt Image Text" src="../../images/vt3_5_7.png" title="Body image" /></p>
+<p>Now we're going to spin up three Azure VMs in our Vault subnet to form the Vault cluster. </p>
+<p>And the <strong>back‑end storage we're going to use for these virtual machines is the integrated storage using the Raft consensus protocol</strong>. This means that <strong>each virtual machine can just use it's local storage for Vault data</strong>. </p>
+<p>We're going to protect all of our Vault servers with both a network security group and an application security group so only cluster members can talk to each other. </p>
+<p>For the auto unseal of the Vault, we're going to create a <strong>key in Azure Key Vault that will be used to auto unseal each of these nodes as it comes up</strong>, so we don't have to worry about logging into each Azure VM and unsealing the Vault on each Azure VM. </p>
+<p>And then lastly for the front end, we are going to replace our public IP address with a load balancer, and we will ensure that load balancer is properly configured with health checks so that it will always send traffic to the active Vault node in the cluster. </p>
+<p><strong><code>Vault-Config.hcl</code></strong></p>
+<pre><code>#HA parameters
+cluster_addr = &quot;https://LOCAL_IPV4:8201&quot;
+api_addr = &quot;https://SERVER_HOSTNAME:8200&quot;
+
+
+# Listener parameters
+listener &quot;tcp&quot; {
+address = &quot;0.0.0.0:8200&quot;
+cluster_address = &quot;0.0.0.0:8201&quot; 
+}
+</code></pre>
+<p>For cluster communications, we can continue to use the local IP address, and Vault will automatically generate a TLS certificate for intra‑cluster communications. </p>
+<p><strong>For the <code>api_addr</code>, we could use the server hostname, but that is not on the certificate, and it's also not exposed for direct access. We've got our servers behind a load balancer</strong>. </p>
+<h3 id="vault-cluster-demo-overview"><strong>Vault Cluster Demo Overview</strong></h3>
+<ul>
+<li>Deploy new infrastructure</li>
+<li>Initialize and validate cluster</li>
+</ul>
+<h3 id="reviewing-the-vault-template"><strong>Reviewing the Vault Template</strong></h3>
+<p><strong><code>vault.tpl</code></strong></p>
+<p>That's the template file that is going to run when each node starts up.</p>
+<pre><code>#!/usr/bin/env bash
+set -e -o pipefail
+
+# Terraform variables used: 
+# vault_version - version of the Vault binary to download
+# key_vault_secret_id - Id of the Key Vault secret holding the certificates
+# leader_tls_servername - The servername used for the certificate and front end
+# tenant_id - Azure tenant ID for autounseal
+# key_vault_name - Name of Key Vault for autounseal
+# key_vault_key_name - Name of Key in Key Vault for autounseal
+
+# Get the instance name and local ipv4 address
+export instance_name=&quot;$(curl -sH Metadata:true --noproxy '*' 'http://169.254.169.254/metadata/instance/compute/name?api-version=2020-09-01&amp;format=text')&quot;
+export local_ipv4=&quot;$(curl -sH Metadata:true --noproxy '*' 'http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/privateIpAddress?api-version=2020-09-01&amp;format=text')&quot;
+
+# Get the Vault binary
+curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+sudo apt-add-repository &quot;deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main&quot;
+sudo apt-get update
+sudo apt-get install python3-pip vault=${vault_version} -y
+
+# Install Azure CLI
+pip3 install --user 'azure-cli~=2.26.0' 'azure-mgmt-core~=1.2.0' 'cryptography~=3.3.2' 'urllib3[secure]~=1.26.5' 'requests~=2.25.1'
+
+# configuring Azure CLI for use with VM managed identity
+~/.local/bin/az login --identity --allow-no-subscriptions
+
+# removing any default installation files from /opt/vault/tls/
+rm -rf /opt/vault/tls/*
+
+# set up the certificates
+touch /opt/vault/tls/{vault-cert.pem,vault-ca.pem,vault-key.pem,vault-full.pem}
+chown vault:vault /opt/vault/tls/{vault-cert.pem,vault-ca.pem,vault-key.pem,vault-full.pem}
+chmod 0640 /opt/vault/tls/{vault-cert.pem,vault-ca.pem,vault-key.pem,vault-full.pem}
+
+secret_result=$(~/.local/bin/az keyvault secret show --id &quot;${key_vault_secret_id}&quot; --query &quot;value&quot; --output tsv)
+
+echo $secret_result | base64 -d | openssl pkcs12 -clcerts -nokeys -passin pass: | openssl x509 -out /opt/vault/tls/vault-cert.pem
+
+echo $secret_result | base64 -d | openssl pkcs12 -cacerts -nokeys -chain -passin pass: | openssl x509 -out /opt/vault/tls/vault-ca.pem
+
+echo $secret_result | base64 -d | openssl pkcs12 -nocerts -nodes -passin pass: | openssl pkcs8 -nocrypt -out /opt/vault/tls/vault-key.pem
+
+echo $secret_result | base64 -d | openssl pkcs12 -nokeys -passin pass: -out /opt/vault/tls/vault-full.pem
+
+# Create config file
+
+cat &lt;&lt;EOF &gt; /etc/vault.d/vault.hcl
+# General parameters
+cluster_name = &quot;vault-vms&quot;
+log_level = &quot;Info&quot;
+ui = true
+
+# HA parameters
+cluster_addr = &quot;https://$local_ipv4:8201&quot;
+api_addr = &quot;https://${leader_tls_servername}:8200&quot;
+
+listener &quot;tcp&quot; {
+ address     = &quot;0.0.0.0:8200&quot;
+ cluster_address = &quot;0.0.0.0:8201&quot;
+
+ tls_disable = 0
+ tls_cert_file      = &quot;/opt/vault/tls/vault-full.pem&quot;
+ tls_key_file       = &quot;/opt/vault/tls/vault-key.pem&quot;
+ tls_client_ca_file = &quot;/opt/vault/tls/vault-ca.pem&quot;
+ tls_min_version = &quot;tls12&quot;
+}
+
+storage &quot;raft&quot; {
+  path    = &quot;/opt/vault/data&quot;
+  node_id = &quot;$instance_name&quot;
+  retry_join {
+    leader_tls_servername = &quot;${leader_tls_servername}&quot;
+    leader_api_addr = &quot;https://${leader_tls_servername}:8200&quot;
+    leader_ca_cert_file = &quot;/opt/vault/tls/vault-ca.pem&quot;
+    leader_client_cert_file = &quot;/opt/vault/tls/vault-cert.pem&quot;
+    leader_client_key_file = &quot;/opt/vault/tls/vault-key.pem&quot;
+  }
+}
+
+seal &quot;azurekeyvault&quot; {
+  tenant_id = &quot;${tenant_id}&quot;
+  vault_name = &quot;${key_vault_name}&quot;
+  key_name = &quot;${key_vault_key_name}&quot;
+}
+
+EOF
+
+chown -R vault:vault /etc/vault.d/*
+chmod -R 640 /etc/vault.d/*
+
+systemctl enable vault
+systemctl start vault
+</code></pre>
+<p><strong>seal component to our vault configuration so that auto unseal will work properly with our Azure Key Vault</strong></p>
+<h3 id="deploying-the-vault-cluster"><strong>Deploying the Vault Cluster</strong></h3>
+<ul>
+<li><strong><code>terraform.tf</code></strong></li>
+</ul>
+<pre><code># This configuration spins up three Azure VMs that will form
+# the Vault cluster. The virtual machines will be placed behind
+# a public facing load balancer to expose the UI and API port
+
+terraform {
+  required_providers {
+    azurerm = {
+      source  = &quot;hashicorp/azurerm&quot;
+      version = &quot;~&gt; 2.0&quot;
+    }
+  }
+}
+
+provider &quot;azurerm&quot; {
+  features {}
+}
+
+# Used to get tenant ID as needed
+data &quot;azurerm_client_config&quot; &quot;current&quot; {}
+</code></pre>
+<ul>
+<li><strong><code>vnet.tf</code></strong></li>
+</ul>
+<pre><code>resource &quot;azurerm_resource_group&quot; &quot;vault&quot; {
+  name     = local.resource_group_name
+  location = var.location
+}
+
+# Virtual network with a Vault subnet
+module &quot;vnet&quot; {
+  source              = &quot;Azure/vnet/azurerm&quot;
+  version             = &quot;~&gt; 2.0&quot;
+  resource_group_name = azurerm_resource_group.vault.name
+  vnet_name           = azurerm_resource_group.vault.name
+  address_space       = var.address_space
+  subnet_prefixes     = var.subnet_prefixes
+  subnet_names        = var.subnet_names
+
+  subnet_service_endpoints = {
+    (var.subnet_names[0]) = [&quot;Microsoft.KeyVault&quot;]
+  }
+
+}
+
+resource &quot;azurerm_nat_gateway&quot; &quot;vault&quot; {
+  location            = var.location
+  name                = local.nat_gateway_name
+  resource_group_name = azurerm_resource_group.vault.name
+  sku_name            = &quot;Standard&quot;
+}
+
+resource &quot;azurerm_public_ip&quot; &quot;vault_nat&quot; {
+  allocation_method   = &quot;Static&quot;
+  location            = var.location
+  name                = &quot;${local.nat_gateway_name}-vault-nat&quot;
+  resource_group_name = azurerm_resource_group.vault.name
+  sku                 = &quot;Standard&quot;
+}
+
+resource &quot;azurerm_nat_gateway_public_ip_association&quot; &quot;vault&quot; {
+  nat_gateway_id       = azurerm_nat_gateway.vault.id
+  public_ip_address_id = azurerm_public_ip.vault_nat.id
+}
+
+resource &quot;azurerm_subnet_nat_gateway_association&quot; &quot;vault&quot; {
+  nat_gateway_id = azurerm_nat_gateway_public_ip_association.vault.nat_gateway_id
+  subnet_id      = module.vnet.vnet_subnets[0]
+}
+</code></pre>
+<ul>
+<li><strong><code>vms.tf</code></strong></li>
+</ul>
+<pre><code># Generate key pair for all VMs
+resource &quot;tls_private_key&quot; &quot;vault&quot; {
+  algorithm = &quot;RSA&quot;
+  rsa_bits  = &quot;2048&quot;
+}
+
+# Write private key out to a file
+resource &quot;local_file&quot; &quot;private_key&quot; {
+  content  = tls_private_key.vault.private_key_pem
+  filename = &quot;${path.root}/azure_vms_private_key.pem&quot;
+}
+
+# Create User Identities for Vault VMs
+resource &quot;azurerm_user_assigned_identity&quot; &quot;vault&quot; {
+  resource_group_name = azurerm_resource_group.vault.name
+  location            = var.location
+
+  name = local.vault_user_id
+}
+
+##################### vault VM RESOURCES ###################################
+resource &quot;azurerm_availability_set&quot; &quot;vault&quot; {
+  name                         = local.vault_vm
+  location                     = var.location
+  resource_group_name          = azurerm_resource_group.vault.name
+  platform_fault_domain_count  = 3
+  platform_update_domain_count = 2
+  managed                      = true
+}
+
+
+resource &quot;azurerm_network_interface&quot; &quot;vault&quot; {
+  count               = var.vault_vm_count
+  name                = &quot;${local.vault_vm}-${count.index}&quot;
+  location            = var.location
+  resource_group_name = azurerm_resource_group.vault.name
+
+  ip_configuration {
+    name                          = &quot;internal&quot;
+    subnet_id                     = module.vnet.vnet_subnets[0]
+    private_ip_address_allocation = &quot;Dynamic&quot;
+  }
+}
+
+# Associate the network interfaces from the vaults with the vault NSG
+resource &quot;azurerm_network_interface_security_group_association&quot; &quot;vault&quot; {
+  count                     = var.vault_vm_count
+  network_interface_id      = azurerm_network_interface.vault[count.index].id
+  network_security_group_id = azurerm_network_security_group.vault_nics.id
+}
+
+# Associate the network interfaces from the vaults with the vault ASG for NSG rules
+resource &quot;azurerm_network_interface_application_security_group_association&quot; &quot;vault&quot; {
+  count                         = var.vault_vm_count
+  network_interface_id          = azurerm_network_interface.vault[count.index].id
+  application_security_group_id = azurerm_application_security_group.vault_asg.id
+}
+
+resource &quot;azurerm_linux_virtual_machine&quot; &quot;vault&quot; {
+  count               = var.vault_vm_count
+  name                = &quot;${local.vault_vm}-${count.index}&quot;
+  location            = var.location
+  resource_group_name = azurerm_resource_group.vault.name
+  size                = var.vault_vm_size
+  admin_username      = &quot;azureuser&quot;
+  computer_name       = &quot;vault-${count.index}&quot;
+  availability_set_id = azurerm_availability_set.vault.id
+  network_interface_ids = [
+    azurerm_network_interface.vault[count.index].id,
+  ]
+
+  admin_ssh_key {
+    username   = &quot;azureuser&quot;
+    public_key = tls_private_key.vault.public_key_openssh
+  }
+
+  # Using Standard SSD tier storage
+  # Accepting the standard disk size from image
+  # No data disk is being used
+  os_disk {
+    caching              = &quot;ReadWrite&quot;
+    storage_account_type = &quot;StandardSSD_LRS&quot;
+  }
+
+  #Source image is hardcoded b/c I said so
+  source_image_reference {
+    publisher = &quot;Canonical&quot;
+    offer     = &quot;UbuntuServer&quot;
+    sku       = &quot;18.04-LTS&quot;
+    version   = &quot;latest&quot;
+  }
+
+  identity {
+    type         = &quot;UserAssigned&quot;
+    identity_ids = [azurerm_user_assigned_identity.vault.id]
+  }
+
+  #Custom data from the vault.tmpl file
+  custom_data = base64encode(
+    templatefile(&quot;${path.module}/vault.tpl&quot;, {
+      vault_version         = var.vault_version
+      tenant_id             = data.azurerm_client_config.current.tenant_id
+      leader_tls_servername = var.leader_tls_servername
+      key_vault_name        = local.key_vault_name
+      key_vault_key_name    = azurerm_key_vault_key.autounseal.name
+      key_vault_secret_id   = azurerm_key_vault_certificate.vault.secret_id
+    })
+  )
+}
+</code></pre>
+<ul>
+<li><strong><code>nsg.tf</code></strong></li>
+</ul>
+<pre><code># Create Network Security Groups for subnets
+resource &quot;azurerm_network_security_group&quot; &quot;vault_net&quot; {
+  name                = local.vault_net_nsg
+  location            = var.location
+  resource_group_name = azurerm_resource_group.vault.name
+}
+
+resource &quot;azurerm_subnet_network_security_group_association&quot; &quot;vault&quot; {
+  subnet_id                 = module.vnet.vnet_subnets[0]
+  network_security_group_id = azurerm_network_security_group.vault_net.id
+}
+
+# Create Network Security Groups for NICs
+
+resource &quot;azurerm_network_security_group&quot; &quot;vault_nics&quot; {
+  name                = local.vault_nic_nsg
+  location            = var.location
+  resource_group_name = azurerm_resource_group.vault.name
+}
+
+# Create application security groups for Vault VMs
+
+resource &quot;azurerm_application_security_group&quot; &quot;vault_asg&quot; {
+  name                = local.vault_asg
+  location            = var.location
+  resource_group_name = azurerm_resource_group.vault.name
+}
+
+# Inbound rules for vault subnet nsg
+
+resource &quot;azurerm_network_security_rule&quot; &quot;vault_8200&quot; {
+  name                                       = &quot;allow_8200&quot;
+  priority                                   = 100
+  direction                                  = &quot;Inbound&quot;
+  access                                     = &quot;Allow&quot;
+  protocol                                   = &quot;Tcp&quot;
+  source_port_range                          = &quot;*&quot;
+  destination_port_range                     = &quot;8200&quot;
+  source_address_prefix                      = &quot;*&quot;
+  destination_application_security_group_ids = [azurerm_application_security_group.vault_asg.id]
+  resource_group_name                        = azurerm_resource_group.vault.name
+  network_security_group_name                = azurerm_network_security_group.vault_net.name
+}
+
+resource &quot;azurerm_network_security_rule&quot; &quot;vault_8201&quot; {
+  name                                       = &quot;allow_8201&quot;
+  priority                                   = 110
+  direction                                  = &quot;Inbound&quot;
+  access                                     = &quot;Allow&quot;
+  protocol                                   = &quot;Tcp&quot;
+  source_port_range                          = &quot;*&quot;
+  destination_port_range                     = &quot;8201&quot;
+  source_application_security_group_ids      = [azurerm_application_security_group.vault_asg.id]
+  destination_application_security_group_ids = [azurerm_application_security_group.vault_asg.id]
+  resource_group_name                        = azurerm_resource_group.vault.name
+  network_security_group_name                = azurerm_network_security_group.vault_net.name
+}
+
+resource &quot;azurerm_network_security_rule&quot; &quot;vault_ssh&quot; {
+  name                                       = &quot;allow_ssh&quot;
+  priority                                   = 120
+  direction                                  = &quot;Inbound&quot;
+  access                                     = &quot;Allow&quot;
+  protocol                                   = &quot;Tcp&quot;
+  source_port_range                          = &quot;*&quot;
+  destination_port_range                     = &quot;22&quot;
+  source_address_prefix                      = &quot;${data.http.my_ip.body}/32&quot; # Restrict to your public IP address
+  destination_application_security_group_ids = [azurerm_application_security_group.vault_asg.id]
+  resource_group_name                        = azurerm_resource_group.vault.name
+  network_security_group_name                = azurerm_network_security_group.vault_net.name
+}
+
+# Inbound rules for vault nic nsg
+
+resource &quot;azurerm_network_security_rule&quot; &quot;vault_nic_8200&quot; {
+  name                                       = &quot;allow_8200&quot;
+  priority                                   = 100
+  direction                                  = &quot;Inbound&quot;
+  access                                     = &quot;Allow&quot;
+  protocol                                   = &quot;Tcp&quot;
+  source_port_range                          = &quot;*&quot;
+  destination_port_range                     = &quot;8200&quot;
+  source_address_prefix                      = &quot;*&quot;
+  destination_application_security_group_ids = [azurerm_application_security_group.vault_asg.id]
+  resource_group_name                        = azurerm_resource_group.vault.name
+  network_security_group_name                = azurerm_network_security_group.vault_nics.name
+}
+
+resource &quot;azurerm_network_security_rule&quot; &quot;vault_nic_8201&quot; {
+  name                                       = &quot;allow_8201&quot;
+  priority                                   = 110
+  direction                                  = &quot;Inbound&quot;
+  access                                     = &quot;Allow&quot;
+  protocol                                   = &quot;Tcp&quot;
+  source_port_range                          = &quot;*&quot;
+  destination_port_range                     = &quot;8201&quot;
+  source_application_security_group_ids      = [azurerm_application_security_group.vault_asg.id]
+  destination_application_security_group_ids = [azurerm_application_security_group.vault_asg.id]
+  resource_group_name                        = azurerm_resource_group.vault.name
+  network_security_group_name                = azurerm_network_security_group.vault_nics.name
+}
+
+resource &quot;azurerm_network_security_rule&quot; &quot;vault_nic_ssh&quot; {
+  name                                       = &quot;allow_ssh&quot;
+  priority                                   = 120
+  direction                                  = &quot;Inbound&quot;
+  access                                     = &quot;Allow&quot;
+  protocol                                   = &quot;Tcp&quot;
+  source_port_range                          = &quot;*&quot;
+  destination_port_range                     = &quot;22&quot;
+  source_address_prefix                      = &quot;${data.http.my_ip.body}/32&quot; # Restrict to your public IP address
+  destination_application_security_group_ids = [azurerm_application_security_group.vault_asg.id]
+  resource_group_name                        = azurerm_resource_group.vault.name
+  network_security_group_name                = azurerm_network_security_group.vault_nics.name
+}
+</code></pre>
+<ul>
+<li><strong><code>keyvault.tf</code></strong></li>
+</ul>
+<pre><code>
+# Get your current IP address to provide access to Key Vault in the network acls
+data &quot;http&quot; &quot;my_ip&quot; {
+  url = &quot;http://ifconfig.me&quot;
+}
+
+# Create key vault and access policies
+resource &quot;azurerm_key_vault&quot; &quot;vault&quot; {
+  name                       = local.key_vault_name
+  location                   = var.location
+  resource_group_name        = azurerm_resource_group.vault.name
+  tenant_id                  = data.azurerm_client_config.current.tenant_id
+  enabled_for_deployment     = true
+  soft_delete_retention_days = 7
+  purge_protection_enabled   = false
+
+  sku_name = &quot;standard&quot;
+
+  # Only allow access to the Key Vault from your public IP address and the vault 
+  # subnet.
+  network_acls {
+    default_action             = &quot;Deny&quot;
+    bypass                     = &quot;AzureServices&quot;
+    ip_rules                   = [&quot;${data.http.my_ip.body}/32&quot;]
+    virtual_network_subnet_ids = [module.vnet.vnet_subnets[0]]
+
+  }
+
+}
+
+# Access policy for vault VMs
+# Uses the vault user assigned identity
+resource &quot;azurerm_key_vault_access_policy&quot; &quot;vault&quot; {
+  key_vault_id = azurerm_key_vault.vault.id
+
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  object_id = azurerm_user_assigned_identity.vault.principal_id
+
+  key_permissions = [
+    &quot;get&quot;, &quot;list&quot;, &quot;update&quot;, &quot;create&quot;, &quot;decrypt&quot;, &quot;encrypt&quot;, &quot;unwrapKey&quot;, &quot;wrapKey&quot;, &quot;verify&quot;, &quot;sign&quot;,
+  ]
+
+  secret_permissions = [
+    &quot;get&quot;, &quot;list&quot;,
+  ]
+
+  certificate_permissions = [
+    &quot;get&quot;, &quot;list&quot;,
+  ]
+}
+
+# Access policy allowing your credentials full access to Key Vault
+resource &quot;azurerm_key_vault_access_policy&quot; &quot;you&quot; {
+  key_vault_id = azurerm_key_vault.vault.id
+
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  object_id = data.azurerm_client_config.current.object_id
+
+  key_permissions = [
+    &quot;get&quot;, &quot;list&quot;, &quot;update&quot;, &quot;create&quot;, &quot;decrypt&quot;, &quot;encrypt&quot;, &quot;unwrapKey&quot;, &quot;wrapKey&quot;, &quot;verify&quot;, &quot;sign&quot;, &quot;delete&quot;, &quot;purge&quot;,
+  ]
+
+  secret_permissions = [
+    &quot;get&quot;, &quot;list&quot;, &quot;set&quot;, &quot;delete&quot;, &quot;purge&quot;,
+  ]
+
+  certificate_permissions = [
+    &quot;get&quot;, &quot;list&quot;, &quot;create&quot;, &quot;import&quot;, &quot;delete&quot;, &quot;update&quot;, &quot;purge&quot;,
+  ]
+}
+
+# Create a key for Vault autounseal
+resource &quot;azurerm_key_vault_key&quot; &quot;autounseal&quot; {
+  depends_on   = [azurerm_key_vault_access_policy.you]
+  name         = &quot;${local.resource_group_name}-autounseal&quot;
+  key_vault_id = azurerm_key_vault.vault.id
+  key_type     = &quot;RSA&quot;
+  key_size     = 2048
+
+  key_opts = [
+    &quot;decrypt&quot;,
+    &quot;encrypt&quot;,
+    &quot;sign&quot;,
+    &quot;unwrapKey&quot;,
+    &quot;verify&quot;,
+    &quot;wrapKey&quot;,
+  ]
+}
+
+# Create a certificate in Key Vault for the Vault server
+resource &quot;azurerm_key_vault_certificate&quot; &quot;vault&quot; {
+  depends_on   = [azurerm_key_vault_access_policy.you]
+  name         = &quot;${local.resource_group_name}-cert&quot;
+  key_vault_id = azurerm_key_vault.vault.id
+
+  certificate {
+    contents = filebase64(var.cert_pfx_file_path)
+    password = &quot;&quot;
+  }
+
+  certificate_policy {
+    issuer_parameters {
+      name = &quot;Self&quot;
+    }
+
+    key_properties {
+      exportable = true
+      key_size   = 2048
+      key_type   = &quot;RSA&quot;
+      reuse_key  = false
+    }
+
+    secret_properties {
+      content_type = &quot;application/x-pkcs12&quot;
+    }
+  }
+}
+</code></pre>
+<ul>
+<li><strong><code>lb.tf</code></strong></li>
+</ul>
+<pre><code># Create a public IP address for the load balancer
+# The domain label is based on the resource group name
+resource &quot;azurerm_public_ip&quot; &quot;vault&quot; {
+  name                = local.pip_name
+  resource_group_name = azurerm_resource_group.vault.name
+  location            = azurerm_resource_group.vault.location
+  allocation_method   = &quot;Static&quot;
+  domain_name_label   = lower(azurerm_resource_group.vault.name)
+  sku                 = &quot;Standard&quot;
+}
+
+# Create a load balancer for vault to use
+resource &quot;azurerm_lb&quot; &quot;vault&quot; {
+  name                = local.lb_name
+  location            = azurerm_resource_group.vault.location
+  resource_group_name = azurerm_resource_group.vault.name
+  sku                 = &quot;Standard&quot;
+
+  frontend_ip_configuration {
+    name                 = &quot;PublicIPAddress&quot;
+    public_ip_address_id = azurerm_public_ip.vault.id
+  }
+}
+
+# Create an address pool for the Vault servers
+resource &quot;azurerm_lb_backend_address_pool&quot; &quot;pool&quot; {
+  loadbalancer_id = azurerm_lb.vault.id
+  name            = &quot;vault-servers&quot;
+}
+
+# Associate all vault NICs with the backend pool
+resource &quot;azurerm_network_interface_backend_address_pool_association&quot; &quot;vault&quot; {
+  count                   = var.vault_vm_count
+  backend_address_pool_id = azurerm_lb_backend_address_pool.pool.id
+  ip_configuration_name   = &quot;internal&quot;
+  network_interface_id    = azurerm_network_interface.vault[count.index].id
+}
+
+# All health probe for vault nodes
+resource &quot;azurerm_lb_probe&quot; &quot;vault_8200&quot; {
+  resource_group_name = azurerm_resource_group.vault.name
+  loadbalancer_id     = azurerm_lb.vault.id
+  name                = &quot;port-8200&quot;
+  protocol            = &quot;Https&quot;
+  port                = 8200
+  request_path        = &quot;/v1/sys/health?activecode=200&amp;standbycode=429&amp;sealedcode=200&amp;uninitcode=200&quot;
+}
+
+# Add LB rule for vault
+resource &quot;azurerm_lb_rule&quot; &quot;vault&quot; {
+  resource_group_name            = azurerm_resource_group.vault.name
+  loadbalancer_id                = azurerm_lb.vault.id
+  name                           = &quot;vault&quot;
+  protocol                       = &quot;Tcp&quot;
+  frontend_port                  = 8200
+  backend_port                   = 8200
+  frontend_ip_configuration_name = &quot;PublicIPAddress&quot;
+  probe_id                       = azurerm_lb_probe.vault_8200.id
+  backend_address_pool_id        = azurerm_lb_backend_address_pool.pool.id
+}
+
+# Add an NAT rule for the vault node using port 2022 
+# This is so you can SSH into the vault to troubleshoot 
+# deployment issues.
+resource &quot;azurerm_lb_nat_rule&quot; &quot;vault&quot; {
+  resource_group_name            = azurerm_resource_group.vault.name
+  loadbalancer_id                = azurerm_lb.vault.id
+  name                           = &quot;ssh-vault&quot;
+  protocol                       = &quot;Tcp&quot;
+  frontend_port                  = 2022
+  backend_port                   = 22
+  frontend_ip_configuration_name = &quot;PublicIPAddress&quot;
+}
+
+# Associate the NAT rule with the first vault VM
+resource &quot;azurerm_network_interface_nat_rule_association&quot; &quot;vault&quot; {
+  network_interface_id  = azurerm_network_interface.vault[0].id
+  ip_configuration_name = &quot;internal&quot;
+  nat_rule_id           = azurerm_lb_nat_rule.vault.id
+}
+</code></pre>
+<ul>
+<li><code>variables.tf</code></li>
+</ul>
+<pre><code>variable &quot;location&quot; {
+  type    = string
+  default = &quot;East US&quot;
+}
+
+variable &quot;address_space&quot; {
+  type    = list(string)
+  default = [&quot;10.0.0.0/16&quot;]
+}
+
+variable &quot;subnet_prefixes&quot; {
+  type = list(string)
+  default = [
+    &quot;10.0.0.0/24&quot;,
+  ]
+}
+
+variable &quot;subnet_names&quot; {
+  type = list(string)
+  default = [
+    &quot;vault-servers&quot;,
+  ]
+}
+
+variable &quot;vault_vm_size&quot; {
+  type    = string
+  default = &quot;Standard_B2ms&quot;
+}
+
+variable &quot;vault_vm_count&quot; {
+  type    = number
+  default = 3
+}
+
+variable &quot;cert_pfx_file_path&quot; {
+  type        = string
+  description = &quot;The full path to the pfx file to be used for Vault&quot;
+  default     = &quot;vm-certificate-to-import.pfx&quot;
+}
+
+variable &quot;leader_tls_servername&quot; {
+  type        = string
+  description = &quot;The fqdn used to generate the certificate.&quot;
+}
+
+variable &quot;vault_version&quot; {
+  type        = string
+  description = &quot;The version of the Vault binary to download.&quot;
+  default     = &quot;1.8.0&quot;
+}
+resource &quot;random_id&quot; &quot;id&quot; {
+  byte_length = 4
+}
+
+locals {
+  resource_group_name = &quot;vault-${random_id.id.hex}&quot;
+
+  vault_net_nsg = &quot;vault-net-${random_id.id.hex}&quot;
+
+  vault_nic_nsg = &quot;vault-nic-${random_id.id.hex}&quot;
+
+  vault_asg = &quot;vault-asg-${random_id.id.hex}&quot;
+
+  vault_vm = &quot;vault-${random_id.id.hex}&quot;
+
+  vault_user_id = &quot;vault-userid-${random_id.id.hex}&quot;
+
+  pip_name = &quot;vault-${random_id.id.hex}&quot;
+  lb_name  = &quot;vault-${random_id.id.hex}&quot;
+
+  key_vault_name = &quot;vault-${random_id.id.hex}&quot;
+
+  nat_gateway_name = &quot;vault-${random_id.id.hex}&quot;
+
+}
+</code></pre>
+<ul>
+<li><strong><code>outputs.tf</code></strong></li>
+</ul>
+<pre><code># The dns label from the load balancer
+output &quot;public_dns_name&quot; {
+  value = azurerm_public_ip.vault.fqdn
+}
+
+# The public IP address of the load balancer
+output &quot;public_ip_address&quot; {
+  value = azurerm_public_ip.vault.ip_address
+}
+</code></pre>
+<h3 id="deploy-infrastructure">deploy infrastructure</h3>
+<pre><code># First we are going to initialize the Terraform config
+terraform init
+</code></pre>
+<p>we'll copy over the certificate file we'll use for the deployment</p>
+<p><strong><code>vm-certificate-to-import.pfx</code></strong></p>
+<p><strong>Provisioning the AKS Certificate（3deploy_vault.md)</strong></p>
+<pre><code># Next we are going to plan our deployment
+# Make sure to change the YOUR_CERTIFICATE_CN to the fqdn on
+# your TLS certificate. Ex. vault-vms.globomantics.xyz
+certificate_cn=YOUR_CERTIFICATE_CN
+
+terraform plan -var leader_tls_servername=$certificate_cn -out azurevm.tfplan
+
+# Now we'll apply the plan to create the resources
+terraform apply azurevm.tfplan
+</code></pre>
+<p><img alt="Alt Image Text" src="../../images/vt3_5_8.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/vt3_5_9.png" title="Body image" /></p>
+<h3 id="initializing-and-validating-the-vault-cluster"><strong>Initializing and Validating the Vault Cluster</strong></h3>
+<p><img alt="Alt Image Text" src="../../images/vt3_5_10.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/vt3_5_11.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/vt3_5_12.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/vt3_5_13.png" title="Body image" /></p>
+<p><strong><code>lb.tf</code></strong></p>
+<p>here is the load balancer health probe that's used to test the health of the nodes in the Vault cluster. </p>
+<pre><code>azurerm_lb_probe
+...
+request_path = &quot;/v1/sys/health?activecode=200&amp;standbycode=429&amp;sealedcode=200&amp;uninitcode=200&quot;
+</code></pre>
+<p>it's looking at <code>v1/sys/health</code>, and it's passing some parameters to the request. </p>
+<p>The first setting, activecode, says if you're the active Vault server, I want you to respond with a 200, also known as an httpok. </p>
+<p><strong>If you are a standby server, the second setting, standbycode, says respond with the code 429, which means you're no good, don't send requests to that node</strong>. </p>
+<p>And that's how the health probe in the load balancer knows which node to send traffic to. There's two more settings in here, sealedcode and uninitcode. </p>
+<p><strong>If the Vault is sealed or uninitialized, then it should respond with a 200, meaning that you haven't initialized the cluster yet, so there is no active node, so just send it to any node and then persist that session.</strong> </p>
+<h3 id="vault-replication"><strong>Vault Replication</strong></h3>
+<ul>
+<li>Enterprise only</li>
+</ul>
+<p><strong>Vault replication is actually replication between clusters</strong></p>
+<ul>
+<li>Cluster is unit of replication</li>
+</ul>
+<p><strong>we're not talking about intra‑cluster replication; we're talking about inter‑cluster replication</strong></p>
+<ul>
+<li>
+<p>Replication is one-to-many</p>
+<ul>
+<li>The model for replication is one to many, so a single Vault cluster, that's the primary, can replicate to multiple secondary clusters.(replication process is that it is asynchronous)</li>
+<li>Committed and completed on the primary Vault cluster before it is replicated to the secondary Vault clusters</li>
+<li>That could lead to <strong>some small amount of data loss if the primary cluster goes down and clients switch over to a secondary cluster</strong>.    </li>
+</ul>
+</li>
+<li>
+<p>Replication is asynchronous</p>
+</li>
+</ul>
+<h3 id="replication-options"><strong>Replication Options</strong></h3>
+<ul>
+<li><strong>replication is disaster recovery.</strong></li>
+<li><strong>For that reason, disaster recovery replication replicates not just the Vault data but also the active tokens and leases.</strong> </li>
+<li><strong>No requests to secondaries</strong></li>
+</ul>
+<p>So if a client is redirected from the primary cluster to the secondary cluster, all of their tokens and leases will continue to work. </p>
+<h3 id="performance"><strong>Performance</strong></h3>
+<p><strong>You could set up a secondary cluster and enable it for performance</strong>. </p>
+<p>It will replicate the Vault data from the primary cluster and make it available in a read‑only format for requests coming from clients. </p>
+<p>Any requests that make changes to the Vault data will need to be forwarded along to the primary cluster. </p>
+<p><strong>Performance clusters</strong> do not replicate tokens and leases, so <strong>if a client is using a secondary performance cluster and needs to switch over to the primary or vice versa, it's going to need to renew its lease or token</strong>.</p>
+<h3 id="module-summary">Module Summary</h3>
+<ul>
+<li>Vault clusters run in an active/standby model</li>
+<li>Vault clusters require HA storage</li>
+<li>Vault client communication can be forwarded or redirected</li>
+<li>Replication is between Vault clusters supporting DR or performance</li>
+</ul>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2021-9999 Jacob Xi
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a51614de.min.js"></script>
+      
+    
+  </body>
+</html>

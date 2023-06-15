@@ -1,0 +1,2723 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Jacob's Hashicorp Tutorial Book">
+      
+      
+        <meta name="author" content="Jacob Xi">
+      
+      
+        <link rel="canonical" href="https://chao-xi.github.io/jxhashicorpbook/vault2/4vaba_engines/">
+      
+      
+        <link rel="prev" href="../3vaba_token/">
+      
+      
+        <link rel="next" href="../5vaba_lease/">
+      
+      <link rel="icon" href="../../images/logo.png">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.16">
+    
+    
+      
+        <title>L4 Using Secrets Engines - Jacob Hashicorp Book</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.26e3688c.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ecc896b0.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="blue-greay">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#l4-using-secrets-engines" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="Jacob Hashicorp Book" class="md-header__button md-logo" aria-label="Jacob Hashicorp Book" data-md-component="logo">
+      
+  <img src="../../images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Jacob Hashicorp Book
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              L4 Using Secrets Engines
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Chao-Xi/jxhashicorpbook.git" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jxhashicorpbook
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Jacob Hashicorp Book" class="md-nav__button md-logo" aria-label="Jacob Hashicorp Book" data-md-component="logo">
+      
+  <img src="../../images/logo.png" alt="logo">
+
+    </a>
+    Jacob Hashicorp Book
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Chao-Xi/jxhashicorpbook.git" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jxhashicorpbook
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Welcome
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          私密信息管理利器Vault
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          私密信息管理利器Vault
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/1vault_intro/" class="md-nav__link">
+        1 私密信息管理利器 HashiCorp Vault——简介
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/2vault_start/" class="md-nav__link">
+        2 私密信息管理利器 HashiCorp Vault——启动和读写
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/3vault_secretengine/" class="md-nav__link">
+        3 私密信息管理利器 HashiCorp Vault——Secret Engine
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/4vault_auth/" class="md-nav__link">
+        4 私密信息管理利器 HashiCorp Vault——验证和授权
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/5vault_deploy/" class="md-nav__link">
+        5 私密信息管理利器 HashiCorp Vault——部署
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/6vault_api/" class="md-nav__link">
+        6 私密信息管理利器 HashiCorp Vault——REST API
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/7vault_impl/" class="md-nav__link">
+        7 密钥管理神器之 Vault 集群搭建
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/8vault_k8s/" class="md-nav__link">
+        8 K8S与Vault集成，进行Secret管理
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/9vault_docker/" class="md-nav__link">
+        9 使用 Docker 和 Traefik 搭建 Vault
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/10vault_cm/" class="md-nav__link">
+        10 使用 Vault + Cert Manager 管理 Kubernetes 集群中的数字证书
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/13vault_ack_cloud/" class="md-nav__link">
+        11 云原生更安全的密文管理 Vault on ACK
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/14K8s_secret/" class="md-nav__link">
+        12 Kubernetes 的 secret 并不是真正的 secret
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          Vault on K8S
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Vault on K8S
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/0k8s_vault/" class="md-nav__link">
+        L0 在 Kubernetes 上部署 Vault
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/1Vault_basic/" class="md-nav__link">
+        L1 Hashcorp Vault 基础使用教程
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/2vault_k8s/" class="md-nav__link">
+        L2 在 Kubernetes 读取 Vault 中的机密信息
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/3vault_rotate/" class="md-nav__link">
+        L3 透过 Vault 定期 rotate credentials
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/4vault_int_k8s/" class="md-nav__link">
+        L4 Vault 与 Kubernetes 的深度整合
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          Hashicorp Certified Vault Associate
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Hashicorp Certified Vault Associate
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1vaba_intro/" class="md-nav__link">
+        L1 Vault Associate: Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2vaba_auth_poly/" class="md-nav__link">
+        L2 Authentication and Policies
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3vaba_token/" class="md-nav__link">
+        L3 Vault Token
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          L4 Using Secrets Engines
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        L4 Using Secrets Engines
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    Overview
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#secrets-engines" class="md-nav__link">
+    Secrets Engines
+  </a>
+  
+    <nav class="md-nav" aria-label="Secrets Engines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#identity-engine" class="md-nav__link">
+    Identity Engine
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#entities" class="md-nav__link">
+    Entities
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aliases" class="md-nav__link">
+    Aliases
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#groups" class="md-nav__link">
+    Groups
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cubbyhole" class="md-nav__link">
+    Cubbyhole
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dynamic-vs-static-secrets" class="md-nav__link">
+    Dynamic vs. Static Secrets
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exp-scenario" class="md-nav__link">
+    Exp Scenario
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-transit-engine" class="md-nav__link">
+    2 Transit Engine
+  </a>
+  
+    <nav class="md-nav" aria-label="2 Transit Engine">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#introudcing-the-transit-engine" class="md-nav__link">
+    Introudcing the Transit Engine
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-value-engine-versions" class="md-nav__link">
+    Key Value Engine Versions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pratical-scenario" class="md-nav__link">
+    Pratical Scenario
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transit-engine" class="md-nav__link">
+    Transit Engine
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#desmonstrating-secret-engine" class="md-nav__link">
+    Desmonstrating  Secret Engine
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enabling-secrets-engines" class="md-nav__link">
+    Enabling Secrets Engines
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-secrets-engines" class="md-nav__link">
+    Configuring Secrets Engines
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enabling-secrets-engines-with-transit-engines" class="md-nav__link">
+    Enabling secrets engines with transit engines
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-key-value-engine-the-ui" class="md-nav__link">
+    Configuring key value Engine the UI
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-the-key-value-engine" class="md-nav__link">
+    Configuring the Key Value Engine
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-the-consul-engine" class="md-nav__link">
+    Configuring the Consul Engine
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-secrets-engines" class="md-nav__link">
+    Using Secrets Engines
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interacting-with-the-key-value-engine" class="md-nav__link">
+    Interacting with the Key Value Engine
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interacting-with-the-key-value-engine-using-the-api" class="md-nav__link">
+    Interacting with the Key Value Engine using the API?
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#response-wrapping" class="md-nav__link">
+    Response Wrapping
+  </a>
+  
+    <nav class="md-nav" aria-label="Response Wrapping">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-takeways" class="md-nav__link">
+    Key takeways
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../5vaba_lease/" class="md-nav__link">
+        L5 Using Vault Leases
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          Installing Configuring Vault
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Installing Configuring Vault
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/1intro/" class="md-nav__link">
+        L1 HashiCorp Vault Overview and Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/2dev_model/" class="md-nav__link">
+        L2 Vault a Deployment Model
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/3deploy_valut/" class="md-nav__link">
+        L3 Deploying Vault Server
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/4encryption_key/" class="md-nav__link">
+        L4 Managing Encryption and Seal Keys
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/5conf_ha/" class="md-nav__link">
+        L5 Configuring High Availability
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/6basic_auth/" class="md-nav__link">
+        L6 Configuring Basic Authentication
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/7vaba_secret_engine/" class="md-nav__link">
+        L7 Using Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/8vaba_monitor/" class="md-nav__link">
+        L8 Configuring Auditing and Monitoring
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          Managing Access and Secrets(Adv.)
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Managing Access and Secrets(Adv.)
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/1mag_vt_intro/" class="md-nav__link">
+        L1 Secrets in HashiCorp Vault Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/2vt_auth_method/" class="md-nav__link">
+        L2 Installing and Configuring Authentication Methods
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/3vt_token/" class="md-nav__link">
+        L3 Working with Tokens
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/3vt_token/" class="md-nav__link">
+        L4 Managing Secrets with Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          Integrating with DevOps
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Integrating with DevOps
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/1cicd_pipeline/" class="md-nav__link">
+        L1 Accessing Secrets in CI/CD Pipelines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/2vault_agent/" class="md-nav__link">
+        L2 Securely Introducing Clients Using Vault Agent
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/3vault_tf_nd/" class="md-nav__link">
+        L3 Integrating Vault with Terraform & Nomad
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/4vault_consul/" class="md-nav__link">
+        L4 Integrating Vault with Consul
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/5vault_cloud/" class="md-nav__link">
+        L5 Authenticating Using Cloud Machine Identity
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/6vault_k8s/" class="md-nav__link">
+        L6 Integrating Vault with Kubernetes
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          Ops on Vault Server
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Ops on Vault Server
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/1encrypt_key/" class="md-nav__link">
+        L1 Managing the Encryption Key
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/2bak_storage/" class="md-nav__link">
+        L2 Managing the Storage Backend
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/3incident/" class="md-nav__link">
+        L3 Managing the Vault Server during an Incident
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/4Plugins/" class="md-nav__link">
+        L4 Managing External Plugins and Server Upgrades
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+          Terraform Tools
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          Terraform Tools
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tfm1/1Terragrunt/" class="md-nav__link">
+        L1 使用Terragrunt优化Terraform代码
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tfm1/2TMF_JENKINS/" class="md-nav__link">
+        L2 基础设施即代码 - 使用Terraform创建AWS EC2实例并部署Jenkins服务
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    Overview
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#secrets-engines" class="md-nav__link">
+    Secrets Engines
+  </a>
+  
+    <nav class="md-nav" aria-label="Secrets Engines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#identity-engine" class="md-nav__link">
+    Identity Engine
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#entities" class="md-nav__link">
+    Entities
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aliases" class="md-nav__link">
+    Aliases
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#groups" class="md-nav__link">
+    Groups
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cubbyhole" class="md-nav__link">
+    Cubbyhole
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dynamic-vs-static-secrets" class="md-nav__link">
+    Dynamic vs. Static Secrets
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exp-scenario" class="md-nav__link">
+    Exp Scenario
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-transit-engine" class="md-nav__link">
+    2 Transit Engine
+  </a>
+  
+    <nav class="md-nav" aria-label="2 Transit Engine">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#introudcing-the-transit-engine" class="md-nav__link">
+    Introudcing the Transit Engine
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-value-engine-versions" class="md-nav__link">
+    Key Value Engine Versions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pratical-scenario" class="md-nav__link">
+    Pratical Scenario
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transit-engine" class="md-nav__link">
+    Transit Engine
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#desmonstrating-secret-engine" class="md-nav__link">
+    Desmonstrating  Secret Engine
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enabling-secrets-engines" class="md-nav__link">
+    Enabling Secrets Engines
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-secrets-engines" class="md-nav__link">
+    Configuring Secrets Engines
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enabling-secrets-engines-with-transit-engines" class="md-nav__link">
+    Enabling secrets engines with transit engines
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-key-value-engine-the-ui" class="md-nav__link">
+    Configuring key value Engine the UI
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-the-key-value-engine" class="md-nav__link">
+    Configuring the Key Value Engine
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-the-consul-engine" class="md-nav__link">
+    Configuring the Consul Engine
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-secrets-engines" class="md-nav__link">
+    Using Secrets Engines
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interacting-with-the-key-value-engine" class="md-nav__link">
+    Interacting with the Key Value Engine
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interacting-with-the-key-value-engine-using-the-api" class="md-nav__link">
+    Interacting with the Key Value Engine using the API?
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#response-wrapping" class="md-nav__link">
+    Response Wrapping
+  </a>
+  
+    <nav class="md-nav" aria-label="Response Wrapping">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-takeways" class="md-nav__link">
+    Key takeways
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="l4-using-secrets-engines"><strong>L4 Using Secrets Engines</strong></h1>
+<pre><code>$ vault server -dev
+$ export VAULT_ADDR='http://127.0.0.1:8200'
+$ root_token=hvs.xdqJDIY7fbqrz9oj2hs63nEq
+
+$ vault login $root_token
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run &quot;vault login&quot;
+again. Future Vault requests will automatically use this token.
+
+Key                  Value
+---                  -----
+token                hvs.xdqJDIY7fbqrz9oj2hs63nEq
+token_accessor       zCpAz878fjNacWJjveqTVj2R
+token_duration       ∞
+token_renewable      false
+token_policies       [&quot;root&quot;]
+identity_policies    []
+policies             [&quot;root&quot;]
+</code></pre>
+<h2 id="overview"><strong>Overview</strong></h2>
+<ul>
+<li>Secrets engine overview</li>
+<li>Selecting an engine</li>
+<li>Enabling an engine</li>
+<li>Using secrets engines</li>
+</ul>
+<h2 id="secrets-engines"><strong>Secrets Engines</strong></h2>
+<p><strong>Secrets engines are plugins used by Vault to handle sensitive data</strong></p>
+<p>Vault can provide encryption services. This would be data that exists outside of Vault, and all you want Vault to do is provide <strong>some level of encryption services for that data.</strong></p>
+<ul>
+<li><strong>Store</strong></li>
+</ul>
+<p>Sensitive data is stored securely by Vault</p>
+<ul>
+<li><strong>Generate</strong></li>
+</ul>
+<p>Vault generates and manages sensitive data</p>
+<ul>
+<li><strong>Encrypt</strong></li>
+</ul>
+<p>Vault provides encryption services for existing data</p>
+<p><strong>Secrets Engine Categories</strong></p>
+<ul>
+<li><strong>Cloud</strong> AWS, Azure, GCP</li>
+<li><strong>Database</strong> MSSQL, PostreSQL. MondoDB</li>
+<li><strong>Internal</strong> Key/Value, Identity, Transit</li>
+<li><strong>Identity</strong> Active Directory, OpenLDAP</li>
+<li><strong>Certificate</strong> SSH, PKI, Venafi</li>
+<li><strong>Tokens</strong> Consul, Nomad</li>
+</ul>
+<h3 id="identity-engine"><strong>Identity Engine</strong></h3>
+<ul>
+<li>Maintains clients for Vault</li>
+<li>Enabled by default</li>
+<li>Cannot be disabled</li>
+<li>Cannot enable multiple</li>
+</ul>
+<h3 id="entities">Entities</h3>
+<p>Entities are those clients. It's an entry within the Identity engine that represents those clients.</p>
+<h3 id="aliases"><strong>Aliases</strong></h3>
+<p>Aliases come from authentication methods and they're how you map an identity in an authentication method to one of these entities.</p>
+<h3 id="groups"><strong>Groups</strong></h3>
+<p>You can also place entities in groups to manage policy assignment to entities.</p>
+<h3 id="cubbyhole"><strong>Cubbyhole</strong></h3>
+<p>The Cubbyhole is a special type of secrets engine, and it's meant to <strong>provide per token access to a reserved area in Vault</strong>.</p>
+<p><strong>Cubbyhole</strong></p>
+<ul>
+<li>Enabled by default</li>
+<li>Cannot be disabled or moved</li>
+<li>Created per service token</li>
+<li>Only accessible by token</li>
+</ul>
+<h3 id="dynamic-vs-static-secrets">Dynamic vs. Static Secrets</h3>
+<p><strong>Static secrets</strong></p>
+<ul>
+<li>Store existing data securely</li>
+<li>Manual lifecycle management</li>
+<li>Key/Value engine</li>
+</ul>
+<p><strong>Dynamic secrets</strong></p>
+<ul>
+<li>Generate data on demand</li>
+<li><strong>Lease issued for each secret</strong><ul>
+<li>The least could be indefinite, but it could also be for 30 minutes or 5 seconds. It all depends on what the purpose of that secret data is.</li>
+</ul>
+</li>
+<li>Automatic lifecycle management</li>
+<li>Majority of secrets engines</li>
+<li>Consul engine</li>
+</ul>
+<h3 id="exp-scenario">Exp Scenario</h3>
+<p><strong>Use Case</strong></p>
+<ul>
+<li>Database administrators want to provideapplications and developer access to a MySQL database</li>
+<li>Credentials should be dynamically generated and short-lived</li>
+<li>TTL should be based on client type</li>
+</ul>
+<p><strong>Solution</strong></p>
+<ul>
+<li>Enable Database secrets engine with MySQL plugin</li>
+<li>Configure roles and policies for applications and developers</li>
+</ul>
+<h2 id="2-transit-engine"><strong>2 Transit Engine</strong></h2>
+<h3 id="introudcing-the-transit-engine"><strong>Introudcing the Transit Engine</strong></h3>
+<p><strong>Key Value Engine</strong></p>
+<ul>
+<li>Store key/value pairs at a path</li>
+<li>Version 1 and 2 available</li>
+<li>Versioning and metadata</li>
+</ul>
+<h3 id="key-value-engine-versions">Key Value Engine Versions</h3>
+<p><strong>Version 1</strong></p>
+<ul>
+<li><strong>No versioning, last key wins</strong></li>
+</ul>
+<blockquote>
+<p>For version 1, there is no versioning of keys within the engine. Every time you update a key, <strong>it will overwrite the existing key and you can't get the previous version back</strong>.  </p>
+</blockquote>
+<ul>
+<li><strong>Faster with fewer storage calls</strong></li>
+</ul>
+<blockquote>
+<p>Version 1, because it doesn't have all this metadata and versioning behind it, could potentially be faster with fewer calls to the storage back-end,</p>
+</blockquote>
+<ul>
+<li><strong>Deleted items are gone</strong></li>
+</ul>
+<blockquote>
+<p>Another key thing is when you delete a secret on version 1, it's gone. You can't get that back unless you took a backup of your vault server.</p>
+</blockquote>
+<ul>
+<li><strong>Can be upgraded to version 2</strong></li>
+</ul>
+<blockquote>
+<p>V1 can can be upgraded to version 2.</p>
+</blockquote>
+<ul>
+<li><strong>Default version on creation</strong></li>
+</ul>
+<p><strong>Version 2</strong></p>
+<ul>
+<li><strong>Versioning of past secrets</strong></li>
+</ul>
+<blockquote>
+<p>Version 2 offers versioning of past secrets. So if you write a new version of a key, it maintains the previous versions up to a configured amount.</p>
+</blockquote>
+<ul>
+<li><strong>Possibly less performant</strong></li>
+</ul>
+<blockquote>
+<p>version 2 might possibly be a little less performant.</p>
+</blockquote>
+<ul>
+<li><strong>Deleted items and metadata retained</strong></li>
+</ul>
+<blockquote>
+<p>On version 2, if you delete an item, it retains that information, as well as the metadata, and allows you to recover an item. It's in a soft deleted state, you could say. </p>
+</blockquote>
+<ul>
+<li><strong>Cannot be downgraded</strong></li>
+<li><strong>Can be specified at creation</strong></li>
+</ul>
+<h3 id="pratical-scenario">Pratical Scenario</h3>
+<p><strong>Use Case</strong></p>
+<ul>
+<li>Application developer needs to store API keys in secure location</li>
+<li>API keys should be versioned with previous versions available</li>
+<li>Developers will generate the API keys</li>
+</ul>
+<p><strong>Solution</strong></p>
+<ul>
+<li>Enable an instance of the Key Value engine version 2</li>
+<li>Create a policy granting developers access</li>
+</ul>
+<h3 id="transit-engine"><strong>Transit Engine</strong></h3>
+<ul>
+<li><strong>Encryption as a service</strong></li>
+</ul>
+<blockquote>
+<p>it's not storing data, it's not generating data, it's purely providing encryption services. It does not store any of the data that submitted to it internally in Vault.</p>
+</blockquote>
+<ul>
+<li><strong>Does not store data</strong></li>
+</ul>
+<blockquote>
+<p>It does not store any of the data that submitted to it internally in Vault.</p>
+</blockquote>
+<ul>
+<li>
+<p><strong>Supported actions:</strong></p>
+<ul>
+<li>Encrypt/decrypt</li>
+<li>Sign and verify</li>
+<li>Generate hashes</li>
+<li>Create random bytes</li>
+</ul>
+</li>
+<li>
+<p><strong>Engine manages ke ys</strong></p>
+</li>
+</ul>
+<h3 id="desmonstrating-secret-engine"><strong>Desmonstrating  Secret Engine</strong></h3>
+<p><strong>Use Case</strong></p>
+<ul>
+<li>Application developer needs to encrypt data written to object storage</li>
+<li>Data will be generated by application</li>
+<li>Vault does not need to store data</li>
+</ul>
+<p><strong>Solution</strong></p>
+<ul>
+<li>Enable an instance of the Transit engine</li>
+<li>Create policies granting developers and application access</li>
+</ul>
+<h3 id="enabling-secrets-engines"><strong>Enabling Secrets Engines</strong></h3>
+<p><strong>Secrets Engine Lifecycle</strong></p>
+<ul>
+<li><strong>Enable / Tune / Configure /  Move / Disable</strong></li>
+</ul>
+<h3 id="configuring-secrets-engines"><strong>Configuring Secrets Engines</strong></h3>
+<ul>
+<li><strong>All engines are enabled on <code>/sys/mounts</code></strong></li>
+<li>Engines are enabled on a path<ul>
+<li>Defaults to engine name</li>
+</ul>
+</li>
+<li><strong>Engines can be moved</strong><ul>
+<li>Revokes all existing leases</li>
+<li>May impact policies</li>
+</ul>
+</li>
+<li>Engines can be tuned and configured<ul>
+<li>Tuning settings are common for all engines</li>
+<li><strong>Configuration settings are specific to an engines</strong></li>
+</ul>
+</li>
+</ul>
+<p><strong>Example Secrets Engines</strong></p>
+<ul>
+<li>Key Value</li>
+<li>Consul</li>
+</ul>
+<p><strong>Tasks</strong></p>
+<ul>
+<li>Enable secrets engines</li>
+<li>Configure secrets engines</li>
+<li>Access secrets engines</li>
+</ul>
+<h3 id="enabling-secrets-engines-with-transit-engines"><strong>Enabling secrets engines with transit engines</strong></h3>
+<p>First see which secrets engines are enabled</p>
+<pre><code>$ vault secrets list
+
+Path          Type         Accessor              Description
+----          ----         --------              -----------
+cubbyhole/    cubbyhole    cubbyhole_c4a23e97    per-token private secret storage
+identity/     identity     identity_20b0ef66     identity store
+secret/       kv           kv_cdd1aa1f           key/value secret storage
+sys/          system       system_75379b69       system endpoints used for control, policy and debugging
+</code></pre>
+<p>let's get our secrets engines enabled We'll start with the enabling the K/V engine</p>
+<pre><code>vault secrets enable -path=TestKV -version=2 kv
+
+Success! Enabled the kv secrets engine at: TestKV/
+</code></pre>
+<pre><code>$ vault secrets list | grep TestKV
+TestKV/       kv           kv_a4bf358a           n/a
+
+# Maybe we want to configure some settings for TestKV
+
+$ vault path-help /sys/mounts/TestKV
+Request:        mounts/TestKV
+Matching Route: ^mounts/(?P&lt;path&gt;.+?)$
+
+Mount a new backend at a new path.
+
+## PARAMETERS
+...
+
+$ vault secrets tune -description=&quot;Test K/V version 2&quot; TestKV
+Success! Tuned the secrets engine at: TestKV/
+
+$ vault secrets list | grep TestKV
+TestKV/       kv           kv_a4bf358a           Test K/V version 2
+</code></pre>
+<h3 id="configuring-key-value-engine-the-ui">Configuring key value Engine the UI</h3>
+<p>let's go enable Consul through the UI</p>
+<p><img alt="Alt Image Text" src="../../images/vt2_4_1.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/vt2_4_2.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/vt2_4_3.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/vt2_4_4.png" title="Body image" /></p>
+<pre><code>$ vault secrets list | grep consul
+consul/       consul       consul_2ad1fcb7       n/a
+</code></pre>
+<h3 id="configuring-the-key-value-engine">Configuring the Key Value Engine</h3>
+<pre><code>vault path-help TestKV/
+
+...
+ ^config$
+        Configures settings for the KV store
+
+    ^data/(?P&lt;path&gt;.*)$
+        Write, Patch, Read, and Delete data in the Key-Value Store.
+
+    ^delete/(?P&lt;path&gt;.*)$
+        Marks one or more versions as deleted in the KV store.
+
+    ^destroy/(?P&lt;path&gt;.*)$
+        Permanently removes one or more versions in the KV store
+
+    ^metadata/(?P&lt;path&gt;.*)$
+        Configures settings for the KV store
+
+    ^subkeys/(?P&lt;path&gt;.*)$
+        Read the structure of a secret entry from the Key-Value store with the values removed.
+
+    ^undelete/(?P&lt;path&gt;.*)$
+        Undeletes one or more versions from the KV store.
+
+
+
+$ vault path-help TestKV/
+
+This path configures backend level settings that are applied to every key in the
+key-value store. This parameter accetps:
+
+        * max_versions (int) - The number of versions to keep for each key. Defaults
+          to 10
+
+        * cas_required (bool) - If true, the backend will require the cas parameter
+          to be set for each write
+
+        * delete_version_after (duration) - If set, the length of time before a
+          version is deleted. A negative duration disables the use of
+          delete_version_after on all keys. A zero duration clears the current
+          setting. Accepts a Go duration format string.
+
+$ vault path-help TestKV/config
+
+# Why don't we check the current settings?
+$ vault read TestKV/config
+Key                     Value
+---                     -----
+cas_required            false
+delete_version_after    0s
+max_versions            0
+
+# Why don't we check the current settings?
+vault read TestKV/config
+
+# Let's set the max_versions to 5
+vault write TestKV/config max_versions=5
+
+$ vault write TestKV/config max_versions=5
+Success! Data written to: TestKV/config
+
+$ vault read TestKV/config
+Key                     Value
+---                     -----
+cas_required            false
+delete_version_after    0s
+max_versions            5
+</code></pre>
+<h3 id="configuring-the-consul-engine">Configuring the Consul Engine</h3>
+<p>You are going to need the consul binary to follow along here. You can get it by going to https://www.consul.io/downloads. </p>
+<pre><code>brew tap hashicorp/tap
+brew install hashicorp/tap/consul
+</code></pre>
+<p>We are going to start up a basic instance of Consul and get a token with permissions to generate new token. </p>
+<p><strong><code>consul-config.hcl</code></strong></p>
+<pre><code>## server.hcl
+
+ui = true
+server = true
+bootstrap_expect = 1
+datacenter = &quot;dc1&quot;
+data_dir = &quot;./data&quot;
+
+acl = {
+    enabled = true
+    default_policy = &quot;deny&quot;
+    enable_token_persistence = true
+}
+</code></pre>
+<p>You don't need to know much about Consul aside from the fact it uses tokens for authentication and authorization just like Vault.</p>
+<pre><code>$ mkdir data 
+$ pwd
+k8s_test/valut/
+
+
+# Launch consul server instance
+consul agent -bootstrap -config-file=&quot;consul-config.hcl&quot; -bind=&quot;127.0.0.1&quot;
+
+# From a separate terminal window run the following
+consul acl bootstrap
+
+$ consul acl bootstrap
+AccessorID:       81155224-8cab-cd35-bc69-dac4ebcdac17
+SecretID:         1ded8acc-9baf-04e0-1bdd-076a99a514a0
+Description:      Bootstrap Token (Global Management)
+Local:            false
+Create Time:      2022-12-01 21:46:59.048599 +0800 CST
+Policies:
+   00000000-0000-0000-0000-000000000001 - global-management
+
+</code></pre>
+<p><strong><code>web-policy.hcl</code></strong></p>
+<pre><code>service &quot;web&quot; {
+    policy = &quot;read&quot;
+}
+</code></pre>
+<pre><code># Set CONSUL_HTTP_TOKEN to SecretID
+# Linux and MacOS
+export CONSUL_HTTP_TOKEN=SECRETID_VALUE
+
+export CONSUL_HTTP_TOKEN=1ded8acc-9baf-04e0-1bdd-076a99a514a0
+
+
+# Next we have to create a policy and role for new tokens
+# that Vault will generate on Consul
+
+consul acl policy create -name=web -rules @web-policy.hcl
+
+$ consul acl policy create -name=web -rules @web-policy.hcl
+ID:           94bceb75-56c3-b225-520f-1089d7b8f33c
+Name:         web
+Description:  
+Datacenters:  
+Rules:
+service &quot;web&quot; {
+    policy = &quot;read&quot;
+}
+
+# Now we'll configure out Consul secrets engine
+vault path-help consul/
+
+
+$ vault path-help consul/
+## DESCRIPTION
+
+
+$ export VAULT_ADDR='http://127.0.0.1:8200'
+$ root_token=hvs.xdqJDIY7fbqrz9oj2hs63nEq
+## PATHS
+
+The following paths are supported by this backend. To view help for
+any of the paths below, use the help command with any route matching
+the path pattern. Note that depending on the policy of your auth token,
+you may or may not be able to access certain paths.
+
+    ^config/access$
+
+
+    ^creds/(?P&lt;role&gt;\w(([\w-.]+)?\w)?)$
+
+
+    ^roles/(?P&lt;name&gt;\w(([\w-.]+)?\w)?)$
+
+
+    ^roles/?$
+
+vault path-help consul/config/access
+
+ vault path-help consul/config/access
+Request:        config/access
+Matching Route: ^config/access$
+
+&lt;no synopsis&gt;
+
+## PARAMETERS
+
+    address (string)
+
+        Consul server address
+
+    ca_cert (string)
+
+        CA certificate to use when verifying Consul server certificate,
+        must be x509 PEM encoded.
+
+    client_cert (string)
+
+        Client certificate used for Consul's TLS communication,
+        must be x509 PEM encoded and if this is set you need to also set client_key.
+
+    client_key (string)
+
+        Client key used for Consul's TLS communication,
+        must be x509 PEM encoded and if this is set you need to also set client_cert.
+
+    scheme (string)
+
+        URI scheme for the Consul address
+
+    token (string)
+
+        Token for API calls
+
+## DESCRIPTION
+
+&lt;no description&gt;
+</code></pre>
+<pre><code>vault write consul/config/access address=&quot;http://127.0.0.1:8500&quot; token=$CONSUL_HTTP_TOKEN
+
+$ vault write consul/config/access address=&quot;http://127.0.0.1:8500&quot; token=$CONSUL_HTTP_TOKEN
+Success! Data written to: consul/config/access
+
+# And add a role to provision tokens with a ttl of 1 hour and a max of 2 hours
+
+vault path-help consul/roles/web
+
+vault write consul/roles/web name=web policies=web ttl=3600 max_ttl=7200
+
+# Now how do we use this role to get a token? By using the creds path
+
+$ vault path-help consul/creds/web
+Request:        creds/web
+Matching Route: ^creds/(?P&lt;role&gt;\w(([\w-.]+)?\w)?)$
+
+&lt;no synopsis&gt;
+
+## PARAMETERS
+
+    role (string)
+
+        Name of the role.
+
+## DESCRIPTION
+
+&lt;no description&gt;
+
+$ vault read consul/creds/web
+Key                 Value
+---                 -----
+lease_id            consul/creds/web/2RReZdwbrT8OgeUxdF4xNzLP
+lease_duration      1h
+lease_renewable     true
+accessor            e8d9ba98-acd4-f1f0-88a6-f642bc30505f
+consul_namespace    n/a
+local               false
+partition           n/a
+token               367f1f34-dcae-daa2-c3ae-8b2a3c29bbb1
+
+# Check on the consul side and we can see the token created
+
+$ consul acl token list -format=json | jq .[].AccessorID
+&quot;81155224-8cab-cd35-bc69-dac4ebcdac17&quot;
+&quot;e8d9ba98-acd4-f1f0-88a6-f642bc30505f&quot;
+&quot;00000000-0000-0000-0000-000000000002&quot;
+</code></pre>
+<h3 id="using-secrets-engines">Using Secrets Engines</h3>
+<p><strong>Interacting with Secrets Engine</strong></p>
+<ul>
+<li><strong>Authenticate with policy</strong></li>
+<li>Access through CLI, UI, or API</li>
+<li>Most engines use standard commands<ul>
+<li><code>read, list, write, and delete</code></li>
+</ul>
+</li>
+<li><strong>Key Value uses <code>vault kv</code> commands</strong><ul>
+<li>K/V version 1 can use standard commands</li>
+</ul>
+</li>
+</ul>
+<pre><code># Use vault write to configure roles
+vault write ROLE_PATH [SETTINGS K=V]
+vault write consul/roles/my-role name=my-role policies=consul-policy
+
+
+# Use vault read to retrieve credentials
+vault read CRED_PATH
+vault read consul/creds/my-role
+</code></pre>
+<h3 id="interacting-with-the-key-value-engine">Interacting with the Key Value Engine</h3>
+<pre><code># Writing a secret value
+vault write ROLE_PATH [SETTINGS K=V]
+vault write consul/roles/my-role name=my-role policies=consul-policy
+
+
+
+# Use vault read to retrieve credentials
+vault read CRED_PATH
+vault read consul/creds/my-role
+
+# Writing a secret value
+vault kv put [options] KEY [DATA K=V]
+vault kv put TestKV/apikeys/d101 token=1234567890
+
+# Listing secret keys
+vault kv list [options] PATH
+vault kv list TestKV/apikeys
+
+# Reading a secret value
+vault kv get [options] KEY
+vault kv get –version=1 TestKV/apikeys/d101
+
+
+# Deleting a value
+vault kv delete [options] KEY
+vault kv delete –versions=1 TestKV/apikeys/d101
+
+# Destroying a value  (Delete Key permantely)
+vault kv destroy [options] KEY
+vault kv destroy –versions=1 TestKV/apikeys/d101
+</code></pre>
+<pre><code># Let's try adding some values to our kv engine
+vault kv put TestKV/apitokens/d101 token=version1
+vault kv put TestKV/apitokens/d102 token=version1
+vault kv put TestKV/apitokens/d103 token=version1
+</code></pre>
+<pre><code>$ vault kv put TestKV/apitokens/d101 token=version1
+======= Secret Path =======
+TestKV/data/apitokens/d101
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2022-12-01T14:58:46.669736Z
+custom_metadata    &lt;nil&gt;
+deletion_time      n/a
+destroyed          false
+version            1
+
+$ vault kv put TestKV/apitokens/d102 token=version1
+======= Secret Path =======
+TestKV/data/apitokens/d102
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2022-12-01T14:58:58.557175Z
+custom_metadata    &lt;nil&gt;
+deletion_time      n/a
+destroyed          false
+version            1
+
+$ vault kv put TestKV/apitokens/d103 token=version1
+======= Secret Path =======
+TestKV/data/apitokens/d103
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2022-12-01T15:01:42.594581Z
+custom_metadata    &lt;nil&gt;
+deletion_time      n/a
+destroyed          false
+version            1
+</code></pre>
+<pre><code># Now let's try and list the keys
+vault kv list TestKV/apitokens
+
+ vault kv list TestKV/apitokens
+Keys
+----
+d101
+d102
+d103
+</code></pre>
+<pre><code># Nice, let's read one of the values
+vault kv get TestKV/apitokens/d101
+
+ vault kv get TestKV/apitokens/d101
+======= Secret Path =======
+TestKV/data/apitokens/d101
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2022-12-01T14:58:46.669736Z
+custom_metadata    &lt;nil&gt;
+deletion_time      n/a
+destroyed          false
+version            1
+
+==== Data ====
+Key      Value
+---      -----
+token    version1
+</code></pre>
+<pre><code># What if we update the value?
+vault kv put TestKV/apitokens/d101 token=version2
+vault kv put TestKV/apitokens/d102 token=version2
+vault kv put TestKV/apitokens/d103 token=version2
+
+
+**Response Wrapping**
+
+￥ vault kv put TestKV/apitokens/d101 token=version2
+======= Secret Path =======
+TestKV/data/apitokens/d101
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2022-12-01T15:05:30.103783Z
+custom_metadata    &lt;nil&gt;
+deletion_time      n/a
+destroyed          false
+version            2
+
+$ vault kv put TestKV/apitokens/d102 token=version2
+======= Secret Path =======
+TestKV/data/apitokens/d102
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2022-12-01T15:05:44.697181Z
+custom_metadata    &lt;nil&gt;
+deletion_time      n/a
+destroyed          false
+version            2
+
+$ vault kv put TestKV/apitokens/d103 token=version2
+======= Secret Path =======
+TestKV/data/apitokens/d103
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2022-12-01T15:05:53.844138Z
+custom_metadata    &lt;nil&gt;
+deletion_time      n/a
+destroyed          false
+version            2
+</code></pre>
+<pre><code>Can we still get version 1? Sure can.
+vault kv get -version=1 TestKV/apitokens/d101
+
+$ vault kv get -version=1 TestKV/apitokens/d101
+======= Secret Path =======
+TestKV/data/apitokens/d101
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2022-12-01T14:58:46.669736Z
+custom_metadata    &lt;nil&gt;
+deletion_time      n/a
+destroyed          false
+version            1
+
+==== Data ====
+Key      Value
+---      -----
+token    version1
+
+# How do we go about deleting an older version?
+vault kv delete -versions=1 TestKV/apitokens/d101
+
+$ vault kv delete -versions=1 TestKV/apitokens/d101
+Success! Data deleted (if it existed) at: TestKV/data/apitokens/d101
+
+
+# Don't worry it's not really gone
+vault kv metadata get TestKV/apitokens/d101
+
+$ vault kv metadata get TestKV/apitokens/d101
+======== Metadata Path ========
+TestKV/metadata/apitokens/d101
+
+========== Metadata ==========
+Key                     Value
+---                     -----
+cas_required            false
+created_time            2022-12-01T14:58:46.669736Z
+current_version         2
+custom_metadata         &lt;nil&gt;
+delete_version_after    0s
+max_versions            0
+oldest_version          0
+updated_time            2022-12-01T15:05:30.103783Z
+
+====== Version 1 ======
+Key              Value
+---              -----
+created_time     2022-12-01T14:58:46.669736Z
+deletion_time    2022-12-01T15:07:36.41118Z
+destroyed        false
+
+====== Version 2 ======
+Key              Value
+---              -----
+created_time     2022-12-01T15:05:30.103783Z
+deletion_time    n/a
+destroyed        false
+
+# We can recover it by doing the following
+vault kv undelete -versions=1 TestKV/apitokens/d101
+
+$ vault kv undelete -versions=1 TestKV/apitokens/d101
+Success! Data written to: TestKV/undelete/apitokens/d101
+
+vault kv get -version=1 TestKV/apitokens/d101
+
+$ vault kv get -version=1 TestKV/apitokens/d101
+======= Secret Path =======
+TestKV/data/apitokens/d101
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2022-12-01T14:58:46.669736Z
+custom_metadata    &lt;nil&gt;
+deletion_time      n/a
+destroyed          false
+version            1
+
+==== Data ====
+Key      Value
+---      -----
+token    version1
+
+# Destroy is what actually removes it
+vault kv destroy -versions=1 TestKV/apitokens/d101
+
+$ vault kv destroy -versions=1 TestKV/apitokens/d101
+Success! Data written to: TestKV/destroy/apitokens/d101
+
+vault kv metadata get TestKV/apitokens/d101
+
+ vault kv metadata get TestKV/apitokens/d101
+======== Metadata Path ========
+TestKV/metadata/apitokens/d101
+
+========== Metadata ==========
+Key                     Value
+---                     -----
+cas_required            false
+created_time            2022-12-01T14:58:46.669736Z
+current_version         2
+custom_metadata         &lt;nil&gt;
+delete_version_after    0s
+max_versions            0
+oldest_version          0
+updated_time            2022-12-01T15:05:30.103783Z
+
+====== Version 1 ======
+Key              Value
+---              -----
+created_time     2022-12-01T14:58:46.669736Z
+deletion_time    n/a
+destroyed        true
+
+====== Version 2 ======
+Key              Value
+---              -----
+created_time     2022-12-01T15:05:30.103783Z
+deletion_time    n/a
+destroyed        false
+
+# The reference is still there, but the value is gone!
+# We can delete everything by deleting the metadate too
+
+vault kv metadata delete TestKV/apitokens/d101
+
+
+$ vault kv metadata delete TestKV/apitokens/d101
+Success! Data deleted (if it existed) at: TestKV/metadata/apitokens/d101
+
+$ vault kv list TestKV/apitokens
+Keys
+----
+d102
+d103
+</code></pre>
+<h3 id="interacting-with-the-key-value-engine-using-the-api">Interacting with the Key Value Engine using the API?</h3>
+<pre><code># What about using the API?
+
+# Make sure you have the root token stored in `$root_token`
+curl --header &quot;X-Vault-Token: $root_token&quot; \
+  $VAULT_ADDR/v1/TestKV/data/apitokens/d102 | jq
+
+
+ curl --header &quot;X-Vault-Token: $root_token&quot; \
+&gt;   $VAULT_ADDR/v1/TestKV/data/apitokens/d102 | jq
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   317  100   317    0     0  25626      0 --:--:-- --:--:-- --:--:--  309k
+{
+  &quot;request_id&quot;: &quot;351fb272-b7ee-5f45-beb7-02bd2acc02f3&quot;,
+  &quot;lease_id&quot;: &quot;&quot;,
+  &quot;renewable&quot;: false,
+  &quot;lease_duration&quot;: 0,
+  &quot;data&quot;: {
+    &quot;data&quot;: {
+      &quot;token&quot;: &quot;version2&quot;
+    },
+    &quot;metadata&quot;: {
+      &quot;created_time&quot;: &quot;2022-12-01T15:05:44.697181Z&quot;,
+      &quot;custom_metadata&quot;: null,
+      &quot;deletion_time&quot;: &quot;&quot;,
+      &quot;destroyed&quot;: false,
+      &quot;version&quot;: 2
+    }
+  },
+  &quot;wrap_info&quot;: null,
+  &quot;warnings&quot;: null,
+  &quot;auth&quot;: null
+}
+
+
+# If we want a specific version, we can add a query string
+curl --header &quot;X-Vault-Token: $root_token&quot; \
+  $VAULT_ADDR/v1/TestKV/data/apitokens/d102?version=1 | jq
+
+ curl --header &quot;X-Vault-Token: $root_token&quot; \
+&gt;   $VAULT_ADDR/v1/TestKV/data/apitokens/d102?version=1 | jq
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   317  100   317    0     0  29581      0 --:--:-- --:--:-- --:--:--  309k
+{
+  &quot;request_id&quot;: &quot;4a60a60f-8f99-3c6c-2716-3d0c371564a0&quot;,
+  &quot;lease_id&quot;: &quot;&quot;,
+  &quot;renewable&quot;: false,
+  &quot;lease_duration&quot;: 0,
+  &quot;data&quot;: {
+    &quot;data&quot;: {
+      &quot;token&quot;: &quot;version1&quot;
+    },
+    &quot;metadata&quot;: {
+      &quot;created_time&quot;: &quot;2022-12-01T14:58:58.557175Z&quot;,
+      &quot;custom_metadata&quot;: null,
+      &quot;deletion_time&quot;: &quot;&quot;,
+      &quot;destroyed&quot;: false,
+      &quot;version&quot;: 1
+    }
+  },
+  &quot;wrap_info&quot;: null,
+  &quot;warnings&quot;: null,
+  &quot;auth&quot;: null
+}
+
+# We can also get at these secrets using the UI  
+</code></pre>
+<p><img alt="Alt Image Text" src="../../images/vt2_4_5.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/vt2_4_6.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/vt2_4_7.png" title="Body image" /></p>
+<h2 id="response-wrapping">Response Wrapping</h2>
+<p><img alt="Alt Image Text" src="../../images/vt2_4_8.png" title="Body image" /></p>
+<pre><code># Let's say we want to retrieve a secret and response wrap it
+# First we'll do it using a secret in the GloboKV store
+
+vault kv get -wrap-ttl=30m TestKV/apitokens/d102
+
+$ vault kv get -wrap-ttl=30m TestKV/apitokens/d102
+Key                              Value
+---                              -----
+wrapping_token:                  hvs.CAESIADNNOMpCQDuo4OyhrAvgsAbDw2hGnZPT42_POANa2t_Gh4KHGh2cy5tcGxWemFCWE9aWE1RS2ZOdDlDTXhJMFI
+wrapping_accessor:               17LHSLrH4BYeCQwmffsu4WxY
+wrapping_token_ttl:              30m
+wrapping_token_creation_time:    2022-12-01 23:51:52.482776 +0800 CST
+wrapping_token_creation_path:    TestKV/data/apitokens/d102
+
+# Now we can use the wrapping token value to read the value
+vault unwrap hvs.CAESIADNNOMpCQDuo4OyhrAvgsAbDw2hGnZPT42_POANa2t_Gh4KHGh2cy5tcGxWemFCWE9aWE1RS2ZOdDlDTXhJMFI
+
+$ vault unwrap hvs.CAESIADNNOMpCQDuo4OyhrAvgsAbDw2hGnZPT42_POANa2t_Gh4KHGh2cy5tcGxWemFCWE9aWE1RS2ZOdDlDTXhJMFI
+Key         Value
+---         -----
+data        map[token:version2]
+metadata    map[created_time:2022-12-01T15:05:44.697181Z custom_metadata:&lt;nil&gt; deletion_time: destroyed:false version:2]
+
+# If we lookup the token after using it, it's gone!
+vault token lookup hvs.CAESIADNNOMpCQDuo4OyhrAvgsAbDw2hGnZPT42_POANa2t_Gh4KHGh2cy5tcGxWemFCWE9aWE1RS2ZOdDlDTXhJMFI
+
+$ vault token lookup hvs.CAESIADNNOMpCQDuo4OyhrAvgsAbDw2hGnZPT42_POANa2t_Gh4KHGh2cy5tcGxWemFCWE9aWE1RS2ZOdDlDTXhJMFI
+Error looking up token: Error making API request.
+
+URL: POST http://127.0.0.1:8200/v1/auth/token/lookup
+Code: 403. Errors:
+
+* bad token
+
+# What if we wanted to generate credentials for Consul and pass
+# those securely to someone else? Let's try that now
+
+vault read -wrap-ttl=30m consul/creds/web
+
+$ vault read -wrap-ttl=30m consul/creds/web
+Key                              Value
+---                              -----
+wrapping_token:                  hvs.CAESIPIDrFTjtugK8BSZRNOoDkrL379Rtt-ai3fGeTHm5RRlGh4KHGh2cy5NZDEwd1Iwd211RTNzd09lRUJsMTFZSUM
+wrapping_accessor:               g927QUD1jfzysJM5e5BZZo0z
+wrapping_token_ttl:              30m
+wrapping_token_creation_time:    2022-12-01 23:57:58.976596 +0800 CST
+wrapping_token_creation_path:    consul/creds/web
+
+# Let's check on the token this time
+
+vault token lookup WRAPPING_TOKEN_ID
+
+$ vault token lookup hvs.CAESIPIDrFTjtugK8BSZRNOoDkrL379Rtt-ai3fGeTHm5RRlGh4KHGh2cy5NZDEwd1Iwd211RTNzd09lRUJsMTFZSUM
+Key                 Value
+---                 -----
+accessor            g927QUD1jfzysJM5e5BZZo0z
+creation_time       1669910278
+creation_ttl        30m
+display_name        n/a
+entity_id           n/a
+expire_time         2022-12-02T00:27:58.976819+08:00
+explicit_max_ttl    30m
+id                  hvs.CAESIPIDrFTjtugK8BSZRNOoDkrL379Rtt-ai3fGeTHm5RRlGh4KHGh2cy5NZDEwd1Iwd211RTNzd09lRUJsMTFZSUM
+issue_time          2022-12-01T23:57:58.976823+08:00
+meta                &lt;nil&gt;
+num_uses            1
+orphan              true
+path                consul/creds/web
+policies            [response-wrapping]
+renewable           false
+ttl                 29m10s
+type                service
+
+# And now let's retrieve the Consul token created for us
+
+vault unwrap WRAPPING_TOKEN_ID
+
+vault unwrap hvs.CAESIPIDrFTjtugK8BSZRNOoDkrL379Rtt-ai3fGeTHm5RRlGh4KHGh2cy5NZDEwd1Iwd211RTNzd09lRUJsMTFZSUM
+
+$ vault unwrap hvs.CAESIPIDrFTjtugK8BSZRNOoDkrL379Rtt-ai3fGeTHm5RRlGh4KHGh2cy5NZDEwd1Iwd211RTNzd09lRUJsMTFZSUM
+Key                 Value
+---                 -----
+lease_id            consul/creds/web/o4AT0MtgswjaSBNzYqgNGpxe
+lease_duration      1h
+lease_renewable     true
+accessor            33935936-4a6d-d3f6-0d16-674b2bb864a0
+consul_namespace    n/a
+local               false
+partition           n/a
+token               3f21d7ef-9893-63e4-4139-f319b828adcd
+</code></pre>
+<h3 id="key-takeways">Key takeways</h3>
+<ul>
+<li>Secrets engines are Vault plug-in that can store, generate, and encrypt data.</li>
+<li><strong>Static secrets engines store external data in Vault. Dynamic secrets engines generate credentials or data and managed the lifecycle</strong>.</li>
+<li><strong>The Transit engine provides encryption as a service for encypt/decrypt, sign/verify, and hashing or random data</strong>.</li>
+<li>Secrets engines must be enabled, tuned, and configured. They can be moved, but will lose all lease data</li>
+<li><strong>The Key Value engine</strong> has two versions and its own command set:  <strong>vault kv</strong></li>
+<li><strong>Interacting with secrets engines</strong> at the command line uses read, write, list, and delete.<ul>
+<li><strong>Response wrapping creates a cubbyhole to store data and a single-use token to retrieve it</strong>.</li>
+</ul>
+</li>
+</ul>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2021-9999 Jacob Xi
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a51614de.min.js"></script>
+      
+    
+  </body>
+</html>

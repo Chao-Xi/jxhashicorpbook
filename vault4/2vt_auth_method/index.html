@@ -1,0 +1,3639 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Jacob's Hashicorp Tutorial Book">
+      
+      
+        <meta name="author" content="Jacob Xi">
+      
+      
+        <link rel="canonical" href="https://chao-xi.github.io/jxhashicorpbook/vault4/2vt_auth_method/">
+      
+      
+        <link rel="prev" href="../1mag_vt_intro/">
+      
+      
+        <link rel="next" href="../3vt_token/">
+      
+      <link rel="icon" href="../../images/logo.png">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.16">
+    
+    
+      
+        <title>L2 Installing and Configuring Authentication Methods - Jacob Hashicorp Book</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.26e3688c.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ecc896b0.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="blue-greay">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#2-installing-and-configuring-authentication-methods" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="Jacob Hashicorp Book" class="md-header__button md-logo" aria-label="Jacob Hashicorp Book" data-md-component="logo">
+      
+  <img src="../../images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Jacob Hashicorp Book
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              L2 Installing and Configuring Authentication Methods
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Chao-Xi/jxhashicorpbook.git" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jxhashicorpbook
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Jacob Hashicorp Book" class="md-nav__button md-logo" aria-label="Jacob Hashicorp Book" data-md-component="logo">
+      
+  <img src="../../images/logo.png" alt="logo">
+
+    </a>
+    Jacob Hashicorp Book
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Chao-Xi/jxhashicorpbook.git" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jxhashicorpbook
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Welcome
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          私密信息管理利器Vault
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          私密信息管理利器Vault
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/1vault_intro/" class="md-nav__link">
+        1 私密信息管理利器 HashiCorp Vault——简介
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/2vault_start/" class="md-nav__link">
+        2 私密信息管理利器 HashiCorp Vault——启动和读写
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/3vault_secretengine/" class="md-nav__link">
+        3 私密信息管理利器 HashiCorp Vault——Secret Engine
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/4vault_auth/" class="md-nav__link">
+        4 私密信息管理利器 HashiCorp Vault——验证和授权
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/5vault_deploy/" class="md-nav__link">
+        5 私密信息管理利器 HashiCorp Vault——部署
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/6vault_api/" class="md-nav__link">
+        6 私密信息管理利器 HashiCorp Vault——REST API
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/7vault_impl/" class="md-nav__link">
+        7 密钥管理神器之 Vault 集群搭建
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/8vault_k8s/" class="md-nav__link">
+        8 K8S与Vault集成，进行Secret管理
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/9vault_docker/" class="md-nav__link">
+        9 使用 Docker 和 Traefik 搭建 Vault
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/10vault_cm/" class="md-nav__link">
+        10 使用 Vault + Cert Manager 管理 Kubernetes 集群中的数字证书
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/13vault_ack_cloud/" class="md-nav__link">
+        11 云原生更安全的密文管理 Vault on ACK
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/14K8s_secret/" class="md-nav__link">
+        12 Kubernetes 的 secret 并不是真正的 secret
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          Vault on K8S
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Vault on K8S
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/0k8s_vault/" class="md-nav__link">
+        L0 在 Kubernetes 上部署 Vault
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/1Vault_basic/" class="md-nav__link">
+        L1 Hashcorp Vault 基础使用教程
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/2vault_k8s/" class="md-nav__link">
+        L2 在 Kubernetes 读取 Vault 中的机密信息
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/3vault_rotate/" class="md-nav__link">
+        L3 透过 Vault 定期 rotate credentials
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/4vault_int_k8s/" class="md-nav__link">
+        L4 Vault 与 Kubernetes 的深度整合
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          Hashicorp Certified Vault Associate
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Hashicorp Certified Vault Associate
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/1vaba_intro/" class="md-nav__link">
+        L1 Vault Associate: Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/2vaba_auth_poly/" class="md-nav__link">
+        L2 Authentication and Policies
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/3vaba_token/" class="md-nav__link">
+        L3 Vault Token
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/4vaba_engines/" class="md-nav__link">
+        L4 Using Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/5vaba_lease/" class="md-nav__link">
+        L5 Using Vault Leases
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          Installing Configuring Vault
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Installing Configuring Vault
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/1intro/" class="md-nav__link">
+        L1 HashiCorp Vault Overview and Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/2dev_model/" class="md-nav__link">
+        L2 Vault a Deployment Model
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/3deploy_valut/" class="md-nav__link">
+        L3 Deploying Vault Server
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/4encryption_key/" class="md-nav__link">
+        L4 Managing Encryption and Seal Keys
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/5conf_ha/" class="md-nav__link">
+        L5 Configuring High Availability
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/6basic_auth/" class="md-nav__link">
+        L6 Configuring Basic Authentication
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/7vaba_secret_engine/" class="md-nav__link">
+        L7 Using Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/8vaba_monitor/" class="md-nav__link">
+        L8 Configuring Auditing and Monitoring
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          Managing Access and Secrets(Adv.)
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Managing Access and Secrets(Adv.)
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1mag_vt_intro/" class="md-nav__link">
+        L1 Secrets in HashiCorp Vault Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          L2 Installing and Configuring Authentication Methods
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        L2 Installing and Configuring Authentication Methods
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-authentication-for-entities-and-identities" class="md-nav__link">
+    1 Authentication for Entities and identities
+  </a>
+  
+    <nav class="md-nav" aria-label="1 Authentication for Entities and identities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#legal-entities-corporate-structure" class="md-nav__link">
+    Legal Entities - Corporate Structure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#users-groups" class="md-nav__link">
+    Users &amp; Groups
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault-authentication-integrations" class="md-nav__link">
+    Vault &amp; Authentication Integrations
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#authentication-flow" class="md-nav__link">
+    Authentication Flow
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#authentication-methods" class="md-nav__link">
+    Authentication Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault-built-in-authentication-methods" class="md-nav__link">
+    Vault Built-in Authentication Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault-built-in-authentication-methods_1" class="md-nav__link">
+    Vault Built-in Authentication Methods
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#demo-authentication-for-entities-and-identities" class="md-nav__link">
+    Demo: Authentication for Entities and Identities
+  </a>
+  
+    <nav class="md-nav" aria-label="Demo: Authentication for Entities and Identities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vault-status" class="md-nav__link">
+    vault status
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable-userpass" class="md-nav__link">
+    enable userpass
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-enabling-and-configuring-authentication-methods" class="md-nav__link">
+    3 Enabling and Configuring Authentication Methods
+  </a>
+  
+    <nav class="md-nav" aria-label="3 Enabling and Configuring Authentication Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable-ldap-auth-method" class="md-nav__link">
+    Enable LDAP auth method
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable-aws-auth-method" class="md-nav__link">
+    Enable AWS auth method
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-and-configure-app-db-role" class="md-nav__link">
+    Create and configure app-db-role
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#policy-types" class="md-nav__link">
+    Policy Types
+  </a>
+  
+    <nav class="md-nav" aria-label="Policy Types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#policy-types_1" class="md-nav__link">
+    Policy Types
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-policies-explained" class="md-nav__link">
+    Advanced Policies Explained
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced Policies Explained">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tokens-policies" class="md-nav__link">
+    Tokens &amp; Policies
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault-paths" class="md-nav__link">
+    Vault Paths
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault-rest-ful-http-api-call" class="md-nav__link">
+    Vault REST-ful HTTP API Call
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issuing-tokens" class="md-nav__link">
+    Issuing Tokens
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#policies" class="md-nav__link">
+    Policies
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complexity" class="md-nav__link">
+    Complexity
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-and-testing-advanced-policies" class="md-nav__link">
+    Configuring and Testing Advanced Policies
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring and Testing Advanced Policies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#advanced-policies-features" class="md-nav__link">
+    Advanced Policies Features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-orgops-user-and-assign-a-policy" class="md-nav__link">
+    Create orgops user and assign a policy
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#login-with-orgadmin-user" class="md-nav__link">
+    Login with orgadmin user
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault-rest-ful-http-api-call_1" class="md-nav__link">
+    Vault REST-ful HTTP API Call
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-orgrep-user-and-assign-a-wildcard-policy" class="md-nav__link">
+    Create orgrep user and assign a wildcard policy
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-and-testing-advanced-policies-parameters" class="md-nav__link">
+    Configuring and Testing Advanced Policies: parameters
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring and Testing Advanced Policies: parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#allowed-parameters" class="md-nav__link">
+    Allowed Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#readonly-user" class="md-nav__link">
+    Readonly user
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deny-policy" class="md-nav__link">
+    Deny Policy
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#denied-parameters" class="md-nav__link">
+    Denied Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#denied-readonly" class="md-nav__link">
+    Denied readonly
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required" class="md-nav__link">
+    Required
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#observe-policy-syntax-rules" class="md-nav__link">
+    Observe Policy Syntax Rules
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#identity-revisited" class="md-nav__link">
+    Identity Revisited
+  </a>
+  
+    <nav class="md-nav" aria-label="Identity Revisited">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-users-aka-identities" class="md-nav__link">
+    Create users, aka identities
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#auditing-devices-explained" class="md-nav__link">
+    Auditing Devices Explained
+  </a>
+  
+    <nav class="md-nav" aria-label="Auditing Devices Explained">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#audit-device" class="md-nav__link">
+    Audit Device
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#high-level-overview" class="md-nav__link">
+    High-Level Overview
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blocked-audit-devices" class="md-nav__link">
+    Blocked Audit Devices
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#back-blocking-devices-with-other-ones" class="md-nav__link">
+    Back blocking devices with other ones
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blocked-file-audit-device" class="md-nav__link">
+    Blocked file audit device
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#audit-device-demos" class="md-nav__link">
+    Audit Device Demos
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#log-message-transformations" class="md-nav__link">
+    Log Message Transformations
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3vt_token/" class="md-nav__link">
+        L3 Working with Tokens
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3vt_token/" class="md-nav__link">
+        L4 Managing Secrets with Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          Integrating with DevOps
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Integrating with DevOps
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/1cicd_pipeline/" class="md-nav__link">
+        L1 Accessing Secrets in CI/CD Pipelines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/2vault_agent/" class="md-nav__link">
+        L2 Securely Introducing Clients Using Vault Agent
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/3vault_tf_nd/" class="md-nav__link">
+        L3 Integrating Vault with Terraform & Nomad
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/4vault_consul/" class="md-nav__link">
+        L4 Integrating Vault with Consul
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/5vault_cloud/" class="md-nav__link">
+        L5 Authenticating Using Cloud Machine Identity
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/6vault_k8s/" class="md-nav__link">
+        L6 Integrating Vault with Kubernetes
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          Ops on Vault Server
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Ops on Vault Server
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/1encrypt_key/" class="md-nav__link">
+        L1 Managing the Encryption Key
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/2bak_storage/" class="md-nav__link">
+        L2 Managing the Storage Backend
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/3incident/" class="md-nav__link">
+        L3 Managing the Vault Server during an Incident
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/4Plugins/" class="md-nav__link">
+        L4 Managing External Plugins and Server Upgrades
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+          Terraform Tools
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          Terraform Tools
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tfm1/1Terragrunt/" class="md-nav__link">
+        L1 使用Terragrunt优化Terraform代码
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tfm1/2TMF_JENKINS/" class="md-nav__link">
+        L2 基础设施即代码 - 使用Terraform创建AWS EC2实例并部署Jenkins服务
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-authentication-for-entities-and-identities" class="md-nav__link">
+    1 Authentication for Entities and identities
+  </a>
+  
+    <nav class="md-nav" aria-label="1 Authentication for Entities and identities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#legal-entities-corporate-structure" class="md-nav__link">
+    Legal Entities - Corporate Structure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#users-groups" class="md-nav__link">
+    Users &amp; Groups
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault-authentication-integrations" class="md-nav__link">
+    Vault &amp; Authentication Integrations
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#authentication-flow" class="md-nav__link">
+    Authentication Flow
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#authentication-methods" class="md-nav__link">
+    Authentication Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault-built-in-authentication-methods" class="md-nav__link">
+    Vault Built-in Authentication Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault-built-in-authentication-methods_1" class="md-nav__link">
+    Vault Built-in Authentication Methods
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#demo-authentication-for-entities-and-identities" class="md-nav__link">
+    Demo: Authentication for Entities and Identities
+  </a>
+  
+    <nav class="md-nav" aria-label="Demo: Authentication for Entities and Identities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vault-status" class="md-nav__link">
+    vault status
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable-userpass" class="md-nav__link">
+    enable userpass
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-enabling-and-configuring-authentication-methods" class="md-nav__link">
+    3 Enabling and Configuring Authentication Methods
+  </a>
+  
+    <nav class="md-nav" aria-label="3 Enabling and Configuring Authentication Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable-ldap-auth-method" class="md-nav__link">
+    Enable LDAP auth method
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable-aws-auth-method" class="md-nav__link">
+    Enable AWS auth method
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-and-configure-app-db-role" class="md-nav__link">
+    Create and configure app-db-role
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#policy-types" class="md-nav__link">
+    Policy Types
+  </a>
+  
+    <nav class="md-nav" aria-label="Policy Types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#policy-types_1" class="md-nav__link">
+    Policy Types
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-policies-explained" class="md-nav__link">
+    Advanced Policies Explained
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced Policies Explained">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tokens-policies" class="md-nav__link">
+    Tokens &amp; Policies
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault-paths" class="md-nav__link">
+    Vault Paths
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault-rest-ful-http-api-call" class="md-nav__link">
+    Vault REST-ful HTTP API Call
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issuing-tokens" class="md-nav__link">
+    Issuing Tokens
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#policies" class="md-nav__link">
+    Policies
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complexity" class="md-nav__link">
+    Complexity
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-and-testing-advanced-policies" class="md-nav__link">
+    Configuring and Testing Advanced Policies
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring and Testing Advanced Policies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#advanced-policies-features" class="md-nav__link">
+    Advanced Policies Features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-orgops-user-and-assign-a-policy" class="md-nav__link">
+    Create orgops user and assign a policy
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#login-with-orgadmin-user" class="md-nav__link">
+    Login with orgadmin user
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault-rest-ful-http-api-call_1" class="md-nav__link">
+    Vault REST-ful HTTP API Call
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-orgrep-user-and-assign-a-wildcard-policy" class="md-nav__link">
+    Create orgrep user and assign a wildcard policy
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-and-testing-advanced-policies-parameters" class="md-nav__link">
+    Configuring and Testing Advanced Policies: parameters
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring and Testing Advanced Policies: parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#allowed-parameters" class="md-nav__link">
+    Allowed Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#readonly-user" class="md-nav__link">
+    Readonly user
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deny-policy" class="md-nav__link">
+    Deny Policy
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#denied-parameters" class="md-nav__link">
+    Denied Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#denied-readonly" class="md-nav__link">
+    Denied readonly
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required" class="md-nav__link">
+    Required
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#observe-policy-syntax-rules" class="md-nav__link">
+    Observe Policy Syntax Rules
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#identity-revisited" class="md-nav__link">
+    Identity Revisited
+  </a>
+  
+    <nav class="md-nav" aria-label="Identity Revisited">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-users-aka-identities" class="md-nav__link">
+    Create users, aka identities
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#auditing-devices-explained" class="md-nav__link">
+    Auditing Devices Explained
+  </a>
+  
+    <nav class="md-nav" aria-label="Auditing Devices Explained">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#audit-device" class="md-nav__link">
+    Audit Device
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#high-level-overview" class="md-nav__link">
+    High-Level Overview
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blocked-audit-devices" class="md-nav__link">
+    Blocked Audit Devices
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#back-blocking-devices-with-other-ones" class="md-nav__link">
+    Back blocking devices with other ones
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blocked-file-audit-device" class="md-nav__link">
+    Blocked file audit device
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#audit-device-demos" class="md-nav__link">
+    Audit Device Demos
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#log-message-transformations" class="md-nav__link">
+    Log Message Transformations
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="2-installing-and-configuring-authentication-methods"><strong>2 Installing and Configuring Authentication Methods</strong></h1>
+<blockquote>
+<p><code>vault login hvs.HOd7xIuvGVsiIhDYeOHO5BsV</code></p>
+</blockquote>
+<h2 id="1-authentication-for-entities-and-identities"><strong>1 Authentication for Entities and identities</strong></h2>
+<h3 id="legal-entities-corporate-structure"><strong>Legal Entities - Corporate Structure</strong></h3>
+<p><img alt="Alt Image Text" src="../../images/vt4_2_1.png" title="Body image" /></p>
+<p>Legal entities behave like individuals. </p>
+<p>They purchase products, consume services, and perform work, but they differ in that they have a corporate structure, <strong>like divisions, departments, teams, and so on, and internal rules</strong>. </p>
+<p>Organizations also have members who play different roles, <strong>system administrators, developers, and project managers</strong>. </p>
+<h3 id="users-groups"><strong>Users &amp; Groups</strong></h3>
+<p><strong>File System Permissions Analogy</strong></p>
+<p><img alt="Alt Image Text" src="../../images/vt4_2_2.png" title="Body image" /></p>
+<p>Both individuals and members of organizations can assume one or more identities. </p>
+<p>Each identity consists of or can be described with one or more attributes, again, a one‑to‑many relationship.</p>
+<h3 id="vault-authentication-integrations"><strong>Vault &amp; Authentication Integrations</strong></h3>
+<p>Vault can integrate with authentication platforms </p>
+<ul>
+<li><strong>LDAP</strong>: Business directory services</li>
+<li><strong>Active Directory</strong>: For Microsoft workloads</li>
+<li><strong>GitHub</strong>: Version control authentication</li>
+<li><strong>AWS</strong>: One of the cloud methods</li>
+<li><strong>AppRole</strong>: For business systems and 
+CI/CD tools</li>
+</ul>
+<p>This includes business systems that require secrets access and continuous integration tools that build and deploy software. </p>
+<h3 id="authentication-flow"><strong>Authentication Flow</strong></h3>
+<p><img alt="Alt Image Text" src="../../images/vt4_2_3.png" title="Body image" /></p>
+<p>There are many authentication methods that Vault supports, but regardless of the one being used, a successful authentication request always produces and <strong>returns a token</strong>. </p>
+<p>Token authentication is the default method, and it allows read and write access to secrets. </p>
+<ul>
+<li>1, the client, which can be an individual or an application, sends an authentication request to Vault. Vault calls LDAP to authenticate the request. </li>
+<li>2, Vault extracts the necessary information from the request and submits it to the identity provider for authentication, in this case, LDAP. </li>
+<li>3, <strong>If the credentials are valid, LDAP confirms them. Then on success</strong></li>
+<li>4, Vault returns a newly minted token to the client. </li>
+<li>5 Using that token, <strong>the client can request access to the secrets covered by the permissions granted by the token</strong>. We will discuss permissions shortly after we talk about policies.</li>
+<li>6 <strong>Vault validates the lease of the token, or it's time to live, commonly referred to as TTL</strong>. And if the lease is still good, Vault returns the requested secret in step </li>
+<li>7 Vault provides a number of authentication methods. </li>
+</ul>
+<h3 id="authentication-methods"><strong>Authentication Methods</strong></h3>
+<p><strong>Human Users</strong></p>
+<ul>
+<li>Userpass <ul>
+<li>built‑in authentication system to Vault that supports username and password combinations</li>
+</ul>
+</li>
+<li>LDAP and Active Directory </li>
+<li>Cloud providers - AWS, GCP, Azure<ul>
+<li>AWS</li>
+<li>Azure</li>
+<li>Google Cloud</li>
+</ul>
+</li>
+<li>GitHub</li>
+</ul>
+<blockquote>
+<p>Userpass is suitable for testing. Not the best option for Production</p>
+<p>Active Directory and GitHub are suitable for Production environments</p>
+</blockquote>
+<p><strong>Non-human Users</strong></p>
+<ul>
+<li>AppRole </li>
+<li>Kubernetes</li>
+</ul>
+<p>The tokens returned by these methods are keys of <strong>limited use.</strong> </p>
+<p>These keys are associated with the user, possibly with the group, and with a policy which determines the secrets that are readable and/or writable by the token. </p>
+<p>In Vault parlance, the actions allowed by a policy are called capabilities. </p>
+<p><strong>Common capabilities are create, read, update, delete, and list.</strong></p>
+<h3 id="vault-built-in-authentication-methods"><strong>Vault Built-in Authentication Methods</strong></h3>
+<p><img alt="Alt Image Text" src="../../images/vt4_2_4.png" title="Body image" /></p>
+<p>On this diagram, you can see the supported authentication methods on the left. Token is the default authentication method, followed by the different cloud identity providers, GitHub, JWT, Kubernetes, Okta, RADIUS, and so on. </p>
+<h3 id="vault-built-in-authentication-methods_1"><strong>Vault Built-in Authentication Methods</strong></h3>
+<p><strong>Token</strong></p>
+<p>The default authentication method in Vault</p>
+<p><strong>Userpass</strong></p>
+<p>Built-in method using usernames and passwords,stored in Vault</p>
+<h2 id="demo-authentication-for-entities-and-identities">Demo: Authentication for Entities and Identities</h2>
+<pre><code>$ vault server -dev
+==&gt; Vault server configuration:
+
+             Api Address: http://127.0.0.1:8200
+                     Cgo: disabled
+         Cluster Address: https://127.0.0.1:8201
+              Go Version: go1.19.3
+              Listener 1: tcp (addr: &quot;127.0.0.1:8200&quot;, cluster address: &quot;127.0.0.1:8201&quot;, max_request_duration: &quot;1m30s&quot;, max_request_size: &quot;33554432&quot;, tls: &quot;disabled&quot;)
+               Log Level: info
+                   Mlock: supported: false, enabled: false
+           Recovery Mode: false
+                 Storage: inmem
+                 Version: Vault v1.12.2, built 2022-11-23T12:53:46Z
+             Version Sha: 415e1fe3118eebd5df6cb60d13defdc01aa17b03
+...
+You may need to set the following environment variables:
+
+    $ export VAULT_ADDR='http://127.0.0.1:8200'
+
+The unseal key and root token are displayed below in case you want to
+seal/unseal the Vault or re-authenticate.
+
+Unseal Key: 80fhgSyxE0PrDrkr6yVcUV1HmjW+1uKX8sLv2lGpCn4=
+Root Token: hvs.HOd7xIuvGVsiIhDYeOHO5BsV
+
+Development mode should NOT be used in production installations!
+</code></pre>
+<pre><code>export VAULT_ADDR='http://127.0.0.1:8200'
+</code></pre>
+<h3 id="vault-status"><code>vault status</code></h3>
+<pre><code>$ vault status
+Key             Value
+---             -----
+Seal Type       shamir
+Initialized     true
+Sealed          false
+Total Shares    1
+Threshold       1
+Version         1.12.2
+Build Date      2022-11-23T12:53:46Z
+Storage Type    inmem
+Cluster Name    vault-cluster-bbbb4ade
+Cluster ID      f8d55404-3393-f04d-da5e-7b9ee659ea22
+HA Enabled      false
+</code></pre>
+<pre><code>$ vault auth list
+Path      Type     Accessor               Description                Version
+----      ----     --------               -----------                -------
+token/    token    auth_token_eff89ca7    token based credentials    n/a
+</code></pre>
+<pre><code>$ vault login hvs.HOd7xIuvGVsiIhDYeOHO5BsV
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run &quot;vault login&quot;
+again. Future Vault requests will automatically use this token.
+
+Key                  Value
+---                  -----
+token                hvs.HOd7xIuvGVsiIhDYeOHO5BsV
+token_accessor       hB9GYswMqIDKgocQx9TQKtTF
+token_duration       ∞
+token_renewable      false
+token_policies       [&quot;root&quot;]
+identity_policies    []
+policies             [&quot;root&quot;]
+</code></pre>
+<h3 id="enable-userpass"><code>enable userpass</code></h3>
+<pre><code># Enable on path auth/userpass
+$ vault auth enable userpass
+
+Success! Enabled userpass auth method at: userpass/
+
+$ vault auth list
+Path         Type        Accessor                  Description                Version
+----         ----        --------                  -----------                -------
+token/       token       auth_token_eff89ca7       token based credentials    n/a
+userpass/    userpass    auth_userpass_75046b90    n/a                        n/a
+
+# Enable on path auth/userpass
+
+vault auth enable -description='UID/PWD Authentication Method' -max-lease-ttl=2m userpass/
+
+
+$ vault write auth/userpass/users/vuser password=vpwd123
+Success! Data written to: auth/userpass/users/vuser
+</code></pre>
+<p><img alt="Alt Image Text" src="../../images/vt4_2_5.png" title="Body image" /></p>
+<pre><code>$ vault login -method=userpass username=vuser password=vpwd123
+
+$ vault login -method=userpass username=vuser password=vpwd123
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run &quot;vault login&quot;
+again. Future Vault requests will automatically use this token.
+
+Key                    Value
+---                    -----
+token                  hvs.CAESIBJgn8bBIIby7AvO60o8oVX4mCfW7gve6JLO92N0f5G1Gh4KHGh2cy5QdUdDRlpDT1hyUHJQdkw4RTZBTHJWWVA
+token_accessor         SUxhDQRTklekYriVIIBfX5xf
+token_duration         768h
+token_renewable        true
+token_policies         [&quot;default&quot;]
+identity_policies      []
+policies               [&quot;default&quot;]
+token_meta_username    vuser
+
+$ vault login  hvs.CAESIBJgn8bBIIby7AvO60o8oVX4mCfW7gve6JLO92N0f5G1Gh4KHGh2cy5QdUdDRlpDT1hyUHJQdkw4RTZBTHJWWVA
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run &quot;vault login&quot;
+again. Future Vault requests will automatically use this token.
+
+Key                    Value
+---                    -----
+token                  hvs.CAESIBJgn8bBIIby7AvO60o8oVX4mCfW7gve6JLO92N0f5G1Gh4KHGh2cy5QdUdDRlpDT1hyUHJQdkw4RTZBTHJWWVA
+token_accessor         SUxhDQRTklekYriVIIBfX5xf
+token_duration         767h57m30s
+token_renewable        true
+token_policies         [&quot;default&quot;]
+identity_policies      []
+policies               [&quot;default&quot;]
+token_meta_username    vuser
+</code></pre>
+<p><strong>Enable the Vault Ul in Production by
+creating a configuration file</strong></p>
+<pre><code>sudp vim /etc/hashicorp/vault/vault_config.hcl
+</code></pre>
+<pre><code>storage &quot;consul&quot; {
+    address = &quot;127.0.0.1:8500&quot;
+    path = &quot;vault&quot;
+}
+
+listener &quot;tcp&quot; {
+    address = &quot;127.0.0.1:8200&quot;
+    tls_disable = 1
+}
+
+
+telemetry {
+    statsite_address = &quot;127.0.0.1:8125&quot;
+    disable hostname = true
+}
+
+ui = true
+</code></pre>
+<h2 id="3-enabling-and-configuring-authentication-methods"><strong>3 Enabling and Configuring Authentication Methods</strong></h2>
+<pre><code>vault auth tune -description='UID/PWD Authentication Method' -max-lease-ttl=2m userpass/
+
+$ vault auth tune -description='UID/PWD Authentication Method' -max-lease-ttl=2m userpass/
+Success! Tuned the auth method at: userpass/
+</code></pre>
+<h3 id="enable-ldap-auth-method"><strong>Enable LDAP auth method</strong></h3>
+<pre><code>vault auth enable ldap
+
+$ vault auth enable ldap
+Success! Enabled ldap auth method at: ldap/
+
+# Configure LDAP auth method - basic parameters
+vault write auth/ldap/config \
+    url=&quot;ldap://ldap.testvault.com&quot; \
+    userdn=&quot;ou=Users,dc=testvault,dc=com&quot; \
+    groupdn=&quot;ou=Groups,dc=testvault,dc=com&quot; \
+    groupfilter=&quot;(&amp;(objectClass=group)(member:1.2.840.113556.1.4.1941:={{.UserDN}}))&quot; \
+    groupattr=&quot;cn&quot; \
+    upndomain=&quot;testvault.com&quot;
+
+Success! Data written to: auth/ldap/config  
+</code></pre>
+<p>Configure LDAP auth method - with CA cert enabled </p>
+<pre><code>vault write auth/ldap/config \
+    url=&quot;ldap://ldap.testvault.com&quot; \
+    userdn=&quot;ou=Users,dc=testvault,dc=com&quot; \
+    groupdn=&quot;ou=Groups,dc=testvault,dc=com&quot; \
+    groupfilter=&quot;(&amp;(objectClass=group)(member:1.2.840.113556.1.4.1941:={{.UserDN}}))&quot; \
+    groupattr=&quot;cn&quot; \
+    upndomain=&quot;testvault.com&quot; \
+    ertificate=@ldap_ca_cert.pem \
+    insecure_tls=false \
+    starttls=true
+</code></pre>
+<h3 id="enable-aws-auth-method">Enable AWS auth method</h3>
+<pre><code># Set env variables for AWS
+export AWS_ACCESS_KEY=&quot;my_aws_account_access_key128h*Y73#12&lt;jd&quot;;
+export AWS_SECRET_KEY=&quot;my_aws_account_secret_key93jkd&amp;3)s&gt;sds1&quot;;
+
+# Configure AWS auth method with the access and secret keys
+vault write auth/aws/config/client \
+    secret_key=$AWS_SECRET_KEY \
+    access_key=$AWS_ACCESS_KEY
+
+# Create a policy that gives db-role list and read capabilities
+vault policy write db-policy - &lt;&lt; EOF
+path &quot;database/creds/app-role&quot; {
+    capabilities = [&quot;list&quot;, &quot;read&quot;]
+}
+EOF
+
+success! Uploaded policy: db-policy
+
+</code></pre>
+<h3 id="create-and-configure-app-db-role">Create and configure app-db-role</h3>
+<pre><code>vault write \
+    auth/aws/role/app-db-role \
+    auth_type=ec2 \
+    policies=db-policy \
+    max_ttl=1h \
+    disallow_reauthentication=false \
+    bound_ami_id=ami-&lt;hash&gt;
+
+# Read the policy to verify it is correctly configured
+vault read auth/aws/role/app-db-role
+</code></pre>
+<pre><code>vault write \
+    auth/aws/role/app-db-role\
+    auth_type=ec2\
+    policies=db-policy\
+    max ttl=1h \
+    disallow reauthentication=false\
+    bound amiid=ami-asdf0139kfkw93ks53
+</code></pre>
+<p><img alt="Alt Image Text" src="../../images/vt4_2_6.png" title="Body image" /></p>
+<h2 id="policy-types"><strong>Policy Types</strong></h2>
+<h3 id="policy-types_1"><strong>Policy Types</strong></h3>
+<p><strong>ACL Policies</strong></p>
+<ul>
+<li>Defined in HCL </li>
+<li>Assigned to tokens by name</li>
+</ul>
+<p>The first and most common policy type is ACL, or <strong>Access Control List</strong> policies. These are written in HCL, the HashiCorp's JSON‑like configuration language.</p>
+<p>They apply to a path or paths and are linked to tokens by name.</p>
+<pre><code>vault policy write my-policy my-policy.hcl
+
+Success! Uploaded policy: my-policy
+
+vault policy write other-policy other-policy.hcl
+
+Success! Uploaded policy: other-policy
+</code></pre>
+<p><strong><code>my-policy.hcl</code></strong></p>
+<pre><code>### My Policy ###
+# Write any secret to these sub-paths secret/data/*
+path &quot;secret/data/*&quot; {
+  capabilities = [&quot;create&quot;, &quot;update&quot;]
+}
+
+# Only read from this path
+path &quot;secret/data/globomantics&quot; {
+  capabilities = [&quot;read&quot;]
+}
+</code></pre>
+<p><strong><code>other-policy.hcl</code></strong></p>
+<pre><code>### My Policy ###
+# Write any secret to these sub-paths secret/data/*
+path &quot;secret/data/*&quot; {
+  capabilities = [&quot;create&quot;, &quot;update&quot;]
+}
+
+# Read from and update secrets under this path
+path &quot;secret/data/globomantics/accounting&quot; {
+  capabilities = [&quot;read&quot;, &quot;update&quot;]
+}
+</code></pre>
+<pre><code>vault token create -policy-my-policy-policy=other-policy
+</code></pre>
+<pre><code>$ vault token create -policy=my-policy -policy=other-policy
+Key                  Value
+---                  -----
+token                hvs.CAESIE6IZcV9vkIsQ3YfPrPKBC8z24-R_40SOksX4CDvDy3GGh4KHGh2cy50cWNhUm9LdjREckZBekttRXg3S2dFMWw
+token_accessor       DSwrEQIzxUbb6hgFgJPDsXs1
+token_duration       768h
+token_renewable      true
+token_policies       [&quot;default&quot; &quot;my-policy&quot; &quot;other-policy&quot;]
+identity_policies    []
+policies             [&quot;default&quot; &quot;my-policy&quot; &quot;other-policy&quot;]
+</code></pre>
+<p><mark>logging into Vault with a particular identity, certain aspects of it, like your LDAP group membership or your IAM role will be linked to such policies, as the policies will be assigned to your token by name<mark></p>
+<p><strong>Endpoint Governing Policies</strong></p>
+<ul>
+<li>Defined in Sentinel</li>
+<li>Assigned to API endpoints irrespective of identity</li>
+</ul>
+<p>The second type are endpoint governing policies. They're written in Sentinel, which is available only in the enterprise commercial version of Vault</p>
+<p>Governing policies is that they apply to API endpoints regardless of identity or regardless of who is trying to access the endpoint.</p>
+<p><img alt="Alt Image Text" src="../../images/vt4_2_7.png" title="Body image" /></p>
+<p>To understand this better, here's a quick example  The cidrcheck rule ensures login requests originate only from a specific IP range. </p>
+<p>The <code>ping_valid</code> rule enforces ping multi‑factor authentication. Finally, the main rule combines the first to rules and applies a logical AND, but only when the request path starts with auth/ldap/login or for LDAP login attempts only</p>
+<p>Every Sentinel policy has a main rule, which is evaluated to determine the result of the policy.</p>
+<p><strong>Role Governing Policies</strong></p>
+<ul>
+<li>Defined in Sentinel</li>
+<li>Assigned to tokens by name</li>
+</ul>
+<p><strong>Root Policies</strong></p>
+<ul>
+<li><strong>Apply to root tokens only</strong> </li>
+<li>Used in an emergency or when no other policies are available</li>
+</ul>
+<pre><code> vault token lookup
+Key                 Value
+---                 -----
+accessor            hB9GYswMqIDKgocQx9TQKtTF
+creation_time       1671289536
+creation_ttl        0s
+display_name        root
+entity_id           n/a
+expire_time         &lt;nil&gt;
+explicit_max_ttl    0s
+id                  hvs.HOd7xIuvGVsiIhDYeOHO5BsV
+meta                &lt;nil&gt;
+num_uses            0
+orphan              true
+path                auth/token/root
+policies            [root]
+ttl                 0s
+type                service
+</code></pre>
+<h2 id="advanced-policies-explained">Advanced Policies Explained</h2>
+<p><strong>Policies determine</strong></p>
+<ul>
+<li>Which secrets a token can access</li>
+<li>Whether the token can be used to Read/Write secrets to a path</li>
+</ul>
+<h3 id="tokens-policies"><strong>Tokens &amp; Policies</strong></h3>
+<p>The relationship between tokens and policies, a single token can be linked to one or more policies. Policies determine which secrets a token is allowed to access and whether that token can be used to <strong>read or write secrets to a path in Vault</strong></p>
+<p><strong>Vault treats paths in a way similar to how a file system treats files</strong></p>
+<p>It assigns a set of permissions. </p>
+<p><img alt="Alt Image Text" src="../../images/vt4_2_8.png" title="Body image" /></p>
+<p>Vault exposes paths and manages control to the resources behind those paths via policies, the equivalent of file system permissions</p>
+<h3 id="vault-paths">Vault Paths</h3>
+<p>Structure &amp; Samples</p>
+<pre><code># Auth method: userpass
+auth/userpass/users/:username/password 
+auth/userpass/users/:username
+auth/userpass/login/:username 
+auth/userpass/mfa_config 
+auth/userpass/policies
+
+
+# Auth method: aws
+auth/aws/config/client 
+auth/aws/config/rotate-root
+auth/aws/config/identity
+auth/aws/config/certificate 
+auth/aws/config/certificate/:cert_name 
+auth/aws/config/certificates # Plural 
+auth/aws/config/sts 
+auth/aws/config/sts/:account_id
+</code></pre>
+<h3 id="vault-rest-ful-http-api-call"><strong>Vault REST-ful HTTP API Call</strong></h3>
+<pre><code># Call with curl
+curl \ 
+    --header &quot;X-Vault-Token: $VAULT_TOKEN&quot; \ 
+    --request POST \ 
+    --data '{&quot;policies&quot;: [&quot;my-policy&quot;]}' \ 
+    http://127.0.0.1:8200/v1/auth/approle/role/my-role
+</code></pre>
+<p><img alt="Alt Image Text" src="../../images/vt4_2_9.png" title="Body image" /></p>
+<h3 id="issuing-tokens"><strong>Issuing Tokens</strong></h3>
+<p><strong>Vault uses policies to govern the behavior of clients and instrument Role-Based Access Control (RBAC) by specifying access privileges (authorization)</strong></p>
+<p><strong>Policies are associated with tokens when those tokens are minted</strong>. </p>
+<p>And tokens are issued to users or groups The precise mechanism for this depends on the authentication method being used: userpass, GitHub, database, AWS, Okta, and so on. Here is an HCL policy file that defines capabilities for a path.</p>
+<h3 id="policies"><strong>Policies</strong></h3>
+<p><strong>Capabilities</strong></p>
+<ul>
+<li>Create - HTTP [PUT or POST] </li>
+<li>Read - HTTP [GET] </li>
+<li>Update - HTTP [PUT or POST] </li>
+<li>Delete - HTTP [DELETE] </li>
+<li>List - HTTP [LIST] </li>
+<li>SUDO - access to root-protected paths </li>
+<li>Deny - explicitly denies a capability</li>
+</ul>
+<p>Vault comes with two built‑in policies, <strong>root and default.</strong> </p>
+<ul>
+<li>Root can access all paths, including the ones that begin with sys, <strong>otherwise known as Vault's internal paths</strong>. </li>
+</ul>
+<blockquote>
+<p>The only exception to that is a path to a cubbyhole. </p>
+</blockquote>
+<p><strong>The only secret the root token cannot acmes is the one stored in a cubbyhole</strong></p>
+<ul>
+<li><strong>The default policy includes capabilities that allow tokens to read their own metadata</strong>. This policy can be modified, if needed. </li>
+</ul>
+<p><strong><code>ecommdev-policy.hcl</code></strong></p>
+<pre><code># The &quot;data&quot; path semement is required by KVv2
+path &quot;secret/data/ecommdev&quot; {
+    capabilities = [&quot;create&quot;, &quot;update&quot;, &quot;read&quot;, &quot;list&quot;]
+}
+</code></pre>
+<p>The one can be used to generate tokens for E‑commerce developers or for Vault admins.</p>
+<pre><code>vault policy write profileapp-policy profileapp-policy.hcl 
+vault policy write ecommdev-policy ecommdev-policy.hcl
+</code></pre>
+<p><strong><code>profileapp-policy.hcl</code></strong></p>
+<pre><code># The &quot;data&quot; path semement is required by KVv2
+path &quot;secret/data/profileapp&quot; {
+    capabilities = [&quot;read&quot;]
+}
+</code></pre>
+<h3 id="complexity">Complexity</h3>
+<ul>
+<li>Glob - aka <code>*</code> asterisk</li>
+<li>Wild card - aka <code>+</code> sign</li>
+<li>Templating</li>
+</ul>
+<p><strong><code>templated_policy1.hcl</code></strong></p>
+<pre><code>path &quot;secret/data/{{identity.entity.id}}/*&quot; {
+  capabilities = [&quot;create&quot;, &quot;update&quot;, &quot;read&quot;, &quot;delete&quot;]
+}
+
+path &quot;secret/metadata/{{identity.entity.id}}/*&quot; {
+  capabilities = [&quot;list&quot;]
+}
+</code></pre>
+<p><strong>Fine-Grained Control with Parameter Constraints</strong></p>
+<ul>
+<li>Required parameters</li>
+<li>Allowed parameters</li>
+<li>Denied parameters</li>
+</ul>
+<h2 id="configuring-and-testing-advanced-policies">Configuring and Testing Advanced Policies</h2>
+<h3 id="advanced-policies-features">Advanced Policies Features</h3>
+<p><strong>Glob / Wild Card (segment) / Templating / Allowed Parameters / Denied Parameters (disallowed) / Required Parameters</strong></p>
+<p>Focus on the top three advanced features: <strong>glob, segment, and templating</strong>. </p>
+<p>And we will also cover advanced parameter constraints: allowed, disallowed, and required. Glob is specified with an asterisk at the end of a path in an ACL policy rule</p>
+<ul>
+<li><strong><code>demo_glob_myorg_ops_policy.hcl</code></strong></li>
+</ul>
+<pre><code># Glob - prefix match
+path &quot;secret/data/myorg/*&quot; {
+    capabilities = [&quot;read&quot;, &quot;create&quot;, &quot;list&quot;]
+}
+
+# Restrict a specific subpath to only org-level admins
+path &quot;secret/data/myorg/admin-secret&quot; {
+    capabilities  = [&quot;deny&quot;]
+}
+
+</code></pre>
+<ul>
+<li><strong><code>demo_glob_myorg_admins_policy1.hcl</code></strong></li>
+</ul>
+<pre><code># Allow admin users to create org-level secrets
+path &quot;secret/data/myorg/admin-secret&quot; {
+    capabilities  = [&quot;create&quot;, &quot;update&quot;, &quot;delete&quot;, &quot;list&quot;]
+}
+</code></pre>
+<blockquote>
+<p><strong>Glob ( * ) is not equivalent to a its RegEx counterpart</strong></p>
+</blockquote>
+<pre><code>vault policy write demo_glob_myorg_ops_policy demo_glob_myorg_ops_policy.hcl
+
+vault policy write demo_glob_myorg_admins_policy1 demo_glob_myorg_admins_policy1.hcl
+</code></pre>
+<pre><code>$ vault policy write demo_glob_myorg_ops_policy demo_glob_myorg_ops_policy.hclSuccess! Uploaded policy: demo_glob_myorg_ops_policy
+
+$ vault policy write demo_glob_myorg_admins_policy1 demo_glob_myorg_admins_policy1.hcl
+Success! Uploaded policy: demo_glob_myorg_admins_policy1
+</code></pre>
+<p>we define a separate policy that will allow an admin user to create admin secrets on the path we denied in the previous policy</p>
+<pre><code>$ vault policy list
+default
+demo_glob_myorg_admins_policy1
+demo_glob_myorg_ops_policy
+my-policy
+other-policy
+root
+</code></pre>
+<h3 id="create-orgops-user-and-assign-a-policy">Create orgops user and assign a policy</h3>
+<pre><code>vault write auth/userpass/users/orgops password=orgops policies=demo_glob_myorg_ops_policy
+
+$ vault write auth/userpass/users/orgops password=orgops policies=demo_glob_myorg_ops_policy
+Success! Data written to: auth/userpass/users/orgops
+</code></pre>
+<pre><code>$ vault list auth/userpass/users
+Keys
+----
+orgops
+vuser
+</code></pre>
+<pre><code># Login with orgops user
+vault login -method=userpass username=orgops password=orgops
+
+ vault login -method=userpass username=orgops password=orgops
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run &quot;vault login&quot;
+again. Future Vault requests will automatically use this token.
+
+WARNING! The following warnings were returned from Vault:
+
+  * TTL of &quot;768h&quot; exceeded the effective max_ttl of &quot;2m&quot;; TTL value is capped
+  accordingly
+
+Key                    Value
+---                    -----
+token                  hvs.CAESIC1UzNx8fvZcPo9wZWbDLA9hIVUf8ouxx7CBlcoUtucUGh4KHGh2cy5oS3dDUXVCdktUUUpIaHRwaWV1T1FUSWI
+token_accessor         DjnOpVxFWkMEgnpak0sulX2r
+token_duration         2m
+token_renewable        true
+token_policies         [&quot;default&quot; &quot;demo_glob_myorg_ops_policy&quot;]
+identity_policies      []
+policies               [&quot;default&quot; &quot;demo_glob_myorg_ops_policy&quot;]
+token_meta_username    orgops
+
+# policies               [&quot;default&quot; &quot;demo_glob_myorg_ops_policy&quot;]
+
+# Write to myorg
+$ vault kv put secret/myorg/opsorgsecret1 key=opsbadge2371 value=super13secret45pwd
+
+$ vault kv put secret/myorg/opsorgsecret1 key=opsbadge2371 value=super13secret45pwd
+
+========= Secret Path =========
+secret/data/myorg/opsorgsecret1
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2022-12-19T07:49:03.794412Z
+custom_metadata    &lt;nil&gt;
+deletion_time      n/a
+destroyed          false
+version            1
+
+
+
+# Write to myorg/mydepartment
+
+
+vault kv put secret/myorg/mydepartment/opsdeptsecret1 key=opsbadge2371 value=super13secret45pwd
+
+
+$ vault kv put secret/myorg/mydepartment/opsdeptsecret1 key=opsbadge2371 value=super13secret45pwd
+================ Secret Path ================
+secret/data/myorg/mydepartment/opsdeptsecret1
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2022-12-19T07:49:40.48448Z
+custom_metadata    &lt;nil&gt;
+deletion_time      n/a
+destroyed          false
+version            1
+
+
+# Expected error - permission denied - when attempting to write to myorg/admin-secert
+vault kv put secret/myorg/admin-secret key=opsbadge2371 value=super13secret45pwd
+
+$ vault kv put secret/myorg/admin-secret key=opsbadge2371 value=super13secret45pwd
+Error making API request.
+
+URL: GET http://127.0.0.1:8200/v1/sys/internal/ui/mounts/secret/myorg/admin-secret
+Code: 403. Errors:
+
+* permission denied
+</code></pre>
+<h3 id="login-with-orgadmin-user">Login with orgadmin user</h3>
+<pre><code>$ vault login hvs.HOd7xIuvGVsiIhDYeOHO5BsV (root)
+
+# Create orgadmin user and assign a policy
+vault write auth/userpass/users/orgadmin password=orgadmin policies=demo_glob_myorg_admins_policy,demo_glob_myorg_ops_policy
+
+Success! Data written to: auth/userpass/users/orgadmin
+
+$ vault list auth/userpass/users
+Keys
+----
+orgadmin
+orgops
+vuser
+
+
+# demo_glob_myorg_admins_policy1
+
+# Write to myorg
+vault kv put secret/myorg/adminorgsecret1 key=adminsbadge007 value=doubleO13secret45pwd
+
+$ vault list auth/userpass/users
+Keys
+----
+orgadmin
+orgops
+vuser
+
+
+# Login with orgops user
+vault login -method=userpass username=orgadmin password=orgadmin
+
+ vault login -method=userpass username=orgadmin password=orgadmin
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run &quot;vault login&quot;
+again. Future Vault requests will automatically use this token.
+
+WARNING! The following warnings were returned from Vault:
+
+  * TTL of &quot;768h&quot; exceeded the effective max_ttl of &quot;2m&quot;; TTL value is capped
+  accordingly
+
+Key                    Value
+---                    -----
+token                  hvs.CAESICsA44fDvC-zOkfk4J0E4Ss61vMH-Zq5kmpqwPvO_ptDGh4KHGh2cy43TnltcVV2RUtBSUhKM1U1Z2g4UWJQY2E
+token_accessor         9aCLtVOR8Ie5QMyU8xx8fulk
+token_duration         2m
+token_renewable        true
+token_policies         [&quot;default&quot; &quot;demo_glob_myorg_admins_policy&quot; &quot;demo_glob_myorg_ops_policy&quot;]
+identity_policies      []
+policies               [&quot;default&quot; &quot;demo_glob_myorg_admins_policy&quot; &quot;demo_glob_myorg_ops_policy&quot;]
+token_meta_username    orgadmin
+
+
+# Write to myorg
+vault kv put secret/myorg/adminorgsecret1 key=adminsbadge007 value=doubleO13secret45pwd
+
+
+
+$ vault kv put secret/myorg/mydepartment/admindeptsecret1 key=adminsbadge007 value=doubleO13secret45pwd
+================= Secret Path =================
+secret/data/myorg/mydepartment/admindeptsecret1
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2022-12-19T08:06:07.124181Z
+custom_metadata    &lt;nil&gt;
+deletion_time      n/a
+destroyed          false
+version            1
+</code></pre>
+<h3 id="vault-rest-ful-http-api-call_1">Vault REST-ful HTTP API Call</h3>
+<pre><code># Everything under:
+
+secret/data/myorg/mydepartment
+
+secret/data/myorg/mydepartment/myteam
+
+secret/data/org2/technology/unit2/team1
+
+secret/data/org2/procurement/unit1/team2
+</code></pre>
+<h3 id="create-orgrep-user-and-assign-a-wildcard-policy">Create orgrep user and assign a wildcard policy</h3>
+<ul>
+<li><code>demo_wildcard_policy.hcl</code></li>
+</ul>
+<pre><code># Handle multiple paths with wildcards
+path &quot;secret/data/org2/+/+/team*&quot; {
+    capabilities = [&quot;create&quot;, &quot;read&quot;]
+}
+</code></pre>
+<pre><code>$ vault login hvs.HOd7xIuvGVsiIhDYeOHO5BsV (root)
+
+vault policy write demo_wildcard_policy demo_wildcard_policy.hcl
+
+Success! Uploaded policy: demo_wildcard_policy
+
+$ vault write auth/userpass/users/orgrep password=orgrep policies=demo_wildcard_policy
+
+Success! Data written to: auth/userpass/users/orgrep
+
+vault kv put secret/org2/unit1/accounting/team1 key=orgrepbadge1010 value=010734
+vault kv put secret/org2/unit2/finance/team3 key=orgrepbadge1111 value=050501
+
+
+$ vault kv put secret/org2/unit1/accounting/team1 key=orgrepbadge1010 value=010734
+============= Secret Path =============
+secret/data/org2/unit1/accounting/team1
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2022-12-19T08:19:28.240573Z
+custom_metadata    &lt;nil&gt;
+deletion_time      n/a
+destroyed          false
+version            1
+
+$ vault kv put secret/org2/unit2/finance/team3 key=orgrepbadge1111 value=050501
+============ Secret Path ============
+secret/data/org2/unit2/finance/team3
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2022-12-19T08:19:37.927417Z
+custom_metadata    &lt;nil&gt;
+deletion_time      n/a
+destroyed          false
+version            1
+
+vault kv get secret/org2/unit1/accounting/team1
+vault kv get secret/org2/unit2/finance/team3
+
+
+$ vault kv get secret/org2/unit1/accounting/team1
+============= Secret Path =============
+secret/data/org2/unit1/accounting/team1
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2022-12-19T08:19:28.240573Z
+custom_metadata    &lt;nil&gt;
+deletion_time      n/a
+destroyed          false
+version            1
+
+==== Data ====
+Key      Value
+---      -----
+key      orgrepbadge1010
+value    010734
+
+
+$ vault kv get secret/org2/unit2/finance/team3
+============ Secret Path ============
+secret/data/org2/unit2/finance/team3
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2022-12-19T08:19:37.927417Z
+custom_metadata    &lt;nil&gt;
+deletion_time      n/a
+destroyed          false
+version            1
+
+==== Data ====
+Key      Value
+---      -----
+key      orgrepbadge1111
+value    050501
+
+vault kv put secret/org2/unit3/finance/loans/team4 key=orgrepbadge2222 value=060606
+vault kv get secret/org2/unit3/finance/loans/team4
+
+
+]$ vault kv put secret/org2/unit3/finance/loans/team4 key=orgrepbadge2222 value=060606
+=============== Secret Path ===============
+secret/data/org2/unit3/finance/loans/team4
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2022-12-19T08:20:30.829915Z
+custom_metadata    &lt;nil&gt;
+deletion_time      n/a
+destroyed          false
+version            1
+
+
+$ vault kv get secret/org2/unit3/finance/loans/team4
+=============== Secret Path ===============
+secret/data/org2/unit3/finance/loans/team4
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2022-12-19T08:20:30.829915Z
+custom_metadata    &lt;nil&gt;
+deletion_time      n/a
+destroyed          false
+version            1
+
+==== Data ====
+Key      Value
+---      -----
+key      orgrepbadge2222
+value    060606
+
+#  User for testing policy with parameters
+vault write auth/userpass/users/paramtester password=paramtester policies=demo_policy_with_parameters
+
+Success! Data written to: auth/userpass/users/paramtester
+</code></pre>
+<h2 id="configuring-and-testing-advanced-policies-parameters">Configuring and Testing Advanced Policies: parameters</h2>
+<p><strong>vault login root</strong></p>
+<pre><code>vault login hvs.HOd7xIuvGVsiIhDYeOHO5BsV
+
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run &quot;vault login&quot;
+again. Future Vault requests will automatically use this token.
+
+Key                  Value
+---                  -----
+token                hvs.HOd7xIuvGVsiIhDYeOHO5BsV
+token_accessor       hB9GYswMqIDKgocQx9TQKtTF
+token_duration       ∞
+token_renewable      false
+token_policies       [&quot;root&quot;]
+identity_policies    []
+policies             [&quot;root&quot;]
+
+
+vault auth enable userpass # If not yet enabled
+
+vault secrets enable -version=1 -path=secretv1 -description=&quot;KVv1 for Policy Parameter Testing&quot; kv
+
+Success! Enabled the kv secrets engine at: secretv1/
+</code></pre>
+<pre><code> vault secrets list
+Path          Type         Accessor              Description
+----          ----         --------              -----------
+cubbyhole/    cubbyhole    cubbyhole_018ad743    per-token private secret storage
+identity/     identity     identity_7ab8d5df     identity store
+secret/       kv           kv_7f3f9a79           key/value secret storage
+secretv1/     kv           kv_5c801065           KVv1 for Policy Parameter Testing
+sys/          system       system_e49aa9b9       system endpoints used for control, policy and debugging
+</code></pre>
+<p><strong>Policy Parameters Limitations</strong></p>
+<ul>
+<li>Parameters NOT supported in KVv2</li>
+<li>HashiCorp documentation NOT complete</li>
+</ul>
+<h3 id="allowed-parameters"><strong>Allowed Parameters</strong></h3>
+<ul>
+<li><strong>Only</strong> the allowed keys are white-listed</li>
+<li>
+<p><strong>Must</strong> specify at least one of those keys</p>
+</li>
+<li>
+<p><strong><code>demo_policy_with_parameters_allowed.hcl</code></strong></p>
+</li>
+</ul>
+<pre><code># The user that was assigned this policy can only create secrets
+# under the specified path(s)
+path &quot;secretv1/constrained-allowed/*&quot; {
+    capabilities = [&quot;create&quot;]
+    allowed_parameters = {
+        &quot;uid&quot; = []
+        &quot;title_name&quot; = [&quot;King-*&quot;,&quot;Queen-*&quot;]
+    }
+}
+</code></pre>
+<pre><code># 1) Allowed
+# Upload the  with allowed parameters - contains only &quot;create&quot; capability (important)
+# This policy is for a user who can only create secrets
+vault policy write demo_policy_with_parameters_allowed demo_policy_with_parameters_allowed.hcl
+
+Success! Uploaded policy: demo_policy_with_parameters_allowed
+</code></pre>
+<ul>
+<li><strong><code>demo_policy_with_parameters_allowed_readonly.hcl</code></strong></li>
+</ul>
+<pre><code># Read-only policy that allows a user to only read secrets
+# created by another user who only had &quot;create&quot; capability in a policy with constraining parameters
+path &quot;secretv1/constrained-allowed/*&quot; {
+    capabilities = [&quot;read&quot;]
+}
+</code></pre>
+<pre><code># Create two users - one to create (write) secrets and the other to read those secrets
+
+vault write auth/userpass/users/aptester password=aptester policies=demo_policy_with_parameters_allowed
+
+$ vault write auth/userpass/users/aptester password=aptester policies=demo_policy_with_parameters_allowed
+Success! Data written to: auth/userpass/users/aptester
+
+vault write auth/userpass/users/aptesterro password=aptesterro policies=demo_policy_with_parameters_allowed_readonly
+
+
+$ vault write auth/userpass/users/aptesterro password=aptesterro policies=demo_policy_with_parameters_allowed_readonly
+Success! Data written to: auth/userpass/users/aptesterro
+</code></pre>
+<pre><code>vault login -method=userpass username=aptester password=aptester
+
+$ vault login -method=userpass username=aptester password=aptester
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run &quot;vault login&quot;
+again. Future Vault requests will automatically use this token.
+
+WARNING! The following warnings were returned from Vault:
+
+  * TTL of &quot;768h&quot; exceeded the effective max_ttl of &quot;2m&quot;; TTL value is capped
+  accordingly
+
+Key                    Value
+---                    -----
+token                  hvs.CAESIHVZ8ZWlYBQg6ZXGO3LZ1yq2yp-Apr9IjKK4p_fySpTRGh4KHGh2cy5STzFEOXdUdERIMDBhODdzOXlpM0pIUVY
+token_accessor         nkdUEyfiwbQBFcMRQvnUcCPz
+token_duration         2m
+token_renewable        true
+token_policies         [&quot;default&quot; &quot;demo_policy_with_parameters_allowed&quot;]
+identity_policies      []
+policies               [&quot;default&quot; &quot;demo_policy_with_parameters_allowed&quot;]
+token_meta_username    aptester
+
+
+$ vault kv put secretv1/constrained-allowed/secret1 # Fails with &quot;Must supply data&quot; error message
+
+Must supply data
+
+
+vault kv put secretv1/constrained-allowed/secret1 uid=1 # Works
+
+ vault kv put secretv1/constrained-allowed/secret1 uid=1
+Success! Data written to: secretv1/constrained-allowed/secret1
+</code></pre>
+<pre><code>vault kv put secretv1/constrained-allowed/secret2 title_name=Prince-Harry # Fails with 403: permission denied
+
+ vault kv put secretv1/constrained-allowed/secret2 title_name=Prince-Harry
+Error writing data to secretv1/constrained-allowed/secret2: Error making API request.
+
+URL: PUT http://127.0.0.1:8200/v1/secretv1/constrained-allowed/secret2
+Code: 403. Errors:
+
+* 1 error occurred:
+        * permission denied
+Denied Parameters
+
+
+$ vault kv put secretv1/constrained-allowed/secret2 title_name=Queen-Latifah
+Success! Data written to: secretv1/constrained-allowed/secret2
+
+vault kv put secretv1/constrained-allowed/secret3 uid=3 title_name=King-George # Works
+
+$ vault kv put secretv1/constrained-allowed/secret3 uid=3 title_name=King-George
+Success! Data written to: secretv1/constrained-allowed/secret3
+
+t]$ vault kv put secretv1/constrained-allowed/secret4 status=ruling 
+Error writing data to secretv1/constrained-allowed/secret4: Error making API request.
+
+URL: PUT http://127.0.0.1:8200/v1/secretv1/constrained-allowed/secret4
+Code: 403. Errors:
+
+* 1 error occurred:
+        * permission denied
+</code></pre>
+<h3 id="readonly-user">Readonly user</h3>
+<pre><code>$ vault login -method=userpass username=aptesterro password=aptesterro
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run &quot;vault login&quot;
+again. Future Vault requests will automatically use this token.
+
+WARNING! The following warnings were returned from Vault:
+
+  * TTL of &quot;768h&quot; exceeded the effective max_ttl of &quot;2m&quot;; TTL value is capped
+  accordingly
+
+Key                    Value
+---                    -----
+token                  hvs.CAESIDzk--GR7yht6B2k9n_JDjD-Bbu0JVvaCClekEv4Gt7PGh4KHGh2cy5DSnE1NmRNWllWelEzQ21YRzBpSDJzNGQ
+token_accessor         9IsSCfH6XNjeS0YdkMIsFWDm
+token_duration         2m
+token_renewable        true
+token_policies         [&quot;default&quot; &quot;demo_policy_with_parameters_allowed_readonly&quot;]
+identity_policies      []
+policies               [&quot;default&quot; &quot;demo_policy_with_parameters_allowed_readonly&quot;]
+token_meta_username    aptesterro
+
+
+
+
+$ vault kv put secretv1/constrained-allowed/secret2 title_name=Prince-Harry
+Error making API request.
+
+URL: GET http://127.0.0.1:8200/v1/sys/internal/ui/mounts/secretv1/constrained-allowed/secret2
+Code: 403. Errors:
+
+* preflight capability check returned 403, please ensure client's policies grant access to path &quot;secretv1/constrained-allowed/secret2/&quot;
+
+$ vault kv put secretv1/constrained-allowed/secret2 title_name=Queen-Latifah
+Error making API request.
+
+URL: GET http://127.0.0.1:8200/v1/sys/internal/ui/mounts/secretv1/constrained-allowed/secret2
+Code: 403. Errors:
+
+* permission denied
+</code></pre>
+<pre><code>vault kv get secretv1/constrained-allowed/secret1
+
+
+vault kv get secretv1/constrained-allowed/secret2
+</code></pre>
+<h3 id="deny-policy">Deny Policy</h3>
+<pre><code>$ vault server -dev 
+
+hvs.EiYGguIh98HdbF3NkfrzQhM6
+
+
+</code></pre>
+<pre><code>export VAULT_ADDR='http://127.0.0.1:8200'
+&lt;!--export root=hvs.EiYGguIh98HdbF3NkfrzQhM6--&gt;
+vault login hvs.EiYGguIh98HdbF3NkfrzQhM6
+
+
+$ vault login hvs.EiYGguIh98HdbF3NkfrzQhM6
+
+
+Key                  Value
+---                  -----
+token                hvs.EiYGguIh98HdbF3NkfrzQhM6
+token_accessor       TrsQs8oybr7vyHRuJOJGGohH
+token_duration       ∞
+token_renewable      false
+token_policies       [&quot;root&quot;]
+identity_policies    []
+policies             [&quot;root&quot;]
+
+
+vault auth enable userpass # If not yet enabled
+
+vault secrets enable -version=1 -path=secretv1 -description=&quot;KVv1 for Policy Parameter Testing&quot; kv
+</code></pre>
+<ul>
+<li><code>demo_policy_with_parameter_required_readonly.hcl</code></li>
+</ul>
+<pre><code># Read-only policy that allows a user to only read secrets
+# created by another user who only had &quot;create&quot; capability in a policy with constraining parameters
+path &quot;secretv1/constrained-required/*&quot; {
+    capabilities = [&quot;read&quot;]
+}
+</code></pre>
+<pre><code>vault policy write demo_policy_with_parameters_required_readonly demo_policy_with_parameters_required_readonly.hcl 
+
+Success! Uploaded policy: demo_policy_with_parameters_required_readonly
+
+
+vault policy write demo_policy_with_parameters_required_readonly demo_policy_with_parameters_required_readonly.hcl 
+
+$ vault auth enable userpass
+
+vault write auth/userpass/users/rptester password=rptester policies=demo_policy_with_parameters_denied_readonly
+
+Success! Data written to: auth/userpass/users/rptester
+
+vault write auth/userpass/users/rptesterro password=rptestero policies= demo_policy_with_parameters_required_readonly.hcl
+</code></pre>
+<h3 id="denied-parameters">Denied Parameters</h3>
+<ul>
+<li>Specified keys are <strong>black-listed</strong></li>
+<li>
+<p><strong>All other keys are allowed</strong></p>
+</li>
+<li>
+<p><code>demo_policy_with_parameters_denied_readonly.hcl</code></p>
+</li>
+</ul>
+<pre><code># Read-only policy that allows a user to only read secrets
+# created by another user who only had &quot;create&quot; capability in a policy with constraining parameters
+path &quot;secretv1/constrained-denied/*&quot; {
+    capabilities = [&quot;read&quot;]
+}
+</code></pre>
+<ul>
+<li><code>demo_policy_with_parameters_denied.hcl</code></li>
+</ul>
+<pre><code># The user that was assigned this policy can only create secrets
+# under the specified path(s)
+path &quot;secretv1/constrained-denied/*&quot; {
+    capabilities = [&quot;create&quot;]
+    denied_parameters = {
+        &quot;account_id&quot; = []
+        &quot;auditor_name&quot; = [&quot;Starsky&quot;, &quot;Hutch&quot;]
+    }
+}
+</code></pre>
+<pre><code>vault policy write demo_policy_with_parameters_denied demo_policy_with_parameters_denied.hcl
+
+Success! Uploaded policy: demo_policy_with_parameters_denied
+
+
+vault policy write demo_policy_with_parameters_denied_readonly demo_policy_with_parameters_denied_readonly.hcl
+
+Success! Uploaded policy: demo_policy_with_parameters_denied_readonly
+</code></pre>
+<pre><code>vault write auth/userpass/users/dptester password=dptester policies=demo_policy_with_parameters_denied
+
+Success! Data written to: auth/userpass/users/dptester
+
+vault write auth/userpass/users/dptesterro password=dptesterro policies=demo_policy_with_parameters_denied_readonly
+
+Success! Data written to: auth/userpass/users/dptesterro
+</code></pre>
+<pre><code>vault login -method=userpass username=dptester password=dptester
+
+$ vault login -method=userpass username=dptester password=dptester
+
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run &quot;vault login&quot;
+again. Future Vault requests will automatically use this token.
+
+Key                    Value
+---                    -----
+token                  hvs.CAESIDa7YzUO0xLj4TwbkCDtXLOjyBm8kHKRvAulsNoqcI3fGh4KHGh2cy5vWkZ2R1JYak1HOXdUQlRZb0gyV0d0S1A
+token_accessor         HOera9vmLFhItRdJ951K7Jpi
+token_duration         768h
+token_renewable        true
+token_policies         [&quot;default&quot; &quot;demo_policy_with_parameters_denied&quot;]
+identity_policies      []
+policies               [&quot;default&quot; &quot;demo_policy_with_parameters_denied&quot;]
+token_meta_username    dptester
+
+# Works
+$ vault kv put secretv1/constrained-denied/secret1 status=ready
+Success! Data written to: secretv1/constrained-denied/secret1  
+
+
+# Fails
+$ vault kv put secretv1/constrained-denied/secret2 auditor_name=&quot;Hutch&quot;
+Error writing data to secretv1/constrained-denied/secret2: Error making API request.
+
+URL: PUT http://127.0.0.1:8200/v1/secretv1/constrained-denied/secret2
+Code: 403. Errors:
+
+* 1 error occurred:
+        * permission denied
+
+
+# Fails
+$ vault kv put secretv1/constrained-denied/secret1 account_id=6
+Error writing data to secretv1/constrained-denied/secret1: Error making API request.
+
+URL: PUT http://127.0.0.1:8200/v1/secretv1/constrained-denied/secret1
+Code: 403. Errors:
+
+* 1 error occurred:
+        * permission denied
+
+# Works
+$ vault kv put secretv1/constrained-denied/secret2 auditor_name=&quot;Smith&quot;
+Success! Data written to: secretv1/constrained-denied/secret2
+</code></pre>
+<h3 id="denied-readonly">Denied readonly</h3>
+<pre><code>$ vault login -method=userpass username=dptesterro password=dptesterro
+
+Key                    Value
+---                    -----
+token                  hvs.CAESIH83GP4KeicPiUTB6KqZSxZNKp7zgzk3FeGPXwRguIXsGh4KHGh2cy5rRW9SUXREbHpicmNlaXduaTRQbEJiYnU
+token_accessor         Akq5kgkrbPaMcBg59OM4d167
+token_duration         768h
+token_renewable        true
+token_policies         [&quot;default&quot; &quot;demo_policy_with_parameters_denied_readonly&quot;]
+identity_policies      []
+policies               [&quot;default&quot; &quot;demo_policy_with_parameters_denied_readonly&quot;]
+
+$ vault kv get secretv1/constrained-denied/secret1
+===== Data =====
+Key       Value
+---       -----
+status    ready
+ vault kv get secretv1/constrained-denied/secret2
+======== Data ========
+Key             Value
+---             -----
+auditor_name    Smith
+</code></pre>
+<h3 id="required">Required</h3>
+<ul>
+<li>Required parameters must be specified </li>
+<li>with every secret creation</li>
+</ul>
+<pre><code>$ vault login hvs.EiYGguIh98HdbF3NkfrzQhM6
+</code></pre>
+<ul>
+<li><code>demo_policy_with_parameters_required.hcl</code></li>
+</ul>
+<pre><code># The user that was assigned this policy can only create secrets
+# under the specified path(s)
+path &quot;secretv1/constrained-required/*&quot; {
+    capabilities = [&quot;create&quot;]
+    required_parameters = [&quot;date&quot;, &quot;purpose&quot;]
+}
+</code></pre>
+<ul>
+<li><code>demo_policy_with_parameters_required_readonly.hcl</code></li>
+</ul>
+<pre><code># Read-only policy that allows a user to only read secrets
+# created by another user who only had &quot;create&quot; capability in a policy with constraining parameters
+path &quot;secretv1/constrained-required/*&quot; {
+    capabilities = [&quot;read&quot;]
+}
+
+</code></pre>
+<pre><code>$ vault policy write demo_policy_with_parameters_required demo_policy_with_parameters_required.hcl
+Success! Uploaded policy: demo_policy_with_parameters_required
+
+$ vault policy write demo_policy_with_parameters_required_readonly demo_policy_with_parameters_required_readonly.hcl
+Success! Uploaded policy: demo_policy_with_parameters_required_readonly
+</code></pre>
+<pre><code>$ vault write auth/userpass/users/rptester password=rptester policies=demo_policy_with_parameters_required
+
+$ vault write auth/userpass/users/rptesterro password=rptesterro policies=demo_policy_with_parameters_required_readonly
+</code></pre>
+<pre><code>$ vault login -method=userpass username=rptester password=rptester
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run &quot;vault login&quot;
+again. Future Vault requests will automatically use this token.
+
+Key                    Value
+---                    -----
+token                  hvs.CAESIE6Vi1YsJae7d8RP1XSFUd8u_253Fn3M6o2yBwoElaWRGh4KHGh2cy5pa1I2bG4zY2twY2FBQmptUkgzU1JiYW4
+token_accessor         nj1ckyrOr7Dj7RwCQumLFcka
+token_duration         768h
+token_renewable        true
+token_policies         [&quot;default&quot; &quot;demo_policy_with_parameters_required&quot;]
+identity_policies      []
+policies               [&quot;default&quot; &quot;demo_policy_with_parameters_required&quot;]
+token_meta_username    rptester
+</code></pre>
+<pre><code>vault kv put secretv1/constrained-required/secret1 
+Must supply data
+
+vault kv put secretv1/constrained-required/secret1 date=20221221
+
+$ vault kv put secretv1/constrained-required/secret1 date=20221221
+Error writing data to secretv1/constrained-required/secret1: Error making API request.
+
+URL: PUT http://127.0.0.1:8200/v1/secretv1/constrained-required/secret1
+Code: 403. Errors:
+
+* 1 error occurred:
+        * permission denied
+</code></pre>
+<pre><code>$ vault kv put secretv1/constrained-required/secret1 date=20221221 purpose=test
+Success! Data written to: secretv1/constrained-required/secret1
+</code></pre>
+<pre><code>$ vault login -method=userpass username=rptesterro password=rptesterro
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run &quot;vault login&quot;
+again. Future Vault requests will automatically use this token.
+
+Key                    Value
+---                    -----
+token                  hvs.CAESIJHUnAY8-GBzkmfbxIe-JznzHlFXCU4x423Xz7oB0RQgGh4KHGh2cy5yQ0loSlplNTMxejBpSjhqSDExbUw3VnM
+token_accessor         xLJwQlA0A5Jbf1r90jltzXc9
+token_duration         768h
+token_renewable        true
+token_policies         [&quot;default&quot; &quot;demo_policy_with_parameters_required_readonly&quot;]
+identity_policies      []
+policies               [&quot;default&quot; &quot;demo_policy_with_parameters_required_readonly&quot;]
+token_meta_username    rptesterro
+</code></pre>
+<pre><code>vault kv get secretv1/constrained-required/secret1
+
+ vault kv get secretv1/constrained-required/secret1
+===== Data =====
+Key        Value
+---        -----
+date       20221221
+purpose    test
+</code></pre>
+<h3 id="observe-policy-syntax-rules">Observe Policy Syntax Rules</h3>
+<p><img alt="Alt Image Text" src="../../images/vt4_2_10.png" title="Body image" /></p>
+<p><img alt="Alt Image Text" src="../../images/vt4_2_11.png" title="Body image" /></p>
+<h2 id="identity-revisited">Identity Revisited</h2>
+<p>External group serves as a mapping to a group that is outside of the identity store. <strong>External groups can have one (and only one) alias</strong>. This alias should map to a notion of group that is outside of the identity store.</p>
+<p><code>$ vault login hvs.EiYGguIh98HdbF3NkfrzQhM6</code></p>
+<pre><code>vault auth enable userpass
+</code></pre>
+<ul>
+<li><strong><code>base_policy.hcl</code></strong></li>
+</ul>
+<pre><code># Applies to all accounts - entity level
+path &quot;secret/data/base_*&quot; {
+   capabilities = [&quot;create&quot;, &quot;read&quot;]
+}
+</code></pre>
+<ul>
+<li><strong><code>devteam_policy.hcl</code></strong></li>
+</ul>
+<pre><code># Dev Team policy that allows members to do anythig with secrets related to this path
+path &quot;secret/data/devteam&quot; {
+   capabilities = [ &quot;create&quot;, &quot;read&quot;, &quot;update&quot;, &quot;delete&quot; ]
+}
+</code></pre>
+<ul>
+<li><strong><code>training_policy.hcl</code></strong></li>
+</ul>
+<pre><code># Training policy
+path &quot;secret/data/training&quot; {
+   capabilities = [ &quot;create&quot;, &quot;read&quot;, &quot;update&quot;, &quot;delete&quot; ]
+}
+</code></pre>
+<pre><code>vault policy write base_policy base_policy.hcl
+
+vault policy write devteam_policy devteam_policy.hcl
+
+vault policy write training_policy training_policy.hcl
+
+$ vault policy list
+base_policy
+default
+...
+devteam_policy
+training_policy
+root
+</code></pre>
+<p><img alt="Alt Image Text" src="../../images/vt4_2_12.png" title="Body image" /></p>
+<h3 id="create-users-aka-identities">Create users, aka identities</h3>
+<pre><code>vault write auth/userpass/users/developer password=&quot;devpwd&quot; policies=&quot;devteam&quot;
+
+vault write auth/userpass/users/trainer password=&quot;trainpwd&quot; policies=&quot;training&quot;
+</code></pre>
+<pre><code># Find the mount accessor for the userpass authentication - Path Column = userpass/, Accessor Column = auth_userpass_&lt;id_string&gt;
+vault auth list -detailed
+
+
+$ vault auth list -detailed
+Path         Plugin      Accessor                  Default TTL    Max TTL    Token Type         Replication    Seal Wrap    External Entropy Access    Options    Description                UUID                                    Version    Running Version          Running SHA256    Deprecation Status
+----         ------      --------                  -----------    -------    ----------         -----------    ---------    -----------------------    -------    -----------                ----                                    -------    ---------------          --------------    ------------------
+token/       token       auth_token_2117498c       system         system     default-service    replicated     false        false                      map[]      token based credentials    34ce2682-187e-6ea2-5373-0773700663d2    n/a        v1.12.2+builtin.vault    n/a               n/a
+userpass/    userpass    auth_userpass_c82872e5    system         system     default-service    replicated     false        false                      map[]      n/a                        c17a4dc4-db8d-26c6-b1bf-f8d2d3fa41a4    n/a        v1.12.2+builtin.vault    n/a               supported
+</code></pre>
+<pre><code>$ vault auth list -format=json | jq -r '.[&quot;userpass/&quot;].accessor' &gt; userpass_accessor.txt
+
+</code></pre>
+<pre><code># Create entity; generated ID: ff013036-eb35-9096-ff54-a7a2e822a3c9
+
+vault write identity/entity name=&quot;george-smith&quot; policies=&quot;base&quot; \
+        metadata=organization=&quot;SAPUBS Inc.&quot; \
+        metadata=devteam=&quot;The A Team&quot; \
+        metadata=secondrole=&quot;trainer&quot;
+
+Key        Value
+---        -----
+aliases    &lt;nil&gt;
+id         ff013036-eb35-9096-ff54-a7a2e822a3c9
+name       george-smith
+
+
+
+# Add users to entity as aliases
+vault write identity/entity-alias name=&quot;developer&quot; \
+        canonical_id=&quot;ff013036-eb35-9096-ff54-a7a2e822a3c9&quot; \
+        mount_accessor=$(cat userpass_accessor.txt)
+
+Key             Value
+---             -----
+canonical_id    ff013036-eb35-9096-ff54-a7a2e822a3c9
+id              f81bca34-818d-ba9a-1dd6-c30d797e316e       
+</code></pre>
+<pre><code>vault write identity/entity-alias name=&quot;trainer&quot; \
+        canonical_id=&quot;ff013036-eb35-9096-ff54-a7a2e822a3c9&quot; \
+        mount_accessor=$(cat userpass_accessor.txt)
+</code></pre>
+<pre><code># Verify users are present as aliases within the entity
+vault read identity/entity/id/ff013036-eb35-9096-ff54-a7a2e822a3c9      
+
+
+ vault read identity/entity/id/ff013036-eb35-9096-ff54-a7a2e822a3c9     
+Key                    Value
+---                    -----
+aliases                [map[canonical_id:ff013036-eb35-9096-ff54-a7a2e822a3c9 creation_time:2022-12-21T03:35:13.385434Z custom_metadata:map[] id:f81bca34-818d-ba9a-1dd6-c30d797e316e last_update_time:2022-12-21T03:35:13.385434Z local:false merged_from_canonical_ids:&lt;nil&gt; metadata:&lt;nil&gt; mount_accessor:auth_userpass_c82872e5 mount_path:auth/userpass/ mount_type:userpass name:developer]]
+creation_time          2022-12-21T03:31:20.107359Z
+direct_group_ids       []
+disabled               false
+group_ids              []
+id                     ff013036-eb35-9096-ff54-a7a2e822a3c9
+inherited_group_ids    []
+last_update_time       2022-12-21T03:31:20.107359Z
+merged_entity_ids      &lt;nil&gt;
+metadata               map[devteam:The A Team organization:SAPUBS Inc. secondrole:trainer]
+name                   george-smith
+namespace_id           root
+policies               [base]
+</code></pre>
+<pre><code># Log in as &quot;trainer&quot; and write a secret
+vault login -method=userpass username=trainer password=trainpwd
+
+Key                    Value
+---                    -----
+token                  hvs.CAESIGJ-P9SriYmGYr3LMPL8Bn7OvsRSCU8GxhhIdzmJnEiQGh4KHGh2cy4xQnc1YmhHMGpxWmZrd2d1N3JIWGtQUUk
+token_accessor         EZcYnIxrda03BU38yyHoovNo
+token_duration         768h
+token_renewable        true
+token_policies         [&quot;default&quot; &quot;training&quot;]
+identity_policies      []
+policies               [&quot;default&quot; &quot;training&quot;]
+token_meta_username    trainer
+
+
+vault kv put secret/training created_by=&quot;trainer&quot;
+
+==== Secret Path ====
+secret/data/training
+
+======= Metadata =======
+Key                Value
+---                -----
+created_time       2022-12-21T03:51:59.472203Z
+custom_metadata    &lt;nil&gt;
+deletion_time      n/a
+destroyed          false
+version            1
+
+
+
+vault token capabilities secret/data/devteam # Fails with &quot;deny&quot; error message; we need to login as &quot;developer&quot;
+</code></pre>
+<pre><code># Log in as &quot;developer&quot; and write a secret
+vault login -method=userpass username=developer password=devpwd
+
+
+Key                    Value
+---                    -----
+token                  hvs.CAESIASeuQPWHvZt4T49z9b8f8v4c7wmiYDepEgJEm_NLOlDGh4KHGh2cy54TXBVSldXMjFyZzlyTXdxbVV2RTg0ZXk
+token_accessor         l27v79pKeELYUppPKXsM09We
+token_duration         768h
+token_renewable        true
+token_policies         [&quot;default&quot; &quot;devteam&quot;]
+identity_policies      [&quot;base&quot;]
+policies               [&quot;base&quot; &quot;default&quot; &quot;devteam&quot;]
+token_meta_username    developer
+
+
+vault kv put secret/devteam created_by=&quot;developer&quot;
+</code></pre>
+<h2 id="auditing-devices-explained">Auditing Devices Explained</h2>
+<p><strong>Auditing</strong></p>
+<ul>
+<li>
+<ol>
+<li>Log</li>
+</ol>
+</li>
+<li>
+<ol>
+<li>Audit (search) </li>
+</ol>
+</li>
+<li>
+<ol>
+<li>Diagnose</li>
+</ol>
+</li>
+</ul>
+<p>Common security requirement is auditing access to secrets, and Vault fulfills this requirement perfectly by offering capabilities to create an audit record of every usage of every token in the system. </p>
+<p>Every operation with vault is an API request with a corresponding response, and the audit log contains every authenticated interaction with Vault, which includes errors</p>
+<h3 id="audit-device"><strong>Audit Device</strong></h3>
+<p>An audit device is responsible for managing audit logs. </p>
+<p><strong>Every request to Vault and response from Vault
+goes through the configured audit devices</strong>. </p>
+<p>This provides a simple way to <strong>integrate Vault with multiple audit logging destinations of different types</strong>.</p>
+<h3 id="high-level-overview">High-Level Overview</h3>
+<p><img alt="Alt Image Text" src="../../images/vt4_2_13.png" title="Body image" /></p>
+<p><strong>Two Types of Devices</strong></p>
+<ul>
+<li>Blocked: Device may stop working</li>
+<li>Non-Blocked</li>
+</ul>
+<h3 id="blocked-audit-devices">Blocked Audit Devices</h3>
+<p>If there are any audit devices enabled, <strong>Vault requires that at least one be able to persist the log before completing a Vault request.</strong></p>
+<blockquote>
+<p>If you have only one audit device enabled, and it is blocking (network block, etc.), then Vault will be unresponsive.</p>
+<p>Vault will not complete any requests until the audit device can write.</p>
+</blockquote>
+<p>If you have more than one audit device, then Vault will complete the request as long as one audit device persists the log.</p>
+<p>Vault will not respond to requests if audit devices are blocked because audit logs are critically important and ignoring blocked requests opens an avenue for attack. Be absolutely certain that your audit devices cannot block.</p>
+<h3 id="back-blocking-devices-with-other-ones">Back blocking devices with other ones</h3>
+<p>Blocked audit device behavior</p>
+<p><img alt="Alt Image Text" src="../../images/vt4_2_14.png" title="Body image" /></p>
+<h3 id="blocked-file-audit-device">Blocked file audit device</h3>
+<p><img alt="Alt Image Text" src="../../images/vt4_2_15.png" title="Body image" /></p>
+<p>A common condition that can <strong>arise to block a file audit device is lack of capacity on the storage device containing the audit device log file</strong>. </p>
+<p>If the storage capacity is exhausted, the audit device will effectively be blocked and Vault will stop servicing requests until sufficient storage capacity is made available.</p>
+<h3 id="audit-device-demos"><strong>Audit Device Demos</strong></h3>
+<p><strong>File Audit Device</strong></p>
+<ul>
+<li>Local logging </li>
+<li>NFS Logging</li>
+</ul>
+<p><strong>Socket Audit Device</strong></p>
+<ul>
+<li>Log streaming </li>
+<li>Log management</li>
+</ul>
+<pre><code>$ vault login hvs.EiYGguIh98HdbF3NkfrzQhM6
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run &quot;vault login&quot;
+again. Future Vault requests will automatically use this token.
+
+Key                  Value
+---                  -----
+token                hvs.EiYGguIh98HdbF3NkfrzQhM6
+token_accessor       TrsQs8oybr7vyHRuJOJGGohH
+token_duration       ∞
+token_renewable      false
+token_policies       [&quot;root&quot;]
+identity_policies    []
+policies             [&quot;root&quot;]
+</code></pre>
+<pre><code># Create log file and change its permissions to make it writable by Vault
+sudo touch /var/log/vault_audit.log &amp;&amp; sudo chown gsyyl:staff /var/log/vault_audit.log
+
+
+# Log in as root and enable the file audit device
+vault login root &amp;&amp; vault audit enable file file_path=/var/log/vault_audit.log
+
+# Enable socket audit device
+vault audit enable socket address=127.0.0.1:9090 socket_type=tcp log_raw=true
+</code></pre>
+<p><img alt="Alt Image Text" src="../../images/vt4_2_16.png" title="Body image" /></p>
+<h3 id="log-message-transformations">Log Message Transformations</h3>
+<ul>
+<li>JSON</li>
+<li>Filter</li>
+<li>Enrich</li>
+<li>Split</li>
+<li>Combine</li>
+<li>Generate Reports</li>
+</ul>
+<p><strong>Log Message Storage</strong></p>
+<ul>
+<li>Database - times series, relational, NoSQL, etc.</li>
+<li>XML files - for legacy applications</li>
+<li>JSON format - e.g. to analyze the behavior of micro services</li>
+</ul>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2021-9999 Jacob Xi
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a51614de.min.js"></script>
+      
+    
+  </body>
+</html>

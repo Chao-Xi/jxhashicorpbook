@@ -1,0 +1,2127 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Jacob's Hashicorp Tutorial Book">
+      
+      
+        <meta name="author" content="Jacob Xi">
+      
+      
+        <link rel="canonical" href="https://chao-xi.github.io/jxhashicorpbook/vault2/3vaba_token/">
+      
+      
+        <link rel="prev" href="../2vaba_auth_poly/">
+      
+      
+        <link rel="next" href="../4vaba_engines/">
+      
+      <link rel="icon" href="../../images/logo.png">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.16">
+    
+    
+      
+        <title>L3 Vault Token - Jacob Hashicorp Book</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.26e3688c.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ecc896b0.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="blue-greay">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#l3-vault-token" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="Jacob Hashicorp Book" class="md-header__button md-logo" aria-label="Jacob Hashicorp Book" data-md-component="logo">
+      
+  <img src="../../images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Jacob Hashicorp Book
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              L3 Vault Token
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Chao-Xi/jxhashicorpbook.git" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jxhashicorpbook
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Jacob Hashicorp Book" class="md-nav__button md-logo" aria-label="Jacob Hashicorp Book" data-md-component="logo">
+      
+  <img src="../../images/logo.png" alt="logo">
+
+    </a>
+    Jacob Hashicorp Book
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Chao-Xi/jxhashicorpbook.git" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jxhashicorpbook
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Welcome
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          私密信息管理利器Vault
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          私密信息管理利器Vault
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/1vault_intro/" class="md-nav__link">
+        1 私密信息管理利器 HashiCorp Vault——简介
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/2vault_start/" class="md-nav__link">
+        2 私密信息管理利器 HashiCorp Vault——启动和读写
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/3vault_secretengine/" class="md-nav__link">
+        3 私密信息管理利器 HashiCorp Vault——Secret Engine
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/4vault_auth/" class="md-nav__link">
+        4 私密信息管理利器 HashiCorp Vault——验证和授权
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/5vault_deploy/" class="md-nav__link">
+        5 私密信息管理利器 HashiCorp Vault——部署
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/6vault_api/" class="md-nav__link">
+        6 私密信息管理利器 HashiCorp Vault——REST API
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/7vault_impl/" class="md-nav__link">
+        7 密钥管理神器之 Vault 集群搭建
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/8vault_k8s/" class="md-nav__link">
+        8 K8S与Vault集成，进行Secret管理
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/9vault_docker/" class="md-nav__link">
+        9 使用 Docker 和 Traefik 搭建 Vault
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/10vault_cm/" class="md-nav__link">
+        10 使用 Vault + Cert Manager 管理 Kubernetes 集群中的数字证书
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/13vault_ack_cloud/" class="md-nav__link">
+        11 云原生更安全的密文管理 Vault on ACK
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault/14K8s_secret/" class="md-nav__link">
+        12 Kubernetes 的 secret 并不是真正的 secret
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          Vault on K8S
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Vault on K8S
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/0k8s_vault/" class="md-nav__link">
+        L0 在 Kubernetes 上部署 Vault
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/1Vault_basic/" class="md-nav__link">
+        L1 Hashcorp Vault 基础使用教程
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/2vault_k8s/" class="md-nav__link">
+        L2 在 Kubernetes 读取 Vault 中的机密信息
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/3vault_rotate/" class="md-nav__link">
+        L3 透过 Vault 定期 rotate credentials
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/4vault_int_k8s/" class="md-nav__link">
+        L4 Vault 与 Kubernetes 的深度整合
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          Hashicorp Certified Vault Associate
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Hashicorp Certified Vault Associate
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1vaba_intro/" class="md-nav__link">
+        L1 Vault Associate: Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2vaba_auth_poly/" class="md-nav__link">
+        L2 Authentication and Policies
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          L3 Vault Token
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        L3 Vault Token
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#vault-token-overview" class="md-nav__link">
+    Vault Token Overview
+  </a>
+  
+    <nav class="md-nav" aria-label="Vault Token Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#token-creation" class="md-nav__link">
+    Token Creation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-tokens" class="md-nav__link">
+    Root Tokens
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#token-properties" class="md-nav__link">
+    Token Properties
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accessor" class="md-nav__link">
+    Accessor
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#working-with-tokens" class="md-nav__link">
+    Working with tokens
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-with-tokens-with-cli" class="md-nav__link">
+    Creating with tokens with CLI
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#token-types-and-lifecycle" class="md-nav__link">
+    Token Types and Lifecycle
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#batch-token-scenario" class="md-nav__link">
+    Batch token scenario
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#working-with-token-lifetime" class="md-nav__link">
+    Working with Token Lifetime
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#assessing-the-effective-max-ttl" class="md-nav__link">
+    Assessing the Effective Max TTL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exploring-the-effective-max-ttl" class="md-nav__link">
+    Exploring the Effective Max TTL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#explicit-max-ttl" class="md-nav__link">
+    Explicit Max TTL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#introducing-the-periordic-token" class="md-nav__link">
+    Introducing the periordic Token
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#token-hierarchy" class="md-nav__link">
+    Token Hierarchy
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    Key Takeaways
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../4vaba_engines/" class="md-nav__link">
+        L4 Using Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../5vaba_lease/" class="md-nav__link">
+        L5 Using Vault Leases
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          Installing Configuring Vault
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Installing Configuring Vault
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/1intro/" class="md-nav__link">
+        L1 HashiCorp Vault Overview and Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/2dev_model/" class="md-nav__link">
+        L2 Vault a Deployment Model
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/3deploy_valut/" class="md-nav__link">
+        L3 Deploying Vault Server
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/4encryption_key/" class="md-nav__link">
+        L4 Managing Encryption and Seal Keys
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/5conf_ha/" class="md-nav__link">
+        L5 Configuring High Availability
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/6basic_auth/" class="md-nav__link">
+        L6 Configuring Basic Authentication
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/7vaba_secret_engine/" class="md-nav__link">
+        L7 Using Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/8vaba_monitor/" class="md-nav__link">
+        L8 Configuring Auditing and Monitoring
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          Managing Access and Secrets(Adv.)
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Managing Access and Secrets(Adv.)
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/1mag_vt_intro/" class="md-nav__link">
+        L1 Secrets in HashiCorp Vault Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/2vt_auth_method/" class="md-nav__link">
+        L2 Installing and Configuring Authentication Methods
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/3vt_token/" class="md-nav__link">
+        L3 Working with Tokens
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/3vt_token/" class="md-nav__link">
+        L4 Managing Secrets with Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          Integrating with DevOps
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Integrating with DevOps
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/1cicd_pipeline/" class="md-nav__link">
+        L1 Accessing Secrets in CI/CD Pipelines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/2vault_agent/" class="md-nav__link">
+        L2 Securely Introducing Clients Using Vault Agent
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/3vault_tf_nd/" class="md-nav__link">
+        L3 Integrating Vault with Terraform & Nomad
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/4vault_consul/" class="md-nav__link">
+        L4 Integrating Vault with Consul
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/5vault_cloud/" class="md-nav__link">
+        L5 Authenticating Using Cloud Machine Identity
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/6vault_k8s/" class="md-nav__link">
+        L6 Integrating Vault with Kubernetes
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          Ops on Vault Server
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Ops on Vault Server
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/1encrypt_key/" class="md-nav__link">
+        L1 Managing the Encryption Key
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/2bak_storage/" class="md-nav__link">
+        L2 Managing the Storage Backend
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/3incident/" class="md-nav__link">
+        L3 Managing the Vault Server during an Incident
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/4Plugins/" class="md-nav__link">
+        L4 Managing External Plugins and Server Upgrades
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+          Terraform Tools
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          Terraform Tools
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tfm1/1Terragrunt/" class="md-nav__link">
+        L1 使用Terragrunt优化Terraform代码
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tfm1/2TMF_JENKINS/" class="md-nav__link">
+        L2 基础设施即代码 - 使用Terraform创建AWS EC2实例并部署Jenkins服务
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#vault-token-overview" class="md-nav__link">
+    Vault Token Overview
+  </a>
+  
+    <nav class="md-nav" aria-label="Vault Token Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#token-creation" class="md-nav__link">
+    Token Creation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-tokens" class="md-nav__link">
+    Root Tokens
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#token-properties" class="md-nav__link">
+    Token Properties
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accessor" class="md-nav__link">
+    Accessor
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#working-with-tokens" class="md-nav__link">
+    Working with tokens
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-with-tokens-with-cli" class="md-nav__link">
+    Creating with tokens with CLI
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#token-types-and-lifecycle" class="md-nav__link">
+    Token Types and Lifecycle
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#batch-token-scenario" class="md-nav__link">
+    Batch token scenario
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#working-with-token-lifetime" class="md-nav__link">
+    Working with Token Lifetime
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#assessing-the-effective-max-ttl" class="md-nav__link">
+    Assessing the Effective Max TTL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exploring-the-effective-max-ttl" class="md-nav__link">
+    Exploring the Effective Max TTL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#explicit-max-ttl" class="md-nav__link">
+    Explicit Max TTL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#introducing-the-periordic-token" class="md-nav__link">
+    Introducing the periordic Token
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#token-hierarchy" class="md-nav__link">
+    Token Hierarchy
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    Key Takeaways
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="l3-vault-token"><strong>L3 Vault Token</strong></h1>
+<ul>
+<li>Token overview</li>
+<li>Properties and attributes</li>
+<li>Token types</li>
+<li>Token lifecycle</li>
+</ul>
+<h2 id="vault-token-overview">Vault Token Overview</h2>
+<p>Tokens are a collection of data used to access Vault</p>
+<h3 id="token-creation"><strong>Token Creation</strong></h3>
+<ul>
+<li>
+<p><strong>Auth method</strong></p>
+</li>
+<li>
+<p><strong>Parent token</strong></p>
+<ul>
+<li>You can also use an existing token to generate a new token. You can use the root token that's created when you initialize Vault to create a child token.</li>
+<li>You can also use a token that's been issued by an auth method</li>
+</ul>
+</li>
+<li>
+<p><strong>Root token</strong>: you can generate a root token through a special process.</p>
+</li>
+</ul>
+<h3 id="root-tokens"><strong>Root Tokens</strong></h3>
+<ul>
+<li>Root tokens can do ANYTHING</li>
+<li>Do not expire</li>
+<li>Created in three ways<ul>
+<li><strong>Initialize Vault server</strong></li>
+<li><strong>Existing root token</strong><ul>
+<li>You can also use an existina root token to create a new root token.   </li>
+</ul>
+</li>
+<li><strong>Using operator command</strong></li>
+</ul>
+</li>
+</ul>
+<p>What are the reasons you would generate a root token?</p>
+<ul>
+<li>Perform initial setup</li>
+<li>Auth method unavailable</li>
+<li>Emergency situation</li>
+</ul>
+<p>You may also generate a root token if your main authentication method is unavailable. Let's say you use Active Directory for your main authentication method, and Active Directory, for whatever reason, <strong>You might have to generate a root token to enable a different authentication method</strong>.   </p>
+<h3 id="token-properties"><strong>Token Properties</strong></h3>
+<ul>
+<li><strong>Id</strong></li>
+</ul>
+<p>This is the value that you will submit when you want to perform an action with Vault whether it's logging in as that token or making use of the Vault API.</p>
+<ul>
+<li><strong>Accessor</strong></li>
+</ul>
+<p>There's another related idea that's called the accessor,  behind the accessor is that it's a value you can use to look up the token without actually being able to use that token.</p>
+<ul>
+<li><strong>Type</strong></li>
+</ul>
+<p>Defines what type of token it is, and generally it's either <strong>service</strong> or <strong>batch</strong>,</p>
+<ul>
+<li><strong>Policies</strong></li>
+</ul>
+<p>The token will also have policies associated with it. Those policies can be assigned when the token is issued or they could be continually evaluated when the token is being used.</p>
+<ul>
+<li><strong>TTL</strong></li>
+</ul>
+<p>Another important property is the Time to Live, or TTL. This defines how long is this token going to be a viable token</p>
+<ul>
+<li><strong>Orphaned</strong></li>
+</ul>
+<p>Determines whether or not this token has a parent token or if it is a standalone token.</p>
+<h3 id="accessor">Accessor</h3>
+<p><strong>ID and Accessor</strong></p>
+<ul>
+<li>
+<p><strong>View token properties except token ID</strong></p>
+<ul>
+<li>The accessor is only able to view the token properties</li>
+<li>The ID is the value you would use to execute actions against Vault server * accessor to also be able to get that ID.</li>
+</ul>
+</li>
+<li>
+<p><strong>View token capabilities on a given path</strong></p>
+<ul>
+<li><strong>capabilities</strong> of a token on a given path. So if you want to check if a token is able to access a path within Vault</li>
+</ul>
+</li>
+<li>
+<p><strong>Renew or revoke a token</strong></p>
+<ul>
+<li>accessor to renew an existing token or revoke a token</li>
+</ul>
+</li>
+</ul>
+<p>What are some situations where you might just want that accessor value?</p>
+<ul>
+<li><strong>Parent process controlling child tokens</strong><ul>
+<li>You don't want that parent process to have the ID of those child tokens. Those are given to whatever workers are below that process.</li>
+</ul>
+</li>
+<li>
+<p><strong>View accessors at auth/token/accessors</strong></p>
+<ul>
+<li>you just want that process to have the accessor so it has the capability to revoke and check on the status of existing child tokens.</li>
+<li>You may also want to get a list of all tokens that have been issued. <strong>That's something you can do by viewing the accessors that are at auth/token/accessors.</strong></li>
+</ul>
+</li>
+<li>
+<p><strong>Audit token usage by accessor in audit log</strong> </p>
+<ul>
+<li>you can configure the audit log to log the accessor value for each action taken by a token. <strong>You obviously wouldn't want to log the token ID, but the accessor gives</strong></li>
+</ul>
+</li>
+</ul>
+<h3 id="working-with-tokens">Working with tokens</h3>
+<pre><code># Create a new token
+vault token create [options]
+vault token create -policy=my-policy -ttl=60m
+
+# View token properties
+vault token lookup [options] [ ACCESSOR | ID ]
+vault token lookup -accessor FJkyU351hsMf3nKOLWdouqdY
+
+# Check capabilities on a path
+vault token capabilities TOKEN PATH
+vault token capabilities s.TG9U2ZdtPU1Hmz18BcujrETI secrets/apikeys/
+</code></pre>
+<h3 id="creating-with-tokens-with-cli">Creating with tokens with CLI</h3>
+<ul>
+<li>Create Vault service token</li>
+<li>Obtain tokens from auth methods</li>
+<li>Create a batch token</li>
+<li>Renew and revoke tokens</li>
+<li>Create a periodic token</li>
+</ul>
+<pre><code>root_token=ROOT_TOKEN_VALUE
+
+root_token=hvs.VtsTEZn9wbP34P63WybIZMhv
+
+$ echo $root_token
+hvs.VtsTEZn9wbP34P63WybIZMhv
+
+# And log into Vault using the root token
+vault login $root_token
+
+
+$ vault login $root_token
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run &quot;vault login&quot;
+again. Future Vault requests will automatically use this token.
+
+Key                  Value
+---                  -----
+token                hvs.VtsTEZn9wbP34P63WybIZMhv
+token_accessor       aONrVciIIfKgvuvbeSrcXV4u
+token_duration       ∞
+token_renewable      false
+token_policies       [&quot;root&quot;]
+identity_policies    []
+policies             [&quot;root&quot;]
+
+
+# First we are going to create a basic token
+
+vault token create -policy=default -ttl=60m
+
+
+$ vault token create -policy=default -ttl=60m
+Key                  Value
+---                  -----
+token                hvs.CAESIJ3n0vyQcj7nYijaTUbvmliqnmGFq3feFsY7_wGJzpu3Gh4KHGh2cy5NMkYzNmhCYmcxZ2FTT0cwOTBSVHpJRHg
+token_accessor       wsp4jbhoFtTYw2FwbUliWCMB
+token_duration       1h
+token_renewable      true
+token_policies       [&quot;default&quot;]
+identity_policies    []
+policies             [&quot;default&quot;]
+
+
+# Now let's check out some info on the token
+
+vault token lookup hvs.CAESIJ3n0vyQcj7nYijaTUbvmliqnmGFq3feFsY7_wGJzpu3Gh4KHGh2cy5NMkYzNmhCYmcxZ2FTT0cwOTBSVHpJRHg
+
+
+$ vault token lookup hvs.CAESIJ3n0vyQcj7nYijaTUbvmliqnmGFq3feFsY7_wGJzpu3Gh4KHGh2cy5NMkYzNmhCYmcxZ2FTT0cwOTBSVHpJRHg
+Key                 Value
+---                 -----
+accessor            wsp4jbhoFtTYw2FwbUliWCMB
+creation_time       1668088568
+creation_ttl        1h
+display_name        token
+entity_id           n/a
+expire_time         2022-11-10T22:56:08.071587+08:00
+explicit_max_ttl    0s
+id                  hvs.CAESIJ3n0vyQcj7nYijaTUbvmliqnmGFq3feFsY7_wGJzpu3Gh4KHGh2cy5NMkYzNmhCYmcxZ2FTT0cwOTBSVHpJRHg
+issue_time          2022-11-10T21:56:08.071594+08:00
+meta                &lt;nil&gt;
+num_uses            0
+orphan              false
+path                auth/token/create
+policies            [default]
+renewable           true
+ttl                 55m6s
+type                service
+</code></pre>
+<ul>
+<li>ttl： 55m6s</li>
+</ul>
+<pre><code># We can do the same using the accessor, but no ID
+
+vault token lookup -accessor wsp4jbhoFtTYw2FwbUliWCMB
+
+ vault token lookup -accessor wsp4jbhoFtTYw2FwbUliWCMB
+Key                 Value
+---                 -----
+accessor            wsp4jbhoFtTYw2FwbUliWCMB
+creation_time       1668088568
+creation_ttl        1h
+display_name        token
+entity_id           n/a
+expire_time         2022-11-10T22:56:08.071587+08:00
+explicit_max_ttl    0s
+id                  n/a
+issue_time          2022-11-10T21:56:08.071594+08:00
+meta                &lt;nil&gt;
+num_uses            0
+orphan              false
+path                auth/token/create
+policies            [default]
+renewable           true
+ttl                 51m51s
+type                service
+
+# Now let's revoke our token
+$ vault token revoke -accessor wsp4jbhoFtTYw2FwbUliWCMB
+Success! Revoked token (if it existed)
+</code></pre>
+<h3 id="token-types-and-lifecycle"><strong>Token Types and Lifecycle</strong></h3>
+<p>There are different token types out there, <strong>like root, service, batch, and even periodic</strong>.</p>
+<p><strong>Service or Batch</strong></p>
+<p><strong>Service</strong></p>
+<ul>
+<li><strong>Fully featured, heavyweight</strong><ul>
+<li>A service token is fully featured, but the downside is that it's a little bit heavyweight.</li>
+<li>All service tokens have to be written to the storage back end.</li>
+</ul>
+</li>
+<li><strong>Managed by accessor or ID</strong><ul>
+<li>The service tokens can be managed by the accessor or the ID.</li>
+</ul>
+</li>
+<li><strong>Written to persistent storage</strong><ul>
+<li>The service token is written to persistent storage,</li>
+</ul>
+</li>
+<li><strong>Calculated lifetime</strong><ul>
+<li>A service token has a calculated lifetime that's based off of the TTL</li>
+<li>Any renewals that you do against that token,</li>
+</ul>
+</li>
+<li><strong>Renewable if desired</strong><ul>
+<li>Service tokens can be renewed if desired.</li>
+<li>You can set them to non-renewable, but you can enable renewal if you want,</li>
+</ul>
+</li>
+<li><strong>Can create child tokens</strong><ul>
+<li>Service tokens can spawn child tokens of the type either service or batch.</li>
+</ul>
+</li>
+<li><strong>Default type for most situations</strong></li>
+<li>Begins with "s." in ID</li>
+</ul>
+<p><strong>Batch</strong></p>
+<ul>
+<li><strong>Limited features, lightweight</strong><ul>
+<li>Batch tokens have a limited feature set. but they're also very lightweight in the sense that</li>
+<li>They're not written to the storage back end.</li>
+<li>They can be generated and managed very quickly.</li>
+</ul>
+</li>
+<li><strong>Has no accessor</strong><ul>
+<li>The service tokens can be managed by the accessor or the ID.</li>
+<li>The batch token, <strong>because it's not being written to persistent storage, doesn't have an accessor.</strong></li>
+<li><strong>If you don't have the batch token ID, you don't have a way to manage it</strong>.</li>
+</ul>
+</li>
+<li><strong>Not written to storage</strong><ul>
+<li><strong>The batch token is held in memory until it expires</strong>.</li>
+</ul>
+</li>
+<li><strong>Static lifetime</strong><ul>
+<li>batch token has a static lifetime.</li>
+<li><strong>The TTL of the batch token is set during creation and cannot be altered</strong>. </li>
+</ul>
+</li>
+<li><strong>Never renewable</strong><ul>
+<li>batch tokens are not renewable.</li>
+<li>Once they hit their Time to Live, they are gone.</li>
+</ul>
+</li>
+<li><strong>No child tokens</strong><ul>
+<li>Batch tokens are not able to create any child tokens.</li>
+<li>They can't spawn additional tokens from themselves.</li>
+</ul>
+</li>
+<li><strong>Explicitly created</strong><ul>
+<li>You have to be explicit about that. When you're looking at the ID for </li>
+</ul>
+</li>
+<li><strong>Begins with "b." in ID</strong></li>
+</ul>
+<h3 id="batch-token-scenario"><strong>Batch token scenario</strong></h3>
+<pre><code># Token TTL
+creation_time  1613828388 # Unix time
+creation_ttl   30m # TTL set at creation
+
+</code></pre>
+<p>This is the TTL that was set when we ran the vault token create or <strong>when it was generated from an authentication method</strong>.</p>
+<pre><code>expire_time    2021-02-20T09:09:48.4036711-05:00  # Project expiration time
+
+explicit_max_ttl  2021-02-20T08:39:48.4036711-05:00 # Friendly creation time
+
+ttl    29m13s # TTL value
+</code></pre>
+<p>This is what vault is projecting as the expiration time if nothing is changed about this token. </p>
+<p>There is an <code>explicit_max_ttl</code> field, which can be set when you create the token that <strong>will set a maximum time to live for friendly representation of the creation time in non-UNIX</strong> time </p>
+<p>we have the current TTL, and this is a computed value that is given to</p>
+<h3 id="working-with-token-lifetime"><strong>Working with Token Lifetime</strong></h3>
+<pre><code># Renew a token
+vault token renew [options] [ACCESSOR | ID ] [ -increment=&lt;duration&gt; ]
+vault token renew -increment=60m
+
+# Revoke a token
+
+vault token revoke [options] |[ACCESSOR | ID ]
+vault token revoke -accessor FJkyU351hsMf3nKOLWdOUqdY
+</code></pre>
+<h3 id="assessing-the-effective-max-ttl">Assessing the Effective Max TTL</h3>
+<p><strong>System max TTL</strong></p>
+<ul>
+<li>System wide setting</li>
+<li>Vault configuration file</li>
+<li>Dynamic evaluation</li>
+</ul>
+<blockquote>
+<p>If you don't set it in the Vault configuration file, then Vault will choose a value for you, <strong>which is 32 days.</strong></p>
+<p>The system max TTL is subject to dynamic evaluation, meaning each time Vault assesses the lifetime of a token, it's going to check what the current system max TTL is. </p>
+</blockquote>
+<p>And if it changes, more specific place where you can set the value for the max TTL is on the mount of an authentication method.</p>
+<p><strong>Mount max TTL</strong></p>
+<ul>
+<li>Mount specific</li>
+<li>Change with tuning</li>
+<li>Override system max</li>
+</ul>
+<p>You could have multiple authentication methods, The way that you change that value is with the <strong>Vault tune command</strong>.</p>
+<p>When you set a value for the mount max TTL, it will override whatever the setting is in the system max TTL, and <strong>that value can be greater than or less than the system max TTL</strong></p>
+<p>If your system max TTL is 32 days and you set the mount max TTL to 34 days, <strong>that will be the effective max TTL for that authentication method.</strong></p>
+<p><strong>Auth method max TTL</strong></p>
+<ul>
+<li>Role, group, user</li>
+<li>Changed with write</li>
+<li>Override system or mount max</li>
+<li>Less than system or mount</li>
+</ul>
+<p>be less than either the system max TTL or the mount max TTL</p>
+<h3 id="exploring-the-effective-max-ttl">Exploring the Effective Max TTL</h3>
+<pre><code>$ vault server -dev
+Root Token: hvs.XV2DORivLvdQnW3PIKdi1yD1
+
+
+export VAULT_ADDR='http://127.0.0.1:8200'
+root_token=hvs.XV2DORivLvdQnW3PIKdi1yD1
+vault login $root_token
+
+...
+$ vault login
+Token (will be hidden): 
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run &quot;vault login&quot;
+again. Future Vault requests will automatically use this token.
+
+Key                  Value
+---                  -----
+token                hvs.XV2DORivLvdQnW3PIKdi1yD1
+token_accessor       2vW6uauAn2XYIGlGlStN3N5V
+</code></pre>
+<p>try setting max ttl from the mount and user and Start by enabling the max ttl for userpass to 33 days (776h)</p>
+<pre><code># Enable userpass auth method
+vault auth enable -max-lease-ttl=776h userpass
+
+...
+Success! Enabled userpass auth method at: userpass/
+</code></pre>
+<p>Now we are going to try and configure a user with a great max ttl of 784h</p>
+<p>Note: Vault will let you do this, but it won't honor it.</p>
+<pre><code>vault write auth/userpass/users/dev token_max_ttl=2822400 password=ops
+
+Success! Data written to: auth/userpass/users/dev
+
+
+# Let's try logging in as Dev and renewing our token for 34 days (784h)
+
+vault login -method=userpass username=dev
+
+ vault login -method=userpass username=dev
+Password (will be hidden): 
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run &quot;vault login&quot;
+again. Future Vault requests will automatically use this token.
+
+Key                    Value
+---                    -----
+token                  hvs.CAESIND6s_AzTvwx_R4lkxlEh6bN1yWpRn7SG8xKlNe12KoQGh4KHGh2cy54QVhtME9SYjhSblVyZFgxaGY2OEZyQWk
+token_accessor         g14HUvVx8yLz96jaNyZ5pj9Z
+token_duration         768h
+token_renewable        true
+token_policies         [&quot;default&quot;]
+identity_policies      []
+policies               [&quot;default&quot;]
+token_meta_username    dev
+</code></pre>
+<pre><code>vault token renew -increment=784h
+
+# If we changed the max TTL on the mount to 784h, then Vault would honor 
+# the value set at the user level. I leave this as an exercise for you.
+
+$ vault token renew -increment=784h
+WARNING! The following warnings were returned from Vault:
+
+  * TTL of &quot;784h&quot; exceeded the effective max_ttl of &quot;775h58m1s&quot;; TTL value is
+  capped accordingly
+
+Key                    Value
+---                    -----
+token                  hvs.CAESIND6s_AzTvwx_R4lkxlEh6bN1yWpRn7SG8xKlNe12KoQGh4KHGh2cy54QVhtME9SYjhSblVyZFgxaGY2OEZyQWk
+token_accessor         g14HUvVx8yLz96jaNyZ5pj9Z
+
+
+# Now we can revoke our own token if we're done with our work
+
+$ vault token revoke -self
+Success! Revoked token (if it existed)
+
+$ vault login $root_token
+
+$ vault token lookup
+Key                 Value
+---                 -----
+accessor            2vW6uauAn2XYIGlGlStN3N5V
+creation_time       1668613087
+creation_ttl        0s
+display_name        root
+entity_id           n/a
+expire_time         &lt;nil&gt;
+explicit_max_ttl    0s
+id                  hvs.XV2DORivLvdQnW3PIKdi1yD1
+meta                &lt;nil&gt;
+num_uses            0
+orphan              true
+path                auth/token/root
+policies            [root]
+ttl                 0s
+type                service
+</code></pre>
+<h3 id="explicit-max-ttl"><strong>Explicit Max TTL</strong></h3>
+<ul>
+<li>Takes precedence</li>
+<li>Set at token creation<ul>
+<li>Explicitly in command</li>
+<li>Implicitly through configuration</li>
+</ul>
+</li>
+<li>Static evaluation</li>
+<li>Less than effective max TTL</li>
+</ul>
+<h3 id="introducing-the-periordic-token"><strong>Introducing the periordic Token</strong></h3>
+<p>TTL defines the period in which that token needs to be renewed</p>
+<ul>
+<li><strong>Does not expire (no max TTL)</strong></li>
+<li><strong>Must be renewed based on period</strong></li>
+<li><strong>TTL set to period at creation and renewal</strong></li>
+<li><strong>Requires sudo privileges to create</strong></li>
+<li>Explicit max TTL can be applied</li>
+</ul>
+<p>You could set a token with a period of 10 minutes, meaning that whatever service is using that token would have to renew the token within 10 minutes or that token will expire. </p>
+<p>Because the periodic</p>
+<p><strong>Use Case</strong></p>
+<ul>
+<li>Database system will use token for secrets access</li>
+<li>System does not support dynamically changing the token value</li>
+</ul>
+<p><strong>Solution</strong></p>
+<ul>
+<li>Create a periodic token for the database system to use</li>
+<li><strong>Script a process to renew the token at the necessarv interval</strong></li>
+</ul>
+<pre><code># Login as the root token
+
+vault login $root_token
+
+# Now create a periodic token
+
+vault token create -policy=default -period=2h
+
+Key                  Value
+---                  -----
+token                hvs.CAESICXVwYvLCNiZUlgx1r2fge8Mh8JEMKYaMTTJ4jLE60baGh4KHGh2cy44NzJFUEppVWt0cndCMDhud0ZGVEVqeTk
+token_accessor       kx9ddr7d178SkHN3w8nkbCyP
+token_duration       2h
+token_renewable      true
+token_policies       [&quot;default&quot;]
+identity_policies    []
+policies             [&quot;default&quot;]
+
+
+export PERIODIC_TOKEN_ID=hvs.CAESICXVwYvLCNiZUlgx1r2fge8Mh8JEMKYaMTTJ4jLE60baGh4KHGh2cy44NzJFUEppVWt0cndCMDhud0ZGVEVqeTk
+
+# And take a look at its properties
+
+vault token lookup $PERIODIC_TOKEN_ID
+
+
+$ vault token lookup $PERIODIC_TOKEN_ID
+Key                 Value
+---                 -----
+accessor            kx9ddr7d178SkHN3w8nkbCyP
+creation_time       1668644449
+creation_ttl        2h
+display_name        token
+entity_id           n/a
+expire_time         2022-11-17T10:20:49.068383+08:00
+explicit_max_ttl    0s
+id                  hvs.CAESICXVwYvLCNiZUlgx1r2fge8Mh8JEMKYaMTTJ4jLE60baGh4KHGh2cy44NzJFUEppVWt0cndCMDhud0ZGVEVqeTk
+issue_time          2022-11-17T08:20:49.06839+08:00
+meta                &lt;nil&gt;
+num_uses            0
+orphan              false
+path                auth/token/create
+period              2h
+policies            [default]
+renewable           true
+ttl                 1h55m14s
+type                service
+
+
+# Now let's try to renew
+
+vault token renew -increment=180m $PERIODIC_TOKEN_ID
+
+
+$ vault token renew -increment=180m $PERIODIC_TOKEN_ID
+Key                  Value
+---                  -----
+token                hvs.CAESICXVwYvLCNiZUlgx1r2fge8Mh8JEMKYaMTTJ4jLE60baGh4KHGh2cy44NzJFUEppVWt0cndCMDhud0ZGVEVqeTk
+token_accessor       kx9ddr7d178SkHN3w8nkbCyP
+token_duration       2h
+token_renewable      true
+token_policies       [&quot;default&quot;]
+identity_policies    []
+policies             [&quot;default&quot;]
+
+
+$ vault token lookup $PERIODIC_TOKEN_ID
+
+
+$ vault token lookup $PERIODIC_TOKEN_ID
+Key                  Value
+---                  -----
+accessor             kx9ddr7d178SkHN3w8nkbCyP
+creation_time        1668644449
+creation_ttl         2h
+display_name         token
+entity_id            n/a
+expire_time          2022-11-17T10:27:13.822212+08:00
+explicit_max_ttl     0s
+id                   hvs.CAESICXVwYvLCNiZUlgx1r2fge8Mh8JEMKYaMTTJ4jLE60baGh4KHGh2cy44NzJFUEppVWt0cndCMDhud0ZGVEVqeTk
+issue_time           2022-11-17T08:20:49.06839+08:00
+last_renewal         2022-11-17T08:27:13.822212+08:00
+last_renewal_time    1668644833
+meta                 &lt;nil&gt;
+num_uses             0
+orphan               false
+path                 auth/token/create
+period               2h
+policies             [default]
+renewable            true
+ttl                  1h59m44s
+type                 service
+</code></pre>
+<p><strong>Looking at the properties again, the ttl is back to 2h If you supply an increment, Vault ignores it</strong></p>
+<h3 id="token-hierarchy">Token Hierarchy</h3>
+<ul>
+<li>Child tokens are created by a parent token</li>
+<li>Batch tokens cannot create children</li>
+<li>Protects against escaping revocation</li>
+<li><strong>Orphan tokens have no parent token</strong><ul>
+<li>Explicit creation</li>
+<li>Auth methods</li>
+<li><strong>Orphaned by parent</strong></li>
+</ul>
+</li>
+</ul>
+<p>when a parent token is revoked all of the children token associated with that parent token will also be revoked,</p>
+<p>So if you create a token for someone and they're trying permissions and use that instead,</p>
+<h3 id="key-takeaways"><strong>Key Takeaways</strong></h3>
+<ul>
+<li>Token TTL is the amount of time a token is valid for. Tokens can be renewed for additional time within the effective max TTL.</li>
+<li>Periodic tokens can be renewed forever based on a period TTL Require elevated permissions and may have an explicit max TTL</li>
+<li>Tokens have a hierarchy of parent/child. Revoking a parent token revokes the children by default. Orphaned tokens have no parent.</li>
+</ul>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2021-9999 Jacob Xi
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a51614de.min.js"></script>
+      
+    
+  </body>
+</html>

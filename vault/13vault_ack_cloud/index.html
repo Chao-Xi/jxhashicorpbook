@@ -1,0 +1,1589 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Jacob's Hashicorp Tutorial Book">
+      
+      
+        <meta name="author" content="Jacob Xi">
+      
+      
+        <link rel="canonical" href="https://chao-xi.github.io/jxhashicorpbook/vault/13vault_ack_cloud/">
+      
+      
+        <link rel="prev" href="../10vault_cm/">
+      
+      
+        <link rel="next" href="../14K8s_secret/">
+      
+      <link rel="icon" href="../../images/logo.png">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.16">
+    
+    
+      
+        <title>11 云原生更安全的密文管理 Vault on ACK - Jacob Hashicorp Book</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.26e3688c.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ecc896b0.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="blue-greay">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#11-vault-on-ack" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="Jacob Hashicorp Book" class="md-header__button md-logo" aria-label="Jacob Hashicorp Book" data-md-component="logo">
+      
+  <img src="../../images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Jacob Hashicorp Book
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              11 云原生更安全的密文管理 Vault on ACK
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Chao-Xi/jxhashicorpbook.git" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jxhashicorpbook
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Jacob Hashicorp Book" class="md-nav__button md-logo" aria-label="Jacob Hashicorp Book" data-md-component="logo">
+      
+  <img src="../../images/logo.png" alt="logo">
+
+    </a>
+    Jacob Hashicorp Book
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Chao-Xi/jxhashicorpbook.git" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jxhashicorpbook
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Welcome
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          私密信息管理利器Vault
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          私密信息管理利器Vault
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1vault_intro/" class="md-nav__link">
+        1 私密信息管理利器 HashiCorp Vault——简介
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2vault_start/" class="md-nav__link">
+        2 私密信息管理利器 HashiCorp Vault——启动和读写
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3vault_secretengine/" class="md-nav__link">
+        3 私密信息管理利器 HashiCorp Vault——Secret Engine
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../4vault_auth/" class="md-nav__link">
+        4 私密信息管理利器 HashiCorp Vault——验证和授权
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../5vault_deploy/" class="md-nav__link">
+        5 私密信息管理利器 HashiCorp Vault——部署
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../6vault_api/" class="md-nav__link">
+        6 私密信息管理利器 HashiCorp Vault——REST API
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../7vault_impl/" class="md-nav__link">
+        7 密钥管理神器之 Vault 集群搭建
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../8vault_k8s/" class="md-nav__link">
+        8 K8S与Vault集成，进行Secret管理
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../9vault_docker/" class="md-nav__link">
+        9 使用 Docker 和 Traefik 搭建 Vault
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10vault_cm/" class="md-nav__link">
+        10 使用 Vault + Cert Manager 管理 Kubernetes 集群中的数字证书
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          11 云原生更安全的密文管理 Vault on ACK
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        11 云原生更安全的密文管理 Vault on ACK
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#vault" class="md-nav__link">
+    Vault是什么？
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vaultk8s" class="md-nav__link">
+    Vault与k8s的集成
+  </a>
+  
+    <nav class="md-nav" aria-label="Vault与k8s的集成">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vaultkubernetes" class="md-nav__link">
+    Vault在Kubernetes中的应用场景
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault_1" class="md-nav__link">
+    安装Vault
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    认证方式的集成
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vaultram" class="md-nav__link">
+    Vault与阿里云RAM的集成
+  </a>
+  
+    <nav class="md-nav" aria-label="Vault与阿里云RAM的集成">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    认证方式的集成
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault-secretram" class="md-nav__link">
+    Vault Secret引擎与RAM的集成
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k8svault-secret" class="md-nav__link">
+    如何在k8s应用中使用Vault Secret
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14K8s_secret/" class="md-nav__link">
+        12 Kubernetes 的 secret 并不是真正的 secret
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          Vault on K8S
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Vault on K8S
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/0k8s_vault/" class="md-nav__link">
+        L0 在 Kubernetes 上部署 Vault
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/1Vault_basic/" class="md-nav__link">
+        L1 Hashcorp Vault 基础使用教程
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/2vault_k8s/" class="md-nav__link">
+        L2 在 Kubernetes 读取 Vault 中的机密信息
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/3vault_rotate/" class="md-nav__link">
+        L3 透过 Vault 定期 rotate credentials
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/4vault_int_k8s/" class="md-nav__link">
+        L4 Vault 与 Kubernetes 的深度整合
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          Hashicorp Certified Vault Associate
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Hashicorp Certified Vault Associate
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/1vaba_intro/" class="md-nav__link">
+        L1 Vault Associate: Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/2vaba_auth_poly/" class="md-nav__link">
+        L2 Authentication and Policies
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/3vaba_token/" class="md-nav__link">
+        L3 Vault Token
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/4vaba_engines/" class="md-nav__link">
+        L4 Using Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/5vaba_lease/" class="md-nav__link">
+        L5 Using Vault Leases
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          Installing Configuring Vault
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Installing Configuring Vault
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/1intro/" class="md-nav__link">
+        L1 HashiCorp Vault Overview and Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/2dev_model/" class="md-nav__link">
+        L2 Vault a Deployment Model
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/3deploy_valut/" class="md-nav__link">
+        L3 Deploying Vault Server
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/4encryption_key/" class="md-nav__link">
+        L4 Managing Encryption and Seal Keys
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/5conf_ha/" class="md-nav__link">
+        L5 Configuring High Availability
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/6basic_auth/" class="md-nav__link">
+        L6 Configuring Basic Authentication
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/7vaba_secret_engine/" class="md-nav__link">
+        L7 Using Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/8vaba_monitor/" class="md-nav__link">
+        L8 Configuring Auditing and Monitoring
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          Managing Access and Secrets(Adv.)
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Managing Access and Secrets(Adv.)
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/1mag_vt_intro/" class="md-nav__link">
+        L1 Secrets in HashiCorp Vault Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/2vt_auth_method/" class="md-nav__link">
+        L2 Installing and Configuring Authentication Methods
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/3vt_token/" class="md-nav__link">
+        L3 Working with Tokens
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/3vt_token/" class="md-nav__link">
+        L4 Managing Secrets with Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          Integrating with DevOps
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Integrating with DevOps
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/1cicd_pipeline/" class="md-nav__link">
+        L1 Accessing Secrets in CI/CD Pipelines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/2vault_agent/" class="md-nav__link">
+        L2 Securely Introducing Clients Using Vault Agent
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/3vault_tf_nd/" class="md-nav__link">
+        L3 Integrating Vault with Terraform & Nomad
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/4vault_consul/" class="md-nav__link">
+        L4 Integrating Vault with Consul
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/5vault_cloud/" class="md-nav__link">
+        L5 Authenticating Using Cloud Machine Identity
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/6vault_k8s/" class="md-nav__link">
+        L6 Integrating Vault with Kubernetes
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          Ops on Vault Server
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Ops on Vault Server
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/1encrypt_key/" class="md-nav__link">
+        L1 Managing the Encryption Key
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/2bak_storage/" class="md-nav__link">
+        L2 Managing the Storage Backend
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/3incident/" class="md-nav__link">
+        L3 Managing the Vault Server during an Incident
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/4Plugins/" class="md-nav__link">
+        L4 Managing External Plugins and Server Upgrades
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+          Terraform Tools
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          Terraform Tools
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tfm1/1Terragrunt/" class="md-nav__link">
+        L1 使用Terragrunt优化Terraform代码
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tfm1/2TMF_JENKINS/" class="md-nav__link">
+        L2 基础设施即代码 - 使用Terraform创建AWS EC2实例并部署Jenkins服务
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#vault" class="md-nav__link">
+    Vault是什么？
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vaultk8s" class="md-nav__link">
+    Vault与k8s的集成
+  </a>
+  
+    <nav class="md-nav" aria-label="Vault与k8s的集成">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vaultkubernetes" class="md-nav__link">
+    Vault在Kubernetes中的应用场景
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault_1" class="md-nav__link">
+    安装Vault
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    认证方式的集成
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vaultram" class="md-nav__link">
+    Vault与阿里云RAM的集成
+  </a>
+  
+    <nav class="md-nav" aria-label="Vault与阿里云RAM的集成">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    认证方式的集成
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault-secretram" class="md-nav__link">
+    Vault Secret引擎与RAM的集成
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k8svault-secret" class="md-nav__link">
+    如何在k8s应用中使用Vault Secret
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="11-vault-on-ack"><strong>11 云原生更安全的密文管理 Vault on ACK</strong></h1>
+<h2 id="vault">Vault是什么？</h2>
+<p>如何在云上应用中管理和保护用户的敏感信息是一个经常令开发者头疼的问题，用户的密码口令，证书秘钥等私密信息时常未经加密被随意的放置在配置文件，代码仓库或是共享存储里，而对于普通的开发者来说，设计和实现一套完整的秘钥管理系统是一个很大的挑战。</p>
+<p>且不论令人生畏的加解密算法，很多的云应用仍然将一些敏感配置信息仅仅经过base64等一些简单的hash运算就放置在某个公共的配置中心上，而很多时候这些敏感信息会从应用的某行异常日志或是某段监控告警中泄露出去；</p>
+<p>不仅如此，对于一个集中式的秘钥管理系统，如何面向用户进行更细粒度的访问鉴权也是一个难题。</p>
+<p>Vault的出现给了上述问题一个解决方案，它是HashiCorp公司（旗下还有Vagrant，Terraform，Consul等知名产品）维护的开源软件，它的设计思想基于云原生背景下动态基础设施的特点，在云上的不同网络层以及不同的服务之间已经很难找到传统的信任边界，服务之间更加强调以身份（identity）为核心的认证和访问控制，而不是像传统静态基础设施中以IP、主机地址作为信任凭证。为此Vault提供了以下几个功能点：</p>
+<ul>
+<li>Secret存储形式的多样性，任意的kv形式敏感信息（如数据库密码，证书，ssh登录秘钥，openapi身份凭证等）；</li>
+<li>存储格式的多样性，支持插件式的存储引擎扩展，可对接如AWS，Consul，NoSQL，KV，PKI，SSH等多种插件引擎；</li>
+<li>支持与各类平台的认证对接，可动态生成认证凭据或配置信息；</li>
+<li><strong>支持基于Shamir算法的私钥分割完成Vault后端的加封和解封操作</strong>，同时支持高可用的部署形态；</li>
+<li>支持各类secret的动态生成，续租，撤销和滚动更新；</li>
+<li>完备的审计日志；</li>
+<li>完备的CLI和RESTful API</li>
+</ul>
+<h2 id="vaultk8s">Vault与k8s的集成</h2>
+<p>Vault松耦合的架构使其支持与多种secret引擎和相应的存储后端对接，同时支持与多种认证服务器的交互。</p>
+<h3 id="vaultkubernetes">Vault在Kubernetes中的应用场景</h3>
+<p>Vault作为企业级的secret管理工具，是一些大客户在业务上云过程中的安全强需求，尤其是国外市场。在Kubernetes集群中主要有以下应用场景：</p>
+<ul>
+<li>作为部署在Kubernetes集群中的应用对外提供秘钥管理服务，支持与多家主流云厂商秘钥服务以及多种secrets形式的对接，支持多种数据库服务的存储对接，同时支持多种认证形式的对接。</li>
+<li>作为一个公共的加密服务（Encryption as a Service）而不做后端存储的对接，帮助用户应用剥离繁琐的加密加解密逻辑。面向政府、金融等对数据安全规格有很高要求的客户，<strong>Vault支持基于Two-man原则利用私钥分割算法对后端服务进行加解封，并结合k8s的高可用部署形态为企业提供更加安全可靠的secret管理能力</strong>。</li>
+<li>当然这里只是列举了一些Vault原生提供的能力，作为一个在Kubernetes集群上直接运行的安全应用，任何一个面向k8s的应用工具都可以利用其安全能力。</li>
+</ul>
+<h3 id="vault_1">安装Vault</h3>
+<p>Vault支持helm化安装，在其官方文档中我们可以找到关于启动参数的详细配置说明，同时在阿里云容器服务的应用目录apphub中我们也可以通过控制台在ACK集群中方便的安装Vault</p>
+<p><img alt="alt body image" src="../../images/vt1_13_1.PNG" /></p>
+<p>另外Vault的默认安装也集成了其控制台的安装，通过负载均衡服务或ingress路由的方式我们可以在公网访问其UI，在vault pod的日志中我们可以找到登录使用的root token，在控制台中可以方便的设定与存储引擎和认证方式的对接，同时还可以进行基于策略的访问控制配置。</p>
+<p><img alt="alt body image" src="../../images/vt1_13_2.PNG" /></p>
+<h3 id="_1">认证方式的集成</h3>
+<p>当用户希望在k8s pod的业务逻辑中与Vault服务端通讯，获取需要的secrets时，首先Vault会对这个pod中的请求进行认证，那么这个pod中的Vault请求认证凭据应该如何获取呢？</p>
+<p>如上所述，Vault后端支持多种认证方式的对接，对于Kubernetes，Vault支持基于K8s Service Account Token的认证。</p>
+<p><strong>使用上，Vault管理员首先需要在后端enable kubernetes的认证方式，生成一个与Vault交互的指定sa，然后通过CLI或API将sa token和集群ca，公网地址等信息写入到Vault后端中，并配置与vault后端的ACL策略绑定</strong>。</p>
+<p>当然在pod应用中可以并不局限于一定使用基于sa的kubernetes认证方式。比如<a href="https://github.com/Boostport/kubernetes-vault">kubernetes-vault</a>。</p>
+<p>该项目使用Vault中的<a href="https://www.vaultproject.io/docs/auth/approle.html">AppRole</a>
+认证方式，在该认证模式中，<strong>管理员可以为不同的pod创建不同的Vault原生role模型并绑定到对应的policy上，同时可以基于role创建<code>secret_id</code>，<code>secret_id</code>对应的token可作为与Vault进行认证的临时凭证</strong>。</p>
+<p><code>kubernetes-vault</code>利用了<code>AppRole</code>的认证交互模式，</p>
+<ul>
+<li>首先已经完成安装的<code>kubernetes-vault controller</code>会去Watch集群中所有pod的创建，当发现新建pod的部署模板中有指定<code>annotation</code>的<code>init-container</code>存在时</li>
+<li>controller会根据模板中指定的<code>vault role id</code>去<code>Vault</code>请求获取其对应的<code>secret_id</code>并发送给<code>init-container</code>中<code>kubernetes-vault</code>的客户端，在应用容器启动前<code>kubernetes-vault</code>客户端用controller返回的<code>secret_id</code>和<code>role_id</code>去Vault请求真正的<code>login token</code>并最终写入到与应用pod共享的挂载目录中；</li>
+<li>同时客户端会根据token过期时间进行定时的轮转，保证其可用性。下图为<code>kubernetes-vault</code>工作流程图：</li>
+</ul>
+<p><img alt="alt body image" src="../../images/vt1_13_3.PNG" /></p>
+<p>在社区也存在不少基于k8s与Vault进行认证对接的其他方案，其设计思路大同小异，<strong>基本都采用了通过<code>init-container</code>或<code>sidecar</code>方式引入一个额外的客户端去Vault请求指定认证模式下的短时凭证并共享给业务容器使用</strong>。</p>
+<p>在容器服务控制台的应用目录apphub中，我们同样可以找到kubernetes-vault，方便开发者使用helm直接在集群指定命名空间一键部署。Vault也计划在后续自己的官方版本helm chart中增加配置项以支持上述登录认证secret的动态注入。</p>
+<h2 id="vaultram">Vault与阿里云RAM的集成</h2>
+<p>当我们在应用中需要访问阿里云资源时，需要使用RAM账号对应的AK或是STS临时credentials作为访问相应资源接口的凭证。</p>
+<p>如果使用账号AK，如何使其能够被应用逻辑获取的同时保证AK的安全性一直是一个头疼的问题；</p>
+<p>如果使用临时sts token，由于其时效性，我们也需要在考虑安全性的同时思考如何进行临时访问凭证的轮转。</p>
+<p>相比较两种方式，使用sts临时凭证的方式肯定在安全上是更为推荐的方式，同时对这种动态secret的安全管理也正是Vault的优势所在。</p>
+<p>本节我们来介绍下Vault与阿里云RAM在认证方式和secret管理引擎上的集成。</p>
+<h3 id="_2"><strong>认证方式的集成</strong></h3>
+<p>首先在认证方式上，Vault服务端的role模型可以与<code>RAM role</code>进行一对一的映射匹配，用户可以使用Vault提供的OpenAPI或是CLI，通过传入扮演<code>RAM role</code>返回的临时凭证调用<code>GetCallerIdentity</code>接口，然后Vault服务端会根据请求返回的角色<code>arn id</code>在其后端存储中查找是否有对应的权限策略配置，如果存在则认证成功并返回一个可用于调用Vault其他后端接口的访问token。</p>
+<h3 id="vault-secretram">Vault Secret引擎与RAM的集成</h3>
+<p>当我们需要在业务应用逻辑中使用阿里云资源时，通常需要通过角色扮演的方式获取一个RAM返回的临时凭证，然后通过这个临时凭证完成与RAM的鉴权过程。由于凭证的时效性，我们在保证其安全性的同时还要维护一个对应的秘钥轮转机制。Vault的secret引擎实现了与阿里云RAM的对接插件，帮助我们安全、动态的管理RAM凭证，其主要步骤 如下:</p>
+<ol>
+<li>开启后端引擎</li>
+<li>在RAM控制台为Vault服务器创建专属子账号并绑定定制化权限策略</li>
+<li>获取Vault子账号对应的AK并通过Vault CLI/API写入到后端指定路径下</li>
+<li>在Vault后端写入业务中希望获取的RAM凭证所对应的策略定义或角色，其中策略定义支持inline和remote策略两种形式，所谓inline模式是指直接在api请求中写入策略模板，remote模式指写入RAM中存在的策略类型和名称，比如：</li>
+</ol>
+<pre><code>$ vault write alicloud/role/policy-based \
+    remote_policies='name:AliyunOSSReadOnlyAccess,type:System' \
+    remote_policies='name:AliyunRDSReadOnlyAccess,type:System'
+</code></pre>
+<p>角色模式需要用户指定希望被扮演的角色arn，另外需要Vault子账号在该角色的受信实体里，一个示例如下：</p>
+<pre><code>$ vault write alibaba/role/role-based \
+role_arn='acs:ram::5138828231865461:role/hastrustedactors'
+</code></pre>
+<p>5.在具体的业务应用中，只需要通过调用Vault的creds/policy-based或role-based接口即可动态获取相应的RAM访问凭证，下面是一个角色扮演返回临时token的CLI调用示例：</p>
+<pre><code>$ vault read alicloud/creds/role-based
+Key                Value
+---                -----
+lease_id           alicloud/creds/role-based/f3e92392-7d9c-09c8-c921-575d62fe80d9
+lease_duration     59m59s
+lease_renewable    false
+access_key         STS.L4aBSCSJVMuKg5U1vFDw
+secret_key         wyLTSmsyPGP1ohvvw8xYgB29dlGI8KMiH2pKCNZ9
+security_token     CAESrAIIARKAAShQquMnLIlbvEcIxO6wCoqJufs8sWwieUxu45hS9AvKNEte8KRUWiJWJ6Y+YHAPgNwi7yfRecMFydL2uPOgBI7LDio0RkbYLmJfIxHM2nGBPdml7kYEOXmJp2aDhbvvwVYIyt/8iES/R6N208wQh0Pk2bu+/9dvalp6wOHF4gkFGhhTVFMuTDRhQlNDU0pWTXVLZzVVMXZGRHciBTQzMjc0KgVhbGljZTCpnJjwySk6BlJzYU1ENUJuCgExGmkKBUFsbG93Eh8KDEFjdGlvbkVxdWFscxIGQWN0aW9uGgcKBW9zczoqEj8KDlJlc291cmNlRXF1YWxzEghSZXNvdXJjZRojCiFhY3M6b3NzOio6NDMyNzQ6c2FtcGxlYm94L2FsaWNlLyo=
+expiration         2018-08-15T21:58:00Z
+</code></pre>
+<h2 id="k8svault-secret">如何在k8s应用中使用Vault Secret</h2>
+<p>在了解了Vault的基本概念以及与Kubernetes的认证交互流程</p>
+<p>如何在k8s pod应用中方便地获取Vault服务端管理的secret。社区针对此问题也有激烈的讨论和不少相关解决方案，</p>
+<p>方案主要集中在两个方向：<strong><a href="https://github.com/hashicorp/vault/issues/7364">定时同步进程</a></strong>：使用一个同步进程定时地从Vault服务端获取指定范围的秘钥更新并同步到k8s集群中的secret模型，代表的项目有<a href="https://github.com/sunshinekitty/vaultingkube"><strong>vaultingkube</strong></a> 和<a href="https://github.com/tuenti/secrets-manager"><strong>secrets-manager</strong></a> 。</p>
+<p>其主要设计思想也不尽相同，以<code>secrets-manager</code>为例，首先用户可以通过CRD定义在<code>Vault</code>中关注的secret数据源，然后<code>secrets-manager</code>对应的<code>controller</code>会在<code>Reconcile</code>函数中定时对比指定管理范围内的<code>k8s secret</code>和<code>vault secret</code>的状态，如果不一致则进行一次调协。而用户在pod应用中可以直接引用原生secret模型中的内容获取远端Vault服务器中的秘钥。</p>
+<p>当然社区中也存在一些对这种秘钥同步方案的质疑，比如认为该方案在秘钥同步的传输过程和用户pod使用原生secret的rest交互中会增加攻击面，但是该方案在部署实施上比较友好，也得到了很多用户的支持。</p>
+<p><a href="https://github.com/hashicorp/vault/issues/7365"><strong>CSI插件形式集成</strong></a>：该方案基于<a href="https://kubernetes-csi.github.io/docs/"><code>CSI plugin</code></a>将<code>Vault</code>中的秘钥通过volume的形式挂载到pod应用中。<a href="https://github.com/deislabs/secrets-store-csi-driver"><code>secrets-store-csi-driver</code></a> 通过实现一套基于CSI规范的driver机制可以对接不同厂商的后端存储，而<code>Vault secret</code>的<code>driver(secrets-store.csi.k8s.com)</code>允许kubelet将各类企业级秘钥存储中的secret通过volume挂载，一旦<code>attach</code>动作完成，秘钥数据即挂载到了容器对应的文件系统中。</p>
+<p>在<code>CSI driver</code>的基础上，不同的秘钥管理后端可以实现定制化的provider去对接<code>CSI driver</code>框架中的规定接口。</p>
+<p>provider的功能概括如下：</p>
+<ol>
+<li>对接后端秘钥管理系统，提供秘钥获取等必须的接口实现</li>
+<li>适配当前<code>CSI driver</code>的接口定义</li>
+<li>通过框架中的回调函数无需调用Kubernetes API即可将从后端获取的秘钥数据挂载到指定路径下</li>
+</ol>
+<p>HashiCorp官方也基于此框架实现了一套对接Vault的<a href="https://github.com/hashicorp/secrets-store-csi-driver-provider-vault/blob/master/docs/vault-setup.md">Provider</a>。 这里我们以此为例具体来看下在一个k8s pod应用中如何通过CSI plugin的方式使用Vault中管理的secret秘钥。</p>
+<p>1 首先我们创建一个开启了CSI存储插件的ACK集群，然后参考文档在集群中部署Vault服务端，为了便于验证这里我们使用dev模式省去unseal解封等流程，同时配置provider与Vault交互的认证模式和相应的访问控制策略</p>
+<p><img alt="alt body image" src="../../images/vt1_13_4.PNG" /></p>
+<p>然后通过cli向Vault后端写入测试数据</p>
+<p><img alt="alt body image" src="../../images/vt1_13_5.PNG" /></p>
+<p>2 通过官方提供的helm方式安装Secret Store CSI Driver，命令如下：</p>
+<pre><code>helm install . -n csi-secrets-store --namespace dev --set providers.vault.enabled=true
+</code></pre>
+<p>安装成功后如下图所示：</p>
+<p><img alt="alt body image" src="../../images/vt1_13_6.PNG" /></p>
+<p>3 在集群中创建<code>secretproviderclasses</code>实例用于<code>Secret Store CSI Driver</code>与Vault的参数对接，一个示例如下，注意这里的vault服务端地址可通过<code>kubectl get service vault</code>获取。</p>
+<p><img alt="alt body image" src="../../images/vt1_13_7.PNG" /></p>
+<p>4 最后我们来看下如何在应用pod中对接上述provider实例获取对应的Vault秘钥。这里pod对于上述vault provider的使用分为两种方式：</p>
+<p>1) <strong>如果pod运行的目标集群版本在v1.15.0以上，且集群<code>apiserver</code>和节点<code>kubelet manifest</code>配置均开启了 <code>CSIInlineVolume=true</code>的<code>feature-gates</code>，则我们可以在pod中的volume字段内置声明需要使用的<code>csi provider</code>实例</strong>。</p>
+<pre><code>kind: Pod
+apiVersion: v1
+metadata:
+  name: nginx-secrets-store-inline
+spec:
+  containers:
+  - image: nginx
+    name: nginx
+    volumeMounts:
+    - name: secrets-store-inline
+      mountPath: &quot;/mnt/secrets-store&quot;
+      readOnly: true
+  volumes:
+    - name: secrets-store-inline
+      csi:
+        driver: secrets-store.csi.k8s.com
+        readOnly: true
+        volumeAttributes:
+          secretProviderClass: &quot;vault-foo&quot;
+</code></pre>
+<p>2）<strong>如果目标集群不支持CSI的Inline Volume特性，我们需要首先创建使用csi的pv和对应的pvc实例</strong>，一个pv模板示例如下:</p>
+<pre><code>apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-vault
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadOnlyMany
+  persistentVolumeReclaimPolicy: Retain
+  csi:
+    driver: secrets-store.csi.k8s.com
+    readOnly: true
+    volumeHandle: kv
+    volumeAttributes:
+      providerName: &quot;vault&quot;
+      roleName: &quot;example-role&quot;
+      vaultAddress: http://172.21.12.21:8200
+      vaultSkipTLSVerify: &quot;true&quot;
+      objects:  |
+        array:
+          - |
+            objectPath: &quot;/foo&quot;
+            objectName: &quot;bar&quot;
+            objectVersion: &quot;&quot;
+</code></pre>
+<p>在pod实例模板中引用指定pvc即可在pod中获取到vault，这里我们在ACK集群以pv/pvc模式为例创建一个nginx应用容器实例并在其中挂载上文中我们创建的<code>secretproviderclasses</code>实例：</p>
+<p><img alt="alt body image" src="../../images/vt1_13_8.PNG" /></p>
+<p>相比于secrets-manager等采用secret定时同步的方式，使用CSI对接指定<code>Vault secret provider</code>实例的方式虽然在实施步骤上比较复杂，同时在应用中也无法动态获取Vault后端secret的变更，但是该方案避免了secret在同步链路上频繁传输的安全风险，同时也客服了之前<code>describe po</code>可能造成的秘钥泄露，在整体安全性上要高出不少。大家可以根据实际应用场景选择适合自己的方式。</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2021-9999 Jacob Xi
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a51614de.min.js"></script>
+      
+    
+  </body>
+</html>

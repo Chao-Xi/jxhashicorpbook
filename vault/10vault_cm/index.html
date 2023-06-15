@@ -1,0 +1,2032 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Jacob's Hashicorp Tutorial Book">
+      
+      
+        <meta name="author" content="Jacob Xi">
+      
+      
+        <link rel="canonical" href="https://chao-xi.github.io/jxhashicorpbook/vault/10vault_cm/">
+      
+      
+        <link rel="prev" href="../9vault_docker/">
+      
+      
+        <link rel="next" href="../13vault_ack_cloud/">
+      
+      <link rel="icon" href="../../images/logo.png">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.16">
+    
+    
+      
+        <title>10 使用 Vault + Cert Manager 管理 Kubernetes 集群中的数字证书 - Jacob Hashicorp Book</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.26e3688c.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ecc896b0.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="blue-greay">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#10-vault-cert-manager-kubernetes" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="Jacob Hashicorp Book" class="md-header__button md-logo" aria-label="Jacob Hashicorp Book" data-md-component="logo">
+      
+  <img src="../../images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Jacob Hashicorp Book
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              10 使用 Vault + Cert Manager 管理 Kubernetes 集群中的数字证书
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Chao-Xi/jxhashicorpbook.git" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jxhashicorpbook
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Jacob Hashicorp Book" class="md-nav__button md-logo" aria-label="Jacob Hashicorp Book" data-md-component="logo">
+      
+  <img src="../../images/logo.png" alt="logo">
+
+    </a>
+    Jacob Hashicorp Book
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Chao-Xi/jxhashicorpbook.git" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jxhashicorpbook
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Welcome
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          私密信息管理利器Vault
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          私密信息管理利器Vault
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1vault_intro/" class="md-nav__link">
+        1 私密信息管理利器 HashiCorp Vault——简介
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2vault_start/" class="md-nav__link">
+        2 私密信息管理利器 HashiCorp Vault——启动和读写
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3vault_secretengine/" class="md-nav__link">
+        3 私密信息管理利器 HashiCorp Vault——Secret Engine
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../4vault_auth/" class="md-nav__link">
+        4 私密信息管理利器 HashiCorp Vault——验证和授权
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../5vault_deploy/" class="md-nav__link">
+        5 私密信息管理利器 HashiCorp Vault——部署
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../6vault_api/" class="md-nav__link">
+        6 私密信息管理利器 HashiCorp Vault——REST API
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../7vault_impl/" class="md-nav__link">
+        7 密钥管理神器之 Vault 集群搭建
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../8vault_k8s/" class="md-nav__link">
+        8 K8S与Vault集成，进行Secret管理
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../9vault_docker/" class="md-nav__link">
+        9 使用 Docker 和 Traefik 搭建 Vault
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          10 使用 Vault + Cert Manager 管理 Kubernetes 集群中的数字证书
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        10 使用 Vault + Cert Manager 管理 Kubernetes 集群中的数字证书
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    前言
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vault" class="md-nav__link">
+    第一部分：安装并配置 Vault
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vault-pki-ca" class="md-nav__link">
+    第二部分：Vault 启动 PKI 引擎并创建 CA 证书
+  </a>
+  
+    <nav class="md-nav" aria-label="第二部分：Vault 启动 PKI 引擎并创建 CA 证书">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vault-secret-engine" class="md-nav__link">
+    Vault 中的机密信息存储引擎（Secret Engine）
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pki" class="md-nav__link">
+    PKI 引擎
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-offline-root-ca" class="md-nav__link">
+    1. 创建 Offline Root CA
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-vault-intermediate-ca-key-csr" class="md-nav__link">
+    2. 在 Vault 中创建 Intermediate CA 的 Key 和 CSR
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-offline-root-ca-icas-csr" class="md-nav__link">
+    3. 使用 Offline Root CA 对 ICA's CSR 签名
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-intermediata-ca-vault" class="md-nav__link">
+    4. 把 Intermediata CA 证书导入 Vault
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-urls" class="md-nav__link">
+    5. 设置 URLs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#external-ca-pool" class="md-nav__link">
+    External CA Pool
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cert-manager-kubernetes" class="md-nav__link">
+    第三部分：使用 cert-manager 为 kubernetes 集群中的应用程序自动颁发证书
+  </a>
+  
+    <nav class="md-nav" aria-label="第三部分：使用 cert-manager 为 kubernetes 集群中的应用程序自动颁发证书">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    前言
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-cert-manager" class="md-nav__link">
+    1. 安装 cert-manager
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-vault" class="md-nav__link">
+    2. Vault 认证
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-cert-manager-issuerclusterissuer" class="md-nav__link">
+    3. cert-manager Issuer/ClusterIssuer
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-cert-manager-certificate" class="md-nav__link">
+    4. cert-manager Certificate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-kubernetes-web" class="md-nav__link">
+    5. Kubernetes 中部署 Web 应用
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13vault_ack_cloud/" class="md-nav__link">
+        11 云原生更安全的密文管理 Vault on ACK
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14K8s_secret/" class="md-nav__link">
+        12 Kubernetes 的 secret 并不是真正的 secret
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          Vault on K8S
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Vault on K8S
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/0k8s_vault/" class="md-nav__link">
+        L0 在 Kubernetes 上部署 Vault
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/1Vault_basic/" class="md-nav__link">
+        L1 Hashcorp Vault 基础使用教程
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/2vault_k8s/" class="md-nav__link">
+        L2 在 Kubernetes 读取 Vault 中的机密信息
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/3vault_rotate/" class="md-nav__link">
+        L3 透过 Vault 定期 rotate credentials
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault1/4vault_int_k8s/" class="md-nav__link">
+        L4 Vault 与 Kubernetes 的深度整合
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          Hashicorp Certified Vault Associate
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Hashicorp Certified Vault Associate
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/1vaba_intro/" class="md-nav__link">
+        L1 Vault Associate: Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/2vaba_auth_poly/" class="md-nav__link">
+        L2 Authentication and Policies
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/3vaba_token/" class="md-nav__link">
+        L3 Vault Token
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/4vaba_engines/" class="md-nav__link">
+        L4 Using Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault2/5vaba_lease/" class="md-nav__link">
+        L5 Using Vault Leases
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          Installing Configuring Vault
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Installing Configuring Vault
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/1intro/" class="md-nav__link">
+        L1 HashiCorp Vault Overview and Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/2dev_model/" class="md-nav__link">
+        L2 Vault a Deployment Model
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/3deploy_valut/" class="md-nav__link">
+        L3 Deploying Vault Server
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/4encryption_key/" class="md-nav__link">
+        L4 Managing Encryption and Seal Keys
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/5conf_ha/" class="md-nav__link">
+        L5 Configuring High Availability
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/6basic_auth/" class="md-nav__link">
+        L6 Configuring Basic Authentication
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/7vaba_secret_engine/" class="md-nav__link">
+        L7 Using Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault3/8vaba_monitor/" class="md-nav__link">
+        L8 Configuring Auditing and Monitoring
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          Managing Access and Secrets(Adv.)
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Managing Access and Secrets(Adv.)
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/1mag_vt_intro/" class="md-nav__link">
+        L1 Secrets in HashiCorp Vault Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/2vt_auth_method/" class="md-nav__link">
+        L2 Installing and Configuring Authentication Methods
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/3vt_token/" class="md-nav__link">
+        L3 Working with Tokens
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault4/3vt_token/" class="md-nav__link">
+        L4 Managing Secrets with Secrets Engines
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          Integrating with DevOps
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Integrating with DevOps
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/1cicd_pipeline/" class="md-nav__link">
+        L1 Accessing Secrets in CI/CD Pipelines
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/2vault_agent/" class="md-nav__link">
+        L2 Securely Introducing Clients Using Vault Agent
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/3vault_tf_nd/" class="md-nav__link">
+        L3 Integrating Vault with Terraform & Nomad
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/4vault_consul/" class="md-nav__link">
+        L4 Integrating Vault with Consul
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/5vault_cloud/" class="md-nav__link">
+        L5 Authenticating Using Cloud Machine Identity
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault5/6vault_k8s/" class="md-nav__link">
+        L6 Integrating Vault with Kubernetes
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          Ops on Vault Server
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Ops on Vault Server
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/1encrypt_key/" class="md-nav__link">
+        L1 Managing the Encryption Key
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/2bak_storage/" class="md-nav__link">
+        L2 Managing the Storage Backend
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/3incident/" class="md-nav__link">
+        L3 Managing the Vault Server during an Incident
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vault6/4Plugins/" class="md-nav__link">
+        L4 Managing External Plugins and Server Upgrades
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+          Terraform Tools
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          Terraform Tools
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tfm1/1Terragrunt/" class="md-nav__link">
+        L1 使用Terragrunt优化Terraform代码
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tfm1/2TMF_JENKINS/" class="md-nav__link">
+        L2 基础设施即代码 - 使用Terraform创建AWS EC2实例并部署Jenkins服务
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    前言
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vault" class="md-nav__link">
+    第一部分：安装并配置 Vault
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vault-pki-ca" class="md-nav__link">
+    第二部分：Vault 启动 PKI 引擎并创建 CA 证书
+  </a>
+  
+    <nav class="md-nav" aria-label="第二部分：Vault 启动 PKI 引擎并创建 CA 证书">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vault-secret-engine" class="md-nav__link">
+    Vault 中的机密信息存储引擎（Secret Engine）
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pki" class="md-nav__link">
+    PKI 引擎
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-offline-root-ca" class="md-nav__link">
+    1. 创建 Offline Root CA
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-vault-intermediate-ca-key-csr" class="md-nav__link">
+    2. 在 Vault 中创建 Intermediate CA 的 Key 和 CSR
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-offline-root-ca-icas-csr" class="md-nav__link">
+    3. 使用 Offline Root CA 对 ICA's CSR 签名
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-intermediata-ca-vault" class="md-nav__link">
+    4. 把 Intermediata CA 证书导入 Vault
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-urls" class="md-nav__link">
+    5. 设置 URLs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#external-ca-pool" class="md-nav__link">
+    External CA Pool
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cert-manager-kubernetes" class="md-nav__link">
+    第三部分：使用 cert-manager 为 kubernetes 集群中的应用程序自动颁发证书
+  </a>
+  
+    <nav class="md-nav" aria-label="第三部分：使用 cert-manager 为 kubernetes 集群中的应用程序自动颁发证书">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    前言
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-cert-manager" class="md-nav__link">
+    1. 安装 cert-manager
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-vault" class="md-nav__link">
+    2. Vault 认证
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-cert-manager-issuerclusterissuer" class="md-nav__link">
+    3. cert-manager Issuer/ClusterIssuer
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-cert-manager-certificate" class="md-nav__link">
+    4. cert-manager Certificate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-kubernetes-web" class="md-nav__link">
+    5. Kubernetes 中部署 Web 应用
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="10-vault-cert-manager-kubernetes"><strong>10 使用 Vault + Cert Manager 管理 Kubernetes 集群中的数字证书</strong></h1>
+<h2 id="_1">前言</h2>
+<p>之前的文章介绍了如何使用 OpenSSL 来创建我们的个人数字证书体系，<mark>但是 OpenSSL 只是一个本地化的工具，当用户需要申请一个数字证书时，它无法作为服务器来提供自动化签发证书的功能</mark>。 </p>
+<p><strong>Vault 就应对了这种需求，它是由 Hashicorp 公司开发的一款专门用来管理各种数字证书、密钥、密码、登录凭证等各类机密信息的服务器程序。我们既可以在 Vault 中直接创建证书体系，也可以把创建好的 CA 证书导入 Vault，然后由其管理证书的签发和吊销事项</strong>。 </p>
+<p>我们有一个 Web 应用，部署在集群中，它需要一个数字证书，这时候只需要它发送一个 CSR 请求到 Vault 服务器，Vault 就能自动对请求者进行验证并使用保存好的 CA 来签发用户证书。</p>
+<p><strong>Cert Manager</strong> 是一款云原生应用程序，它作为一个服务类工具，可以帮助 Kubernetes 集群中的应用创建证书请求 (CSR)，转发给 Vault Server，由 Vault Server 中 CA 签名认证后颁发证书，然后再保存到 Secret 资源对象中供应用程序使用。</p>
+<p>有了 Vault + Cert Manager 这套系统，k8s 集群中的微服务所需要的证书服务就变得完全自动化了。</p>
+<p>一个大致的示意图如下：</p>
+<p><img alt="alt body image" src="../../images/vt1_12_1.PNG" /></p>
+<h2 id="vault">第一部分：安装并配置 Vault</h2>
+<p>下面的命令用于在 Ubuntu 下安装 Vault 程序</p>
+<pre><code>$ curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/local/share/keyrings/vault.gpg &gt; /dev/null
+$ echo &quot;deb [signed-by=/usr/local/share/keyrings/vault.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main&quot; \
+    | sudo tee /etc/apt/sources.list.d/vault.list
+sudo apt update
+sudo apt install vault
+</code></pre>
+<p>安装成功后，会自动生成一个自签名的证书（用于启动 HTTPS 服务）。</p>
+<p>根据之前的文章，我们已经搭建了自己的 CA 证书体系，所以我们可以用自己的 CA 证书来签名得到一个应用程序（也就是这里的 vault)所需的数字证书。</p>
+<p>创建 vault 自身所需的证书过程如下：</p>
+<pre><code>$ openssl req -new -sha256 -nodes \
+    -keyout vault.key \
+    -out vault.csr \
+    -subj=&quot;/O=HashiCorp/CN=vault-dev.lab&quot;
+
+$ openssl ca -days 364 -in vault.csr -out vault.crt \
+    -cert FactTrust_RSA_ICA1-PKCS8.crt
+    -keyfile CA/private/FactTrust_RSA_ICA1.key \
+    -extensions usr_ext \
+    -config &lt;(cat /etc/ssl/openssl.cnf -&lt;&lt;END
+[usr_ext]
+basicConstraints = CA:FALSE
+subjectKeyIdentifier = hash
+keyUsage = digitalSignature,keyEnciperment
+extendedKeyUsage = clientAuth,serverAuth,codeSigning
+subjectAltName = @alt_names
+[alt_names]
+IP.1 = 127.0.0.1
+IP.2 = 192.168.3.3
+DNS.1 = localhost
+DNS.2 = vault-dev.lab
+END
+)
+</code></pre>
+<p>上面的命令和原理在之前已经介绍过，这里就不多介绍。</p>
+<p>接下来配置 vault 并启动</p>
+<p>默认的配置文件是 <code>/etc/vault.d/vault.hcl</code></p>
+<p>我们把生成好的证书和 Key 信息填入其中：</p>
+<pre><code>$ listener &quot;tcp&quot; {
+    address       = &quot;0.0.0.0:8200&quot;
+    tls_cert_file = &quot;/opt/vault/tls/vault.crt&quot;
+    tls_key_file  = &quot;/opt/vault/tls/vault.key&quot;
+}
+</code></pre>
+<p>启动</p>
+<pre><code>sudo systemctl start vault
+</code></pre>
+<p>或</p>
+<pre><code>$ vault server -config=/etc/vault.d/vault.hcl
+</code></pre>
+<p>配置环境变量，以便可以在使用 vault 命令时，其自动连接正确的 server 地址</p>
+<pre><code>$ export VAULT_ADDR='https://127.0.0.1:8200'
+</code></pre>
+<p>接下来需要要对 vault 进行初始化</p>
+<pre><code>$ vault operator init -key-shares=3 -key-threshold=2
+</code></pre>
+<p>vault 服务器的登陆认证使用了多重密钥，默认是 5 个密钥，解密门限是 3，这里设置 3 个密钥，解密门限为 2。</p>
+<p><strong>Tips：</strong></p>
+<p>这里的多重密钥是 vault 自动生成的，但我们也可以使用之前介绍的 GPG Key，比如：</p>
+<pre><code>$ vault operator init -key-shares=3 -key-threshold=2 \
+    -pgp-keys=&quot;alice.asc,bob.asc,david.asc&quot;
+</code></pre>
+<p>注意：如果使用 gpg key，那么 gpg 导出公钥的时候需要用 base64，不能用 <code>--armor</code>。</p>
+<p>init 完成后会生成 root token（输出在屏幕中），我们后续需要用这个 token 进行才可以登录。不过，登陆之前，还需要先 unseal：</p>
+<pre><code>vault operator unseal
+</code></pre>
+<p>依次执行 3 次 unseal 命令，每次填入一个 key 即可。</p>
+<p>unseal 之后，就可以执行 <code>vault login</code> 登录了（输入 root token）。</p>
+<p><strong><mark>登录成功，vault 还会把 token 保存在 <code>~/.vault-token</code> 以方便后续操作</mark></strong>。</p>
+<p><img alt="alt body image" src="../../images/vt1_12_2.PNG" /></p>
+<h2 id="vault-pki-ca">第二部分：Vault 启动 PKI 引擎并创建 CA 证书</h2>
+<h3 id="vault-secret-engine">Vault 中的机密信息存储引擎（Secret Engine）</h3>
+<p>Vault 提供多种存储引擎来保存不同类型的机密信息（Secret)，常见的比如 kv, ssh, pki, active directory 等等。我们数字证书应该使用 pki 引擎来存储和管理。</p>
+<p><img alt="alt body image" src="../../images/vt1_12_3.PNG" /></p>
+<p>这里的 path 是挂载点 (mount point)，一个 secret engine 就相当于一个文件系统，里面可以有多个挂载点，每个挂载点就是一个路径 path。</p>
+<h3 id="pki">PKI 引擎</h3>
+<p>在实际操作之前，先理一下我们需要的证书组织结构。</p>
+<p>跟之前介绍的使用 OpenSSl 创建的证书体系一样，我们需要有 <strong>Root CA，Intermediate CAs, User Certificate</strong>。Vault 支持直接在 pki 引擎中创建这三类证书。</p>
+<p>不过，虽然 Vault 的安全性高，它毕竟也是一个需要联网的软件，只要联网，就免不了有风险。</p>
+<p>因此，业界的最佳实践是把 Root CA 放在一个 Offline 的存储媒介上（比如 Yubikey），用它签发一些有效期短的 Intermediate CA 证书，然后把这些 Intermediate CA 证书导入到 Vault 中进行管理。</p>
+<p><strong>Intermediate CA 的 Key 和 CSR 在 Vault 中创建，然后我们用 Offline Root CA 对 CSR 签名得到证书后再导入 Vault 即可</strong>。</p>
+<h3 id="1-offline-root-ca">1. 创建 Offline Root CA</h3>
+<pre><code>$ mkdir factsign
+$ cd factsign
+$ mkdir -pv {newcerts,CA/private}
+$ touch index.txt
+$ echo &quot;01&quot; &gt; serial
+$ echo &quot;01&quot; &gt; crlnumber
+$ echo 'gM6*NTNtu^&amp;YCnKB6=' &gt; rcapass
+$ openssl enc -aes256 -pbkdf2 -salt -in capass -out capass.enc
+$ openssl req -x509 -newkey rsa:4096 -sha256 -days 7300 -passout file:capass.enc \
+    -keyout FactSign_Root_CA.key -out FactSign_Root_CA.crt \
+    -subj &quot;/C=US/O=Security/OU=www.factsign.com/CN=FactSign Root CA&quot; \ 
+    -addext keyUsage=critical,cRLSign,keyCertSign,digitalSignature
+$ mv {capass.enc,FactSign_Root_CA.key} CA/private/
+$ rm capass
+$ chmod 700 CA/private
+</code></pre>
+<p>至此，离线的 Offline Root CA 就创建好了， 接下来需要把它导入到操作系统的 Trusted Key Store 中去。</p>
+<p><strong>Linux (Ubuntu)</strong></p>
+<pre><code>$ sudo cp FactSign_Root_CA.crt /usr/local/share/ca-certificates/
+$ sudo update-ca-certificates
+</code></pre>
+<p><strong>macOS</strong></p>
+<p><img alt="alt body image" src="../../images/vt1_12_4.PNG" /></p>
+<p>注：为了简略起见，上面省略了把 Key 转换成 <code>pkcs#8</code> 格式的步骤，不过不影响使用。</p>
+<h3 id="2-vault-intermediate-ca-key-csr">2. 在 Vault 中创建 Intermediate CA 的 Key 和 CSR</h3>
+<pre><code>$ vault secrets enable -path=pki_rsa_ica1 pki
+
+$ vault secrets tune -max-lease-ttl=43800h pki_rsa_ica1
+
+$ vault write -format=json pki_rsa_ica1/intermediate/generate/internal \
+    common_name=&quot;FactSign RSA ICA1 from Offline Root CA&quot; \
+    format=&quot;pem&quot; \
+    private_key_format=&quot;pkcs8&quot; \
+    key_type=&quot;rsa&quot; \
+    key_bits=&quot;4096&quot; \
+    signature_bits=256 \
+    country=&quot;US&quot; \ 
+    organization=&quot;Security&quot; \
+| jq -r '.data.csr' &gt; pki_rsa_ica1.csr
+</code></pre>
+<h3 id="3-offline-root-ca-icas-csr">3. 使用 Offline Root CA 对 ICA's CSR 签名</h3>
+<pre><code>$ openssl ca -days 1825 -passin file:capass.enc  \
+    -in pki_rsa_ica1.csr -out pki_rsa_ica1.crt \
+    -cert FactSign_Root_CA.crt \
+    -keyfile CA/private/FactSign_Root_CA.key \
+    -extensions ica_ext \
+    -config &lt;(cat ca.cnf -&lt;&lt;END
+[ica_ext]
+basicConstraints = critical,CA:TRUE,pathlen:0
+subjectKeyIdentifier = hash
+keyUsage = critical,digitalSignature,keyCertSign,cRLSign
+extendedKeyUsage = clientAuth,serverAuto
+authorityInfoAccess = OCSP;URI:http://ocsp.factsign.com/,caIssuers;URI:http://factsign.com/certs/FactSignRootCA.der
+crlDistributionPoints = URI:http://crl.factsign.com/FactSignRootCA.crl
+certificatePolicies = @pol
+[pol]
+policyIdentifier = 2.5.29.32
+CPS.1 = &quot;https://www.factsign.com/CPS&quot;
+userNotice.1 = @notice
+[notice]
+explicitText = &quot;UTF8:Notice An use of this Certificate constitutes acceptance of the Relying Party Agreement located at https://www.factsign.com/rpa-ua&quot;
+END
+)
+</code></pre>
+<h3 id="4-intermediata-ca-vault">4. 把 Intermediata CA 证书导入 Vault</h3>
+<pre><code>$ vault write pki_rsa_ica1/intermediate/set-signed certificate=@pki_rsa_ica1.crt
+</code></pre>
+<p>导入成功之后，可以通过如下命令来查看证书：</p>
+<pre><code>$ vault read -format=json pki_rsa_ica1/cert/ca | jq -r .data.certificate | \
+    openssl x509 -text -noout -in /dev/stdin
+</code></pre>
+<p>查看证书链 <code>ca_chain</code></p>
+<pre><code>$ vault read pki_rsa_ica1/cert/ca_chain -format=json
+</code></pre>
+<p>CA Chain 也叫 CA bundle，由签发链上的所有 CA 证书构成，由于当前 vault 中仅有一个 Intermediate CA，所以其内容只有当前的证书自身；如果在 vault 中再使用 ica1 签发一个 ica2 下级 CA 证书，那么 ca_chain 就是 ica1 + ica2。</p>
+<p><img alt="alt body image" src="../../images/vt1_12_5.PNG" /></p>
+<p>说明：</p>
+<p>由于 Root CA 根证书是已经受系统信任的（我们已把它放在操作系统的 Key store 中），所以 ca chain 和 full chain 中并不需要包含 Root CA。</p>
+<h3 id="5-urls">5. 设置 URLs</h3>
+<p>CA 证书都是需要提供 Issuer 证书信息和撤销列表 CRL 的，我们在 x509 v3 extensions 中已经提供了这些信息，但是 vault 中还多了一个步骤，需要单独再设置 URLs，如下：</p>
+<pre><code>$ vault write pki_rsa_ica1/config/urls \
+    issuing_certificates=&quot;http://127.0.0.1:8200/v1/pki_rsa_ica1/ca&quot; \
+    crl_distribution_points=&quot;http://127.0.0.1:8200/v1/pki_rsa_ica1/crl&quot;
+</code></pre>
+<p>这里说明一下，这里的 URLs 应该设置为 HTTP 协议，但是注意到，前面我们启动的 vault 是 HTTPS 协议的，所以这里就遇到了一个矛盾点，vault 官方建议的做法是在 vault 前面部署一个反向代理服务器（nginx）来处理 HTTPS 连接，然后 vault 仅在内网部署为 HTTP 服务，这里就不过多介绍更多细节了。</p>
+<ol>
+<li><strong>使用 Intermediate CA 签发一个用户证书</strong> Vault 中有严格的权限管理，对每个要执行的动作，都必须先关联一个 Role，而这个 Role 则绑定了一定的操作权限。</li>
+</ol>
+<p>因此，这里我们要签发证书之前，必须先创建 Role</p>
+<pre><code>$ vault write pki_rsa_ica1/roles/mylab-com allowed_domains=mylab.com allow_subdomains=true max_ttl=720h
+$ vault write pki_rsa_ica1/issue/mylab-com common_name=blog.mylab.com
+</code></pre>
+<p>上面的 <code>write pki_rsa_ica1/issue/...</code> 操作会把 certificates 和 key 都打印在屏幕，我们需要把用户的 Key 和 Certificate 保存到文件（比如，保存为 <code>blog.key</code> 和 <code>blog.crt</code>），因为后续搭建 HTTPS 服务时需要用到。</p>
+<p>查看所有已签发的证书列表</p>
+<pre><code>$ vault list pki_rsa_ica1/certs
+</code></pre>
+<p>查看所签发的证书的详细信息</p>
+<pre><code>$ vault read pki_rsa_ica1/cert/68-3c-aa-83-8c-8c-b1-7c-65-51-cd-4b-76-c1-a7-da-d4-eb-54-d0 -format=json | jq -r .data.certificate | openssl -text -noout -in /dev/stdin
+</code></pre>
+<p><strong>7. 提取 <code>ca_chain</code> 并与用户证书合并</strong></p>
+<p>这一步很关键，如果 web 应用程序只有上面的用户证书，那是不够的，因为 ICA 并没有被系统信任（操作系统或浏览器目前只信任了 Root CA 根证书）。所以我们必须把 full chain 作为 web 应用程序的证书才能成功建立 HTTPS 连接。</p>
+<p>第一步：提取 ca_chain</p>
+<pre><code>$ vault read -format=json pki_rsa_ica1/cert/ca_chain | \
+    jq -r .data.certificate &gt; ca_chain.pem
+</code></pre>
+<p>第二步：与用户证书合并</p>
+<pre><code>$ cat blog.pem ca_chain.pem &gt; fullchain.pem
+</code></pre>
+<p><code>fullchain.pem</code> 的结构是，用户证书在最上面，它的直接 Issuer 在其下面，然后以此类推，如下：</p>
+<p>注：root ca 已经导入操作系统受信任，所以 fullchain.pem 中无需包含它（当然，包含了也没关系）。</p>
+<p>现在我们已经有了一个完整的证书链，我们用 nginx 搭建一个简单 HTTPS 服务来测试一下。</p>
+<p><code>/etc/nginx/conf.d/blog.conf</code></p>
+<pre><code>server {
+    listen 443 ssl;
+    server_name blog.mylab.com;
+    ssl_certificate           /etc/nginx/ssl/fullchain.pem;
+    ssl_certificate_key       /etc/nginx/ssl/blog.key
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY
+    ssl_prefer_server_ciphers on;
+    location / {
+        proxy_pass http://127.0.0.1:8085;
+    }
+}
+</code></pre>
+<p>注：http://127.0.0.1:8085/ 是本地一个简单的 web 页面，nginx 做反向代理提供 HTTPS 链接。部署成功之后（别忘了配置 DNS），在浏览器中输入 <code>https://blog.mylab.com/</code> 即可打开页面。</p>
+<p><img alt="alt body image" src="../../images/vt1_12_6.PNG" /></p>
+<p>点击🔒，可以看到证书信息如下：</p>
+<p><img alt="alt body image" src="../../images/vt1_12_7.PNG" /></p>
+<p>至此，我们已经实现了一套完整的证书体系，并通过 vault 实现了为应用程序自动签发数字证书的功能。</p>
+<h3 id="external-ca-pool">External CA Pool</h3>
+<p>手动使用 Root CA 来签发 Intermediate CA 的这个步骤并不够智能，有没有好的解决方案？</p>
+<p>答案是有，Vault 提供了 Plugin 功能，用户可以使用第三方插件来管理 Intermediate CA 的申请和撤销，这使得 Vault 可以支持多种外部的 CA Pool。</p>
+<p><strong>gcppca</strong> 是 Google Cloud Platform 平台上的这样一个 Vault 插件，它可以为 Vault 注册外部 CA Pool，这样，在 Vault 中就可以利用外部 CA 来申请到数字证书了，不管是申请用户证书还是 Intermediate CA 证书，都很方便，更好地扩展了 Vault 的功能。</p>
+<p><img alt="alt body image" src="../../images/vt1_12_8.PNG" /></p>
+<p>接下来，我们继续深入一步，使用 cert-manager 为 Kubernetes 集群中的应用来管理证书。</p>
+<h2 id="cert-manager-kubernetes">第三部分：使用 cert-manager 为 kubernetes 集群中的应用程序自动颁发证书</h2>
+<h3 id="_2">前言</h3>
+<p>实际上 vault 可直接对接 kubernetes，它提供了 kubernetes authenticate 方法，也就是说，kubernetes 中的应用可以使用经授权的 token 登录 vault，从中获取的 secret 信息，比如 password 等。</p>
+<p>cert-manager 则专门为证书管理而生，极大地方便了从 kubernetes 外部证书源获取证书的操作。</p>
+<p>在架构上 cert-manager 作为 Certificate Requester，它支持从多种不同的 Issuer 来申请证书，包括 Vault, Acme (Let's Encrypt), Venafi 等，它甚至还支持自己创建和管理自签名 CA 证书。</p>
+<h3 id="1-cert-manager">1. 安装 cert-manager</h3>
+<pre><code>$ kubectl apply -f https://github.com/jetstack/cert-manager/releases/latest/download/cert-manager.yaml
+</code></pre>
+<p>安装成功后，k8s 中会增加如下几个资源：</p>
+<ul>
+<li>Challenge</li>
+<li>Order</li>
+<li>CertificateRequest</li>
+<li>Certificate</li>
+<li>ClusterIssuer</li>
+<li>Issuer</li>
+</ul>
+<h3 id="2-vault">2. Vault 认证</h3>
+<p><code>cert-manager</code> 需要访问 <code>vault server</code> 的 <code>pki engine</code>，并执行 Sign 的操作（即 <code>pki_rsa_ica1/issue/mylab-com common_name=blog.mylab.com</code>) 以便获得客户证书，因此需要有 vault 的登录权限和 pki engine 访问权限。Vault 支持以下几种认证方式：</p>
+<ul>
+<li>Token Authentication</li>
+<li>AppRole Authentication</li>
+<li>Kubernetes Authentication</li>
+</ul>
+<p>这里不一一介绍，只介绍 Kubernetes Authentication 这种方式。</p>
+<p><strong>1) 在 kubernetes 中创建 service account 及 clusterrolebinding</strong></p>
+<p>这种认证方式的原理是 Vault 支持使用 kubernetes 中的 service account token 来，本质上是它把认证过程代理了给了 kubernetes，只有一个有效的 service account token 才能登录 vault。</p>
+<p>因此，我们需要先在 kubernetes 中创建 service account，并创建关联这个 service account 的相关权限 (clusterrolebinding )。</p>
+<pre><code>$ kubectl -n default create serviceaccount vault-auth-certmanager
+
+$ cat &lt;&lt; EOF | kubectl apply -f -  
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: role-tokenreview-binding
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+- kind: ServiceAccount
+  name: vault-auth-certmanager
+  namespace: default
+EOF
+</code></pre>
+<p>我们把 <code>jwt_token</code>，<code>k8s_host</code>,<code>ca_crt</code> 等信息应该导出至环境变量，方便后续操作引用（假设 Vault 和 k8s master 在同一台机器）：</p>
+<pre><code>$ export VAULT_SA_NAME=$(kubectl -n default get sa vault-auth-certmanager -o jsonpath=&quot;{.secrets[*]['name']}&quot;)
+
+$ export SA_JWT_TOKEN=$(kubectl -n default get secret $VAULT_SA_NAME -o jsonpath=&quot;{.data.token}&quot; | base64 --decode; echo)  
+
+$ export SA_CA_CRT=$(kubectl -n default get secret $VAULT_SA_NAME -o jsonpath=&quot;{.data['ca.crt']}&quot; | base64 --decode; echo)
+
+$ export K8S_HOST=$(kubectl config view --raw --minify --flatten \
+    --output 'jsonpath={.clusters[].cluster.server}')
+</code></pre>
+<p>2) 在 Vault 中配置 kubernetes 的登录凭证
+这一步 Vault 需要访问 kubernetes，以便其能确认 jwt-token 是否有效，如果有效，那么就可以认证通过。因此，我们把上一个步骤中保存好的信息填入 auth/kubernetes 挂载点。</p>
+<pre><code>$ vault auth enable kubernetes
+
+$ vault write auth/kubernetes/config \
+    token_reviewer_jwt=&quot;$SA_JWT_TOKEN&quot; \
+    kubernetes_host=&quot;$K8S_HOST&quot; \
+    kubernetes_ca_cert=&quot;$SA_CA_CRT&quot; \
+  issuer=&quot;https://kubernetes.default.svc.cluster.local&quot;
+</code></pre>
+<p><strong>写入好配置之后，查看一下</strong></p>
+<pre><code>$ vault read auth/kubernetes/config
+</code></pre>
+<p>vault 中所有的路径访问都有 ACL 控制，所以接下来我们需要创建一个 role，并关联访问 <code>pki_rsa_ica/</code>  这个 PKI path 的 policy。</p>
+<p>(1) 创建 policy</p>
+<pre><code>$ cat pki-policy.hcl
+path &quot;pki_rsa_ica1&quot; {  capabilities = [&quot;create&quot;, &quot;read&quot;, &quot;update&quot;, &quot;delete&quot;, &quot;list&quot;, &quot;sudo&quot;]} 
+
+$ vault policy write pki_policy pki_policy.hcl
+
+$ vault read sys/policy/pki_policy
+</code></pre>
+<p>(2) 创建 role 并关联 policy</p>
+<pre><code>$ vault write auth/kubernetes/role/cert-manager-role \
+    bound_service_account_names=vault-auth-certmanager \
+    bound_service_account_namespaces='default' \
+    policies=pki_policy \
+    ttl=720h
+
+$ vault read auth/kubernetes/role/cert-manager-role
+$ vault list auth/kubernetes/role/cert-manager-role
+</code></pre>
+<p>注：TTL 配置，Vault 中默认的 max_ttl 是 768h，如果我们把 ttl 设置得比 768h 大，那么会被 cap。不过我们可以手动设置 <code>max_ttl</code> 大于 768h。</p>
+<p>Short-lived Token</p>
+<p>由于 Vault 并不会自动 refresh token，所以不使用 short-lived token。但是从 kubernetes 1.21 开始，有了两点改动：</p>
+<ul>
+<li>JWT token 有过期时间，而且生命周期与 pod 相同</li>
+<li>JWT 的 iss 字段跟集群的配置有关</li>
+</ul>
+<p>这就给使用 vault 带来了一些挑战，从 1.9.0 版本开始，vault 默认不再验证 issuser 字段，因为 kubernetes 自己会验证，vault 没必要重复劳动。</p>
+<pre><code>disable_iss_validation=true
+</code></pre>
+<p>(3) 创建 pki engine 下的 role</p>
+<p>前面的 role 是 <code>auth/kubernetes</code> 挂载点下的，用于获得访问 pki 路径的权限，我们还需要在 pki 路径下创建一个专门用于控制签发证书的 role，没有这个 role，我们就无法 <code>Issue Certificate</code>。</p>
+<pre><code>$ vault write pki_rsa_ica1/roles/any_name allow_any_name=true max_ttl=720h ttl=720h not_before_duration=10s
+
+$ vault read pki_rsa_ica1/roles/any_name
+</code></pre>
+<p>注：这个 role 只在需要签发用户证书的时候有用，所以我们把它的 ttl 设置的比较短即可，属于一个即用即弃的临时性角色。为了图方便，我们这里使用 <code>allow_any_name</code> 来允许其签发任何域名，你可以根据自己的需求来添加可签发的域名限制。</p>
+<h3 id="3-cert-manager-issuerclusterissuer">3. cert-manager Issuer/ClusterIssuer</h3>
+<p>现在我们需要回到 Kubernetes 中，创建 Issuer 对象，它会使用我们上面配置好的 kubernetes auth 信息来映射一个 CA 到 kubernetes 中，然后我们就可以通过创建 Certificate 对象来获得一个用户证书了，<code>cert-manager</code> 会将该证书保存在我们指定的 Secret 对象中。</p>
+<p><code>vault-issuer-by-sa.yaml</code></p>
+<pre><code>apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: vault-issuer-by-sa
+  namespace: default
+spec:
+  vault:
+    path: pki_rsa_ica1/sign/any_name
+    server: https://vault-dev.lab:8200
+    caBundle: LS0tLS1CRUdJTiBDRURS0tLS0tCk1JSUVCekNDQXUrZ0F3...S0tLS0tCg==
+    auth:
+      kubernetes:
+        role: cert-manager-role
+        mountPath: /v1/auth/kubernetes
+        secretRef:
+          name: vault-auth-certmanager-token-j5vgx
+          key: token
+</code></pre>
+<p>注：</p>
+<p>由于 <code>Vault Server</code> 使用了 HTTPS 协议，因此上次文件中必须添加 caBundle 字段，其值是签发 <code>vault.crt</code> 的 CA 证书的 base64 值（<code>cat FactSign_Root_CA.crt | base64 -w 0</code>），必须是单行格式（不包含 <code>\n</code>）。</p>
+<p><code>caBundle</code> 是用来认证 <code>vault.crt</code> 的，没有它就无法与 <code>Vault Server</code> 建立 HTTPS 连接。</p>
+<p>执行下列命令：</p>
+<p><img alt="alt body image" src="../../images/vt1_12_9.PNG" /></p>
+<p><strong>Issuer 和 ClusterIssuer 区别</strong></p>
+<p>如果使用的是 Issuer，那么只能签发与 Issuer 在相同 namespace 的 Certificate。
+如果使用的是 ClusterIssuer，它可以签发任何 namespace 的 Certificate。</p>
+<p>需要注意的是： 如果使用 ClusterIssuer，那么前面的 Service Account 必须创建在 cert-manager  这个 namespace 中，否则 cert-manager 会提示找不到该 service account token。</p>
+<h3 id="4-cert-manager-certificate">4. cert-manager Certificate</h3>
+<p>Issuer 或 ClusterIssuer 所签发的 Certificate 最终是需要保存在 Secret 对象中并被 Web 程序所引用，所以请确保其 namespace 与想要访问该 Certificate 的 Web 程序所在的 namespace 相同。</p>
+<p>现在假设把 Web 应用部署在 default namespace 中，因此，Certificate, 及 Secret 都需要在这个 namespace 中。</p>
+<p><strong><code>vault_certificate_by_sa.yaml</code></strong></p>
+<pre><code>apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+name: vault-cert-by-issuer
+namespace: default
+spec:
+secretName: tls-vault-cert-issuer
+duration: 720h # 90d
+renewBefore: 36h
+subject:
+  organizations:
+  - homelab
+commonName: &quot;*.myblog.com&quot;
+dnsNames: 
+- echo.myblog.com
+- hello.myblog.com
+isCA: false
+privateKey:
+  algorithm: RSA
+  encoding: PKCS8
+  size: 2048
+usages:
+  - server auth
+  - client auth
+</code></pre>
+<p><code>secretName: tls-vault-cert-issuer</code> 是我们指定的想要用于保存 Certificate 内容的 Secret，cert-manager 在成功签发证书之后会自动创建该 Sercret 为我们保存内容。</p>
+<p>查看 Secret 对象：</p>
+<p>解码 tls.crt</p>
+<pre><code>$ k get secret tls-vault-cert-clusterissuer -o jsonpath=&quot;{.data['tls.crt']}&quot; | base64 --decode1
+</code></pre>
+<p><img alt="alt body image" src="../../images/vt1_12_10.PNG" /></p>
+<p>可以看到，tls.crt 是一个 full chain，它包含了两个证书，一个是 Issuer （即 CA）的证书，一个是 Web 程序的证书。</p>
+<h3 id="5-kubernetes-web">5. Kubernetes 中部署 Web 应用</h3>
+<p>下面我们将在 k8s 集群中部署一个简单的 web 应用，并使用上面所签发的证书来启动 HTTPS 服务。</p>
+<p>(1) Deployment</p>
+<p><code>echo-myblog-com.yaml</code></p>
+<pre><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo-myblog-com
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: echo-myblog-com
+    replicas: 1
+    template:
+      metadata:
+        labels:
+          app: echo-myblog-com
+      spec:
+        containers:
+          - name: echo-myblog-com
+            image: hashicorp/http-echo
+            args:
+            - &quot;-text=hello, this is echo.myblog.com 
+            ports:
+            - containerPort: 5678
+</code></pre>
+<p>(2) Service</p>
+<p><code>echo-service.yaml</code></p>
+<pre><code>apiVersion: apps/v1
+kind: Service
+metadata:
+  name: echo-myblog-com
+  namespace: default
+spec:
+  ports:
+  - port: 80
+    targetPort: 5678
+  selector:
+    app: echo-myblog-com
+</code></pre>
+<p>(3) Ingress</p>
+<p><code>echo-ingress.yaml</code></p>
+<pre><code>apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: echo-myblog-com-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+      - echo.myblog.com
+      secretName: tls-vault-cert-clusterissuer 
+rules: 
+- host: echo.myblog.com
+  http:
+    paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: echo-myblog-com
+            port:
+              number: 80
+</code></pre>
+<p>执行：</p>
+<pre><code>kubectl apply -f echo-deploy.yaml -f echo-service.yaml -f echo-ingress.yam
+</code></pre>
+<p>最后，我们需要修改一下本地的 DNS 配置，使得 echo.myblog.com 域名指向正确的 LoadBalancer IP 地址（由 MetalLB 提供）。</p>
+<p>然后打开浏览器，输入 https://echo.myblo.com/ 即可看到网页内容：</p>
+<p>查看证书</p>
+<p><img alt="alt body image" src="../../images/vt1_12_11.PNG" /></p>
+<p>查看证书</p>
+<p><img alt="alt body image" src="../../images/vt1_12_12.PNG" /></p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2021-9999 Jacob Xi
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a51614de.min.js"></script>
+      
+    
+  </body>
+</html>
